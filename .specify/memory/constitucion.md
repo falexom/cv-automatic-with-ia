@@ -323,11 +323,12 @@ El proceso será:
 
 ### Ejemplo
 
-CV generado  
-+ certificado 1 original  
-+ certificado 2 original  
-+ certificado 3 original  
-= CV documentado final
+CV generado
+
+- certificado 1 original
+- certificado 2 original
+- certificado 3 original  
+  = CV documentado final
 
 Los certificados anexados deben mantener su contenido y apariencia originales.
 

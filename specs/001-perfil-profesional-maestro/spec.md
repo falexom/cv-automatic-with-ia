@@ -19,13 +19,13 @@
 ### Incluido en esta capacidad
 
 - Registro y mantenimiento (crear, consultar, editar y eliminar) de:
-  - Datos personales y enlaces de contacto profesional.
-  - Resumen profesional reutilizable.
-  - Experiencia laboral.
-  - Educación.
-  - Cursos y certificaciones.
-  - Habilidades clasificadas por categoría.
-  - Proyectos.
+    - Datos personales y enlaces de contacto profesional.
+    - Resumen profesional reutilizable.
+    - Experiencia laboral.
+    - Educación.
+    - Cursos y certificaciones.
+    - Habilidades clasificadas por categoría.
+    - Proyectos.
 - Relaciones entre habilidades y los elementos que las utilizan (experiencia, certificaciones y proyectos).
 - Validaciones de integridad: fechas coherentes, formatos de correo y enlaces, control de duplicados de habilidades.
 - Navegación del administrador orientada a las secciones del perfil.
@@ -51,7 +51,7 @@
 - Q: ¿Qué campos deberían ser obligatorios al guardar cada tipo de registro? → A: Solo el mínimo identificador: experiencia (empresa y cargo), educación (institución y programa), curso (nombre), habilidad (nombre y categoría), proyecto (nombre); el resto es opcional, con coherencia de fechas cuando se informen.
 - Q: ¿Con qué precisión deben registrarse las fechas de experiencia, educación y proyectos? → A: Mixta: mes y año, o solo año cuando el usuario no recuerde el mes.
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Registrar datos personales y resumen profesional (Priority: P1)
 
@@ -174,7 +174,7 @@ Como usuario, quiero registrar mis proyectos con descripción, rol, habilidades 
 - **Texto con acentos y caracteres especiales**: se almacena y muestra correctamente en todas las secciones.
 - **Fallo durante el guardado**: el sistema informa el problema y conserva lo ingresado en pantalla para reintentar, sin pérdida silenciosa de datos.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -233,7 +233,7 @@ Como usuario, quiero registrar mis proyectos con descripción, rol, habilidades 
 - **FR-033**: El sistema DEBE exigir como únicos campos obligatorios: empresa y cargo (experiencia), institución y programa (educación), nombre (curso o certificación), nombre y categoría (habilidad) y nombre (proyecto); todos los demás datos son opcionales, aplicando la validación de coherencia de fechas cuando se informen.
 - **FR-034**: El sistema DEBE permitir registrar cada fecha con precisión de mes y año, o solo año cuando el mes no se recuerde; para comparar y ordenar rangos, un año sin mes se interpreta como comienzo del año en fechas de inicio y como fin del año en fechas de fin.
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **Perfil Profesional Maestro**: contenedor raíz único del usuario (aplicación monousuario). Agrupa datos personales, resumen, experiencia, educación, cursos y certificaciones, habilidades y proyectos. No existe más de un perfil.
 - **Datos personales**: nombre completo (obligatorio), título profesional, teléfono, correo electrónico, ubicación, enlaces (LinkedIn, GitHub, sitio web) y enlaces adicionales ilimitados con etiqueta y dirección.
@@ -244,7 +244,7 @@ Como usuario, quiero registrar mis proyectos con descripción, rol, habilidades 
 - **Habilidad**: nombre normalizado único y categoría (técnica, funcional, metodológica, herramienta o tecnología); sin nivel de dominio en el MVP; se relaciona con experiencias, cursos y certificaciones, y proyectos. Las tecnologías de uso profesional (p. ej., PHP, React, SQL) se registran aquí con la categoría Tecnologías: no existe un catálogo separado de tecnologías.
 - **Proyecto**: nombre, descripción, rol, resultados, URL y rango de fechas (mes y año, o solo año); se relaciona con habilidades, incluidas las de categoría Tecnologías.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

@@ -27,74 +27,74 @@ Profile (1)
 
 ### Profile — Perfil Profesional Maestro (singleton)
 
-| Columna | Tipo | Nulo | Reglas |
-|---------|------|------|--------|
-| id | integer PK | no | |
-| full_name | string(255) | no | FR-006: obligatorio |
-| professional_title | string(255) | sí | |
-| phone | string(50) | sí | |
-| email | string(255) | sí | formato de correo (FR-005) |
-| location | string(255) | sí | |
-| linkedin_url | string(2048) | sí | formato URL (FR-005) |
-| github_url | string(2048) | sí | formato URL (FR-005) |
-| website_url | string(2048) | sí | formato URL (FR-005) |
-| summary | text | sí | resumen reutilizable (FR-004) |
-| timestamps | | | |
+| Columna            | Tipo         | Nulo | Reglas                        |
+| ------------------ | ------------ | ---- | ----------------------------- |
+| id                 | integer PK   | no   |                               |
+| full_name          | string(255)  | no   | FR-006: obligatorio           |
+| professional_title | string(255)  | sí   |                               |
+| phone              | string(50)   | sí   |                               |
+| email              | string(255)  | sí   | formato de correo (FR-005)    |
+| location           | string(255)  | sí   |                               |
+| linkedin_url       | string(2048) | sí   | formato URL (FR-005)          |
+| github_url         | string(2048) | sí   | formato URL (FR-005)          |
+| website_url        | string(2048) | sí   | formato URL (FR-005)          |
+| summary            | text         | sí   | resumen reutilizable (FR-004) |
+| timestamps         |              |      |                               |
 
 - **Regla de instancia única**: se crea con `firstOrCreate`; las pruebas verifican que no puede existir más de una.
 - **Relaciones**: `hasMany` ProfileLink, WorkExperience, EducationEntry, Certification, Project.
 
 ### ProfileLink — Enlaces adicionales (FR-003)
 
-| Columna | Tipo | Nulo | Reglas |
-|---------|------|------|--------|
-| id | integer PK | no | |
-| profile_id | FK → profiles | no | cascade delete |
-| label | string(100) | no | obligatorio si la fila existe |
-| url | string(2048) | no | formato URL (FR-005) |
+| Columna    | Tipo          | Nulo | Reglas                        |
+| ---------- | ------------- | ---- | ----------------------------- |
+| id         | integer PK    | no   |                               |
+| profile_id | FK → profiles | no   | cascade delete                |
+| label      | string(100)   | no   | obligatorio si la fila existe |
+| url        | string(2048)  | no   | formato URL (FR-005)          |
 
 - Gestión: se editan dentro del formulario del perfil; al guardar se reemplaza la colección completa (sin endpoints propios).
 
 ### WorkExperience — Experiencia laboral (FR-007–FR-011)
 
-| Columna | Tipo | Nulo | Reglas |
-|---------|------|------|--------|
-| id | integer PK | no | |
-| profile_id | FK → profiles | no | cascade delete |
-| company | string(255) | no | FR-033: obligatorio |
-| position | string(255) | no | FR-033: obligatorio |
-| start_year | integer | sí | 1900–(año actual + 10) |
-| start_month | integer | sí | 1–12; requiere `start_year` |
-| end_year | integer | sí | 1900–(año actual + 10) |
-| end_month | integer | sí | 1–12; requiere `end_year` |
-| is_current | boolean | no | default false (FR-008) |
-| description | text | sí | |
-| responsibilities | text | sí | |
-| achievements | text | sí | |
-| timestamps | | | |
+| Columna          | Tipo          | Nulo | Reglas                      |
+| ---------------- | ------------- | ---- | --------------------------- |
+| id               | integer PK    | no   |                             |
+| profile_id       | FK → profiles | no   | cascade delete              |
+| company          | string(255)   | no   | FR-033: obligatorio         |
+| position         | string(255)   | no   | FR-033: obligatorio         |
+| start_year       | integer       | sí   | 1900–(año actual + 10)      |
+| start_month      | integer       | sí   | 1–12; requiere `start_year` |
+| end_year         | integer       | sí   | 1900–(año actual + 10)      |
+| end_month        | integer       | sí   | 1–12; requiere `end_year`   |
+| is_current       | boolean       | no   | default false (FR-008)      |
+| description      | text          | sí   |                             |
+| responsibilities | text          | sí   |                             |
+| achievements     | text          | sí   |                             |
+| timestamps       |               |      |                             |
 
 - **Validación de coherencia** (FR-009): si hay `end_year` y `start_year`, `(end_year, end_month ?? 12) ≥ (start_year, start_month ?? 1)`.
 - **Transiciones de estado** (caso límite del spec):
-  - Al guardar con fecha de fin ⇒ `is_current = false`.
-  - Al quitar la fecha de fin ⇒ `is_current = true`.
-  - Marcar `is_current` exige `end_year = null`.
+    - Al guardar con fecha de fin ⇒ `is_current = false`.
+    - Al quitar la fecha de fin ⇒ `is_current = true`.
+    - Marcar `is_current` exige `end_year = null`.
 - **Relaciones**: `belongsToMany` Skill (pivote `skill_work_experience`).
 - Solapamiento entre experiencias: permitido, sin advertencia.
 
 ### EducationEntry — Educación (FR-012–FR-014)
 
-| Columna | Tipo | Nulo | Reglas |
-|---------|------|------|--------|
-| id | integer PK | no | |
-| profile_id | FK → profiles | no | cascade delete |
-| institution | string(255) | no | FR-033: obligatorio |
-| program | string(255) | no | FR-033: obligatorio |
-| degree_level | string(100) | sí | |
-| start_year / start_month | integer | sí | igual que WorkExperience |
-| end_year / end_month | integer | sí | igual que WorkExperience |
-| is_in_progress | boolean | no | default false (FR-013) |
-| description | text | sí | |
-| timestamps | | | |
+| Columna                  | Tipo          | Nulo | Reglas                   |
+| ------------------------ | ------------- | ---- | ------------------------ |
+| id                       | integer PK    | no   |                          |
+| profile_id               | FK → profiles | no   | cascade delete           |
+| institution              | string(255)   | no   | FR-033: obligatorio      |
+| program                  | string(255)   | no   | FR-033: obligatorio      |
+| degree_level             | string(100)   | sí   |                          |
+| start_year / start_month | integer       | sí   | igual que WorkExperience |
+| end_year / end_month     | integer       | sí   | igual que WorkExperience |
+| is_in_progress           | boolean       | no   | default false (FR-013)   |
+| description              | text          | sí   |                          |
+| timestamps               |               |      |                          |
 
 - Misma validación de fechas que WorkExperience (FR-014).
 - Transiciones de estado idénticas a `is_current` de WorkExperience (simetría).
@@ -102,19 +102,19 @@ Profile (1)
 
 ### Certification — Curso / certificación (FR-015–FR-018)
 
-| Columna | Tipo | Nulo | Reglas |
-|---------|------|------|--------|
-| id | integer PK | no | |
-| profile_id | FK → profiles | no | cascade delete |
-| name | string(255) | no | FR-033: obligatorio |
-| institution | string(255) | sí | usada para la advertencia de duplicado |
-| date_year | integer | sí | 1900–(año actual + 10) |
-| date_month | integer | sí | 1–12; requiere `date_year` |
-| duration | string(100) | sí | texto libre (p. ej. "40 horas") |
-| code | string(255) | sí | código o identificador |
-| validation_url | string(2048) | sí | formato URL (FR-005 local) |
-| category | string(100) | sí | texto libre |
-| timestamps | | | |
+| Columna        | Tipo          | Nulo | Reglas                                 |
+| -------------- | ------------- | ---- | -------------------------------------- |
+| id             | integer PK    | no   |                                        |
+| profile_id     | FK → profiles | no   | cascade delete                         |
+| name           | string(255)   | no   | FR-033: obligatorio                    |
+| institution    | string(255)   | sí   | usada para la advertencia de duplicado |
+| date_year      | integer       | sí   | 1900–(año actual + 10)                 |
+| date_month     | integer       | sí   | 1–12; requiere `date_year`             |
+| duration       | string(100)   | sí   | texto libre (p. ej. "40 horas")        |
+| code           | string(255)   | sí   | código o identificador                 |
+| validation_url | string(2048)  | sí   | formato URL (FR-005 local)             |
+| category       | string(100)   | sí   | texto libre                            |
+| timestamps     |               |      |                                        |
 
 - **Sin fecha**: permitido (FR-017); no se considera incompleto.
 - **Advertencia de duplicado** (FR-018): si existe otra fila con `name` e `institution` normalizados iguales (mismo `profile_id`), el guardado se detiene mostrando el registro existente; solo continúa con `confirm_duplicate=true`.
@@ -123,14 +123,14 @@ Profile (1)
 
 ### Skill — Habilidad (FR-019–FR-021)
 
-| Columna | Tipo | Nulo | Reglas |
-|---------|------|------|--------|
-| id | integer PK | no | |
-| profile_id | FK → profiles | no | cascade delete |
-| name | string(100) | no | FR-033: obligatorio; formato visible deseado por el usuario |
-| normalized_name | string(100) | no | calculado: minúsculas + trim + colapso de espacios |
-| category | string(20) | no | FR-033: obligatorio; valores: `tecnica`, `funcional`, `metodologica`, `herramienta`, `tecnologia` |
-| timestamps | | | |
+| Columna         | Tipo          | Nulo | Reglas                                                                                            |
+| --------------- | ------------- | ---- | ------------------------------------------------------------------------------------------------- |
+| id              | integer PK    | no   |                                                                                                   |
+| profile_id      | FK → profiles | no   | cascade delete                                                                                    |
+| name            | string(100)   | no   | FR-033: obligatorio; formato visible deseado por el usuario                                       |
+| normalized_name | string(100)   | no   | calculado: minúsculas + trim + colapso de espacios                                                |
+| category        | string(20)    | no   | FR-033: obligatorio; valores: `tecnica`, `funcional`, `metodologica`, `herramienta`, `tecnologia` |
+| timestamps      |               |      |                                                                                                   |
 
 - **Único**: índice único compuesto `(profile_id, normalized_name)` (FR-020).
 - **Categorías** (FR-019): técnica, funcional, metodológica, herramienta, tecnología (etiquetas en español en la UI). Las tecnologías del perfil (PHP, React, SQL…) se registran aquí con categoría `tecnologia` (clarificación aprobada).
@@ -139,44 +139,44 @@ Profile (1)
 
 ### Project — Proyecto (FR-022–FR-024)
 
-| Columna | Tipo | Nulo | Reglas |
-|---------|------|------|--------|
-| id | integer PK | no | |
-| profile_id | FK → profiles | no | cascade delete |
-| name | string(255) | no | FR-033: obligatorio |
-| description | text | sí | |
-| role | string(255) | sí | |
-| results | text | sí | |
-| url | string(2048) | sí | formato URL |
-| start_year / start_month | integer | sí | igual que WorkExperience |
-| end_year / end_month | integer | sí | igual que WorkExperience |
-| timestamps | | | |
+| Columna                  | Tipo          | Nulo | Reglas                   |
+| ------------------------ | ------------- | ---- | ------------------------ |
+| id                       | integer PK    | no   |                          |
+| profile_id               | FK → profiles | no   | cascade delete           |
+| name                     | string(255)   | no   | FR-033: obligatorio      |
+| description              | text          | sí   |                          |
+| role                     | string(255)   | sí   |                          |
+| results                  | text          | sí   |                          |
+| url                      | string(2048)  | sí   | formato URL              |
+| start_year / start_month | integer       | sí   | igual que WorkExperience |
+| end_year / end_month     | integer       | sí   | igual que WorkExperience |
+| timestamps               |               |      |                          |
 
 - Misma validación de fechas (FR-024). Sin flag "en curso" en el spec: un proyecto sin fecha de fin simplemente no muestra fin.
 - **Relaciones**: `belongsToMany` Skill (pivote `skill_project`).
 
 ## Tablas pivote
 
-| Tabla | Columnas | Reglas |
-|-------|----------|--------|
+| Tabla                 | Columnas                                           | Reglas                       |
+| --------------------- | -------------------------------------------------- | ---------------------------- |
 | skill_work_experience | skill_id FK cascade, work_experience_id FK cascade | PK compuesta; sin duplicados |
-| skill_certification | skill_id FK cascade, certification_id FK cascade | PK compuesta; sin duplicados |
-| skill_project | skill_id FK cascade, project_id FK cascade | PK compuesta; sin duplicados |
+| skill_certification   | skill_id FK cascade, certification_id FK cascade   | PK compuesta; sin duplicados |
+| skill_project         | skill_id FK cascade, project_id FK cascade         | PK compuesta; sin duplicados |
 
 ## Matriz de validaciones (resumen para pruebas)
 
-| Regla | Entidad(es) | Requisito |
-|-------|-------------|-----------|
-| Nombre obligatorio | Profile | FR-006 |
-| Formatos de correo/URL | Profile, ProfileLink, Certification, Project | FR-005 |
-| Identificadores mínimos | WorkExperience, EducationEntry, Certification, Skill, Project | FR-033 |
-| Mes sin año inválido | Todas las fechas | FR-034 |
-| Fin ≥ inicio | WorkExperience, EducationEntry, Project | FR-009, FR-014, FR-024 |
-| Duplicado de habilidad bloqueado | Skill | FR-020 |
-| Duplicado de certificación advertido | Certification | FR-018 |
-| Sin fecha permitido | Certification | FR-017 |
-| Vigente/en curso sin fin | WorkExperience, EducationEntry | FR-008, FR-013 |
-| Confirmación antes de eliminar | Todas | FR-026 |
+| Regla                                | Entidad(es)                                                   | Requisito              |
+| ------------------------------------ | ------------------------------------------------------------- | ---------------------- |
+| Nombre obligatorio                   | Profile                                                       | FR-006                 |
+| Formatos de correo/URL               | Profile, ProfileLink, Certification, Project                  | FR-005                 |
+| Identificadores mínimos              | WorkExperience, EducationEntry, Certification, Skill, Project | FR-033                 |
+| Mes sin año inválido                 | Todas las fechas                                              | FR-034                 |
+| Fin ≥ inicio                         | WorkExperience, EducationEntry, Project                       | FR-009, FR-014, FR-024 |
+| Duplicado de habilidad bloqueado     | Skill                                                         | FR-020                 |
+| Duplicado de certificación advertido | Certification                                                 | FR-018                 |
+| Sin fecha permitido                  | Certification                                                 | FR-017                 |
+| Vigente/en curso sin fin             | WorkExperience, EducationEntry                                | FR-008, FR-013         |
+| Confirmación antes de eliminar       | Todas                                                         | FR-026                 |
 
 ## Trazabilidad FR → modelo
 
