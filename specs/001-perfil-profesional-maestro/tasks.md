@@ -213,7 +213,7 @@
 - [x] T061 Run full backend suite `php artisan test` and fix any failures
 - [x] T062 [P] Run `npm test`, `npm run lint` and Pint (`composer` script) and fix any issues
 - [x] T063 [P] Audit privacy/offline (FR-031, Principio XXIII): no CDNs, fuentes/iconos locales, ninguna llamada externa en runtime; verificar `.env` fuera de git
-- [ ] T064 Manual validation of `specs/001-perfil-profesional-maestro/quickstart.md` (9 escenarios) including SC-001 timing (<20 min) and acentos/texto extenso; record results
+- [x] T064 Manual validation of `specs/001-perfil-profesional-maestro/quickstart.md` (9 escenarios) including SC-001 timing (<20 min) and acentos/texto extenso; record results
 - [x] T065 [P] Update `README.md` with setup, run and test instructions for the application
 
 ---
