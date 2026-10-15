@@ -18,9 +18,9 @@ Todas las incógnitas del contexto técnico quedaron resueltas. No quedan `NEEDS
 - **Decisión**: Inertia (adaptador oficial Laravel + `@inertiajs/react`), partiendo del starter kit oficial `laravel/react-starter-kit` y eliminando su scaffolding de autenticación (el MVP es monousuario sin autenticación).
 - **Rationale**: Inertia es el enfoque oficialmente recomendado para usar React con controladores y enrutado de Laravel: evita construir y mantener una API JSON separada (Principio XIII), mantiene la lógica de validación/redirección en el servidor y permite componentes React tipados con TypeScript. El starter kit aporta Vite, Tailwind, shadcn/ui y pruebas ya configurados.
 - **Alternativas consideradas**:
-  - SPA React separada + API Laravel (rechazada: infraestructura innecesaria para una app local de un solo usuario).
-  - Blade + islas React (rechazada: más glue code y peor DX para formularios complejos).
-  - Livewire (rechazada: la Constitución fija React).
+    - SPA React separada + API Laravel (rechazada: infraestructura innecesaria para una app local de un solo usuario).
+    - Blade + islas React (rechazada: más glue code y peor DX para formularios complejos).
+    - Livewire (rechazada: la Constitución fija React).
 
 ## 3. UI: TypeScript, Tailwind 4 y shadcn/ui
 

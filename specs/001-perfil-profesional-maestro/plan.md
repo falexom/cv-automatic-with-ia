@@ -34,29 +34,29 @@ Implementar la gestión completa del Perfil Profesional Maestro como una aplicac
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-| Principio | Estado | Evidencia del diseño |
-|-----------|--------|----------------------|
-| I. Fuente única de verdad | PASA | Perfil Maestro único con entidades normalizadas y relaciones; sin copias por sección |
-| II. El CV es resultado | PASA | Capacidad excluye edición de CV; FR-032 cubierto |
-| III. Separación datos/reglas/presentación | PASA | Entidades en backend; relevancia por perfil diferida a capacidad posterior |
-| IV. MVP acotado | PASA | Alcance idéntico al spec; sin funcionalidades extra |
-| V. Perfil Maestro | PASA | Todos los campos mínimos exigidos están en el modelo de datos |
-| VI. Perfiles como configuración | PASA | Fuera de alcance (capacidad posterior), sin conflicto de diseño |
-| VII–XI. Documentos/evidencias/CV documentado | PASA | Fuera de alcance; certificaciones no almacenan archivos |
-| XII. Arquitectura simple local | PASA | Laravel + React + SQLite + almacenamiento local |
-| XIII. Evitar complejidad prematura | PASA | Monolito Inertia; sin API separada, colas ni contenedores |
-| XIV. Datos relacionales | PASA | Relaciones N:M con tablas pivote; habilidad único catálogo |
-| XV. UI orientada a tareas | PASA | Navegación directa a las 6 secciones del perfil |
-| XVI–XVIII. Vista previa/plantilla | N/A | Capacidades posteriores; sin conflicto |
-| XIX. Spec verificable | PASA | Criterios medibles y pruebas requeridas definidos en spec |
-| XX. Tareas dentro del Spec | PASA | Flujo Spec → Plan → Tasks |
-| XXI. Pruebas proporcional al riesgo | PASA | Pest + Vitest cubren persistencia, validaciones, relaciones y confirmaciones |
-| XXII. No romper datos | PASA | Proyecto nuevo; migraciones aditivas |
-| XXIII. Privacidad local | PASA | Sin llamadas externas; datos solo en SQLite local |
-| XXIV. No secretos en repositorio | PASA | `.env` fuera de control de versiones; sin claves en código |
-| XXV–XXVI. Gobernanza de alcance | PASA | Sin ampliaciones; decisiones ya registradas en spec |
+| Principio                                    | Estado | Evidencia del diseño                                                                 |
+| -------------------------------------------- | ------ | ------------------------------------------------------------------------------------ |
+| I. Fuente única de verdad                    | PASA   | Perfil Maestro único con entidades normalizadas y relaciones; sin copias por sección |
+| II. El CV es resultado                       | PASA   | Capacidad excluye edición de CV; FR-032 cubierto                                     |
+| III. Separación datos/reglas/presentación    | PASA   | Entidades en backend; relevancia por perfil diferida a capacidad posterior           |
+| IV. MVP acotado                              | PASA   | Alcance idéntico al spec; sin funcionalidades extra                                  |
+| V. Perfil Maestro                            | PASA   | Todos los campos mínimos exigidos están en el modelo de datos                        |
+| VI. Perfiles como configuración              | PASA   | Fuera de alcance (capacidad posterior), sin conflicto de diseño                      |
+| VII–XI. Documentos/evidencias/CV documentado | PASA   | Fuera de alcance; certificaciones no almacenan archivos                              |
+| XII. Arquitectura simple local               | PASA   | Laravel + React + SQLite + almacenamiento local                                      |
+| XIII. Evitar complejidad prematura           | PASA   | Monolito Inertia; sin API separada, colas ni contenedores                            |
+| XIV. Datos relacionales                      | PASA   | Relaciones N:M con tablas pivote; habilidad único catálogo                           |
+| XV. UI orientada a tareas                    | PASA   | Navegación directa a las 6 secciones del perfil                                      |
+| XVI–XVIII. Vista previa/plantilla            | N/A    | Capacidades posteriores; sin conflicto                                               |
+| XIX. Spec verificable                        | PASA   | Criterios medibles y pruebas requeridas definidos en spec                            |
+| XX. Tareas dentro del Spec                   | PASA   | Flujo Spec → Plan → Tasks                                                            |
+| XXI. Pruebas proporcional al riesgo          | PASA   | Pest + Vitest cubren persistencia, validaciones, relaciones y confirmaciones         |
+| XXII. No romper datos                        | PASA   | Proyecto nuevo; migraciones aditivas                                                 |
+| XXIII. Privacidad local                      | PASA   | Sin llamadas externas; datos solo en SQLite local                                    |
+| XXIV. No secretos en repositorio             | PASA   | `.env` fuera de control de versiones; sin claves en código                           |
+| XXV–XXVI. Gobernanza de alcance              | PASA   | Sin ampliaciones; decisiones ya registradas en spec                                  |
 
 **Resultado**: sin violaciones. No se requiere Complexity Tracking.
 

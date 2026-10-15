@@ -6,41 +6,41 @@ Aplicación Inertia: cada petición web devuelve una página Inertia (HTML + pro
 
 ## Rutas (routes/web.php)
 
-| Método | URI | Nombre | Acción | Respuesta |
-|--------|-----|--------|--------|-----------|
-| GET | `/` | `home` | redirección | `redirect()->route('profile.edit')` |
-| GET | `/profile` | `profile.edit` | ProfileController@edit | página `Profile/Edit` |
-| PUT | `/profile` | `profile.update` | ProfileController@update | redirect → `profile.edit` |
-| GET | `/experiences` | `experiences.index` | WorkExperienceController@index | página `Experiences/Index` |
-| GET | `/experiences/create` | `experiences.create` | @create | página `Experiences/Create` |
-| POST | `/experiences` | `experiences.store` | @store | redirect → `experiences.index` |
-| GET | `/experiences/{experience}/edit` | `experiences.edit` | @edit | página `Experiences/Edit` |
-| PUT | `/experiences/{experience}` | `experiences.update` | @update | redirect → `experiences.index` |
-| DELETE | `/experiences/{experience}` | `experiences.destroy` | @destroy | redirect → `experiences.index` |
-| GET | `/education` | `education.index` | EducationController@index | página `Education/Index` |
-| GET | `/education/create` | `education.create` | @create | página `Education/Create` |
-| POST | `/education` | `education.store` | @store | redirect → `education.index` |
-| GET | `/education/{entry}/edit` | `education.edit` | @edit | página `Education/Edit` |
-| PUT | `/education/{entry}` | `education.update` | @update | redirect → `education.index` |
-| DELETE | `/education/{entry}` | `education.destroy` | @destroy | redirect → `education.index` |
-| GET | `/certifications` | `certifications.index` | CertificationController@index | página `Certifications/Index` |
-| GET | `/certifications/create` | `certifications.create` | @create | página `Certifications/Create` |
-| POST | `/certifications` | `certifications.store` | @store | redirect → `certifications.index` (o de vuelta con advertencia) |
-| GET | `/certifications/{certification}/edit` | `certifications.edit` | @edit | página `Certifications/Edit` |
-| PUT | `/certifications/{certification}` | `certifications.update` | @update | redirect → `certifications.index` (o de vuelta con advertencia) |
-| DELETE | `/certifications/{certification}` | `certifications.destroy` | @destroy | redirect → `certifications.index` |
-| GET | `/skills` | `skills.index` | SkillController@index | página `Skills/Index` |
-| GET | `/skills/create` | `skills.create` | @create | página `Skills/Create` |
-| POST | `/skills` | `skills.store` | @store | redirect → `skills.index` |
-| GET | `/skills/{skill}/edit` | `skills.edit` | @edit | página `Skills/Edit` |
-| PUT | `/skills/{skill}` | `skills.update` | @update | redirect → `skills.index` |
-| DELETE | `/skills/{skill}` | `skills.destroy` | @destroy | redirect → `skills.index` |
-| GET | `/projects` | `projects.index` | ProjectController@index | página `Projects/Index` |
-| GET | `/projects/create` | `projects.create` | @create | página `Projects/Create` |
-| POST | `/projects` | `projects.store` | @store | redirect → `projects.index` |
-| GET | `/projects/{project}/edit` | `projects.edit` | @edit | página `Projects/Edit` |
-| PUT | `/projects/{project}` | `projects.update` | @update | redirect → `projects.index` |
-| DELETE | `/projects/{project}` | `projects.destroy` | @destroy | redirect → `projects.index` |
+| Método | URI                                    | Nombre                   | Acción                         | Respuesta                                                       |
+| ------ | -------------------------------------- | ------------------------ | ------------------------------ | --------------------------------------------------------------- |
+| GET    | `/`                                    | `home`                   | redirección                    | `redirect()->route('profile.edit')`                             |
+| GET    | `/profile`                             | `profile.edit`           | ProfileController@edit         | página `Profile/Edit`                                           |
+| PUT    | `/profile`                             | `profile.update`         | ProfileController@update       | redirect → `profile.edit`                                       |
+| GET    | `/experiences`                         | `experiences.index`      | WorkExperienceController@index | página `Experiences/Index`                                      |
+| GET    | `/experiences/create`                  | `experiences.create`     | @create                        | página `Experiences/Create`                                     |
+| POST   | `/experiences`                         | `experiences.store`      | @store                         | redirect → `experiences.index`                                  |
+| GET    | `/experiences/{experience}/edit`       | `experiences.edit`       | @edit                          | página `Experiences/Edit`                                       |
+| PUT    | `/experiences/{experience}`            | `experiences.update`     | @update                        | redirect → `experiences.index`                                  |
+| DELETE | `/experiences/{experience}`            | `experiences.destroy`    | @destroy                       | redirect → `experiences.index`                                  |
+| GET    | `/education`                           | `education.index`        | EducationController@index      | página `Education/Index`                                        |
+| GET    | `/education/create`                    | `education.create`       | @create                        | página `Education/Create`                                       |
+| POST   | `/education`                           | `education.store`        | @store                         | redirect → `education.index`                                    |
+| GET    | `/education/{entry}/edit`              | `education.edit`         | @edit                          | página `Education/Edit`                                         |
+| PUT    | `/education/{entry}`                   | `education.update`       | @update                        | redirect → `education.index`                                    |
+| DELETE | `/education/{entry}`                   | `education.destroy`      | @destroy                       | redirect → `education.index`                                    |
+| GET    | `/certifications`                      | `certifications.index`   | CertificationController@index  | página `Certifications/Index`                                   |
+| GET    | `/certifications/create`               | `certifications.create`  | @create                        | página `Certifications/Create`                                  |
+| POST   | `/certifications`                      | `certifications.store`   | @store                         | redirect → `certifications.index` (o de vuelta con advertencia) |
+| GET    | `/certifications/{certification}/edit` | `certifications.edit`    | @edit                          | página `Certifications/Edit`                                    |
+| PUT    | `/certifications/{certification}`      | `certifications.update`  | @update                        | redirect → `certifications.index` (o de vuelta con advertencia) |
+| DELETE | `/certifications/{certification}`      | `certifications.destroy` | @destroy                       | redirect → `certifications.index`                               |
+| GET    | `/skills`                              | `skills.index`           | SkillController@index          | página `Skills/Index`                                           |
+| GET    | `/skills/create`                       | `skills.create`          | @create                        | página `Skills/Create`                                          |
+| POST   | `/skills`                              | `skills.store`           | @store                         | redirect → `skills.index`                                       |
+| GET    | `/skills/{skill}/edit`                 | `skills.edit`            | @edit                          | página `Skills/Edit`                                            |
+| PUT    | `/skills/{skill}`                      | `skills.update`          | @update                        | redirect → `skills.index`                                       |
+| DELETE | `/skills/{skill}`                      | `skills.destroy`         | @destroy                       | redirect → `skills.index`                                       |
+| GET    | `/projects`                            | `projects.index`         | ProjectController@index        | página `Projects/Index`                                         |
+| GET    | `/projects/create`                     | `projects.create`        | @create                        | página `Projects/Create`                                        |
+| POST   | `/projects`                            | `projects.store`         | @store                         | redirect → `projects.index`                                     |
+| GET    | `/projects/{project}/edit`             | `projects.edit`          | @edit                          | página `Projects/Edit`                                          |
+| PUT    | `/projects/{project}`                  | `projects.update`        | @update                        | redirect → `projects.index`                                     |
+| DELETE | `/projects/{project}`                  | `projects.destroy`       | @destroy                       | redirect → `projects.index`                                     |
 
 - Sin autenticación: no hay middleware `auth`; el starter kit se recorta a este alcance.
 - `Profile` es singleton: no hay create/store/delete de perfil; la fila se crea implícitamente en el primer acceso a `/profile`.
@@ -50,6 +50,7 @@ Aplicación Inertia: cada petición web devuelve una página Inertia (HTML + pro
 ### `Profile/Edit`
 
 Props:
+
 - `profile`: `{ id, full_name, professional_title, phone, email, location, linkedin_url, github_url, website_url, summary }`
 - `links`: `[{ id, label, url }]` (colección completa actual)
 - `errors`: bolsillo estándar de Inertia
@@ -59,10 +60,12 @@ Comportamiento: un solo formulario `PUT /profile`. Los enlaces adicionales se ed
 ### `Experiences/{Index,Create,Edit}` · `Projects/{Index,Create,Edit}`
 
 Props de `Index`:
+
 - `records`: lista ordenada cronológicamente (desc) con campos de la entidad, `skills[]` asociadas y bandera de estado si aplica
 - `errors`
 
 Props de `Create`/`Edit`:
+
 - `record` (solo `Edit`)
 - `skills`: catálogo completo `[{ id, name, category }]` para selección múltiple
 - `errors`
@@ -76,12 +79,14 @@ Igual que Experiences, sin `skills` (la educación no se relaciona con habilidad
 ### `Certifications/{Index,Create,Edit}`
 
 Como Experiences, más:
+
 - `duplicate_warning` (flash opcional): `{ existing_id, name, institution }` cuando el guardado fue detenido por duplicado (FR-018)
 - Cuerpo esperado: campos + `skill_ids[]` + `confirm_duplicate` (boolean, solo al reintentar tras la advertencia)
 
 ### `Skills/{Index,Create,Edit}`
 
 Props:
+
 - `records` agrupadas por categoría (Index)
 - `usage` (solo `Edit`/detalle): `{ experiences: [...], certifications: [...], projects: [...] }` — dónde se usa la habilidad (FR-021)
 - Cuerpo esperado: `{ name, category }`
@@ -89,10 +94,12 @@ Props:
 ## Contratos de entrada de fecha (FR-034)
 
 Cada fecha se envía como dos campos independientes:
+
 - `*_year`: entero opcional (1900 ≤ año ≤ año actual + 10)
 - `*_month`: entero opcional (1–12)
 
 Reglas de validación del servidor:
+
 - `*_month` presente exige `*_year` presente.
 - Con fin e inicio presentes: `(end_year, end_month ?? 12) ≥ (start_year, start_month ?? 1)`; si no, error `end_year` con mensaje "La fecha de fin no puede ser anterior a la de inicio."
 - Educación: `end_*` no aplica cuando `is_in_progress=true`; experiencia: `end_*` no aplica cuando `is_current=true`.
