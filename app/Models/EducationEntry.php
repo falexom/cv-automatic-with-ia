@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class EducationEntry extends Model
 {
@@ -35,6 +36,14 @@ class EducationEntry extends Model
     public function profile(): BelongsTo
     {
         return $this->belongsTo(Profile::class);
+    }
+
+    /**
+     * @return BelongsToMany<Document, $this>
+     */
+    public function documents(): BelongsToMany
+    {
+        return $this->belongsToMany(Document::class, 'document_education_entry');
     }
 
     /**

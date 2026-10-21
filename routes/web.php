@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\CertificationController;
+use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\DocumentLinkController;
 use App\Http\Controllers\EducationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
@@ -12,6 +14,17 @@ Route::redirect('/', '/profile')->name('home');
 
 Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
 Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+Route::get('/documents', [DocumentController::class, 'index'])->name('documents.index');
+Route::get('/documents/create', [DocumentController::class, 'create'])->name('documents.create');
+Route::post('/documents', [DocumentController::class, 'store'])->name('documents.store');
+Route::post('/documents/verify', [DocumentController::class, 'verify'])->name('documents.verify');
+Route::put('/documents/{document}', [DocumentController::class, 'update'])->name('documents.update');
+Route::delete('/documents/{document}', [DocumentController::class, 'destroy'])->name('documents.destroy');
+Route::get('/documents/{document}/viewer', [DocumentController::class, 'viewer'])->name('documents.viewer');
+Route::get('/documents/{document}/file', [DocumentController::class, 'file'])->name('documents.file');
+Route::post('/documents/{document}/links', [DocumentLinkController::class, 'store'])->name('documents.links.store');
+Route::delete('/documents/{document}/links', [DocumentLinkController::class, 'destroy'])->name('documents.links.destroy');
 
 Route::resource('experiences', WorkExperienceController::class)->except('show');
 Route::resource('education', EducationController::class)->except('show');

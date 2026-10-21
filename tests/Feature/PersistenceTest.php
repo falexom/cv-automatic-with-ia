@@ -2,6 +2,7 @@
 
 use App\Models\Profile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * FR-027 / SC-002: the whole profile survives between application
@@ -9,6 +10,8 @@ use Illuminate\Support\Facades\DB;
  * with fresh queries, proving nothing lives only in request state.
  */
 it('keeps the full profile in the database across sessions', function () {
+    Storage::fake('local');
+
     $this->put('/profile', [
         'full_name' => 'Ada Lovelace',
         'professional_title' => 'Analista de Sistemas',
@@ -46,6 +49,16 @@ it('keeps the full profile in the database across sessions', function () {
         'skill_ids' => [$skillId],
     ])->assertRedirect();
 
+    $certificationId = (int) DB::table('certifications')
+        ->where('name', 'Curso de Laravel')
+        ->value('id');
+
+    $this->post('/documents', [
+        'file' => pdfUpload('persistencia.pdf'),
+        'linkable_type' => 'certification',
+        'linkable_id' => $certificationId,
+    ])->assertRedirect();
+
     $this->post('/projects', [
         'name' => 'Portal interno',
         'start_year' => 2021,
@@ -64,6 +77,8 @@ it('keeps the full profile in the database across sessions', function () {
     $this->assertDatabaseHas('work_experiences', ['company' => 'Acme', 'is_current' => 1]);
     $this->assertDatabaseHas('education_entries', ['institution' => 'Universidad Nacional']);
     $this->assertDatabaseHas('certifications', ['name' => 'Curso de Laravel']);
+    $this->assertDatabaseHas('documents', ['original_filename' => 'persistencia.pdf']);
+    $this->assertDatabaseHas('document_certification', ['certification_id' => $certificationId]);
     $this->assertDatabaseHas('projects', ['name' => 'Portal interno']);
     $this->assertDatabaseHas('skill_work_experience', ['skill_id' => $skillId]);
     $this->assertDatabaseHas('skill_certification', ['skill_id' => $skillId]);

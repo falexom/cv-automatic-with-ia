@@ -19,6 +19,7 @@ type EducationRecord = {
     end_year: number | null;
     end_month: number | null;
     is_in_progress: boolean;
+    documents_count: number;
 };
 
 export default function Index({ records }: { records: EducationRecord[] }) {
@@ -131,7 +132,11 @@ export default function Index({ records }: { records: EducationRecord[] }) {
                 title="¿Eliminar esta formación?"
                 description={
                     deleteTarget
-                        ? `Se eliminará "${deleteTarget.program}" de ${deleteTarget.institution}. Esta acción es definitiva.`
+                        ? `Se eliminará "${deleteTarget.program}" de ${deleteTarget.institution}.${
+                              deleteTarget.documents_count > 0
+                                  ? ` Sus ${deleteTarget.documents_count} documento(s) quedarán sin asociar y se conservarán en el repositorio.`
+                                  : ''
+                          } Esta acción es definitiva.`
                         : undefined
                 }
                 processing={processing}

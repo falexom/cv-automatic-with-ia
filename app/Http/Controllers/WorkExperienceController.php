@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreWorkExperienceRequest;
 use App\Http\Requests\UpdateWorkExperienceRequest;
+use App\Models\Document;
 use App\Models\Profile;
+use App\Models\Skill;
 use App\Models\WorkExperience;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -18,6 +20,7 @@ class WorkExperienceController extends Controller
         $records = Profile::current()
             ->workExperiences()
             ->with('skills:id,name,category')
+            ->withCount('documents')
             ->chronological()
             ->get()
             ->map(fn (WorkExperience $experience): array => $this->serialize($experience));
@@ -59,6 +62,7 @@ class WorkExperienceController extends Controller
                 'skill_ids' => $experience->skills->pluck('id')->all(),
             ],
             'skills' => $this->skillOptions(),
+            'documents' => $this->linkedDocuments($experience),
         ]);
     }
 
@@ -122,6 +126,7 @@ class WorkExperienceController extends Controller
             'description' => $experience->description,
             'responsibilities' => $experience->responsibilities,
             'achievements' => $experience->achievements,
+            'documents_count' => (int) ($experience->getAttribute('documents_count') ?? 0),
             'skills' => $experience->skills
                 ->map(fn ($skill): array => [
                     'id' => $skill->id,
@@ -134,7 +139,7 @@ class WorkExperienceController extends Controller
     }
 
     /**
-     * @return Collection<int, array{id: int, name: string, category: string}>
+     * @return Collection<int, Skill>
      */
     private function skillOptions()
     {
@@ -142,6 +147,22 @@ class WorkExperienceController extends Controller
             ->skills()
             ->orderBy('name')
             ->get(['id', 'name', 'category']);
+    }
+
+    /**
+     * Documents linked to the entity (short payload for the edit page).
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function linkedDocuments(WorkExperience $experience): array
+    {
+        return $experience->documents()
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->get()
+            ->map(fn (Document $document): array => $document->toEntityPayload())
+            ->values()
+            ->all();
     }
 
     private function redirectToIndex(string $message): RedirectResponse

@@ -30,18 +30,18 @@ Profile (1)
 
 ### Document — Documento original (FR-001–FR-008, FR-020–FR-023)
 
-| Columna           | Tipo              | Nulo | Reglas                                                                 |
-| ----------------- | ----------------- | ---- | ---------------------------------------------------------------------- |
-| id                | integer PK        | no   |                                                                        |
-| profile_id        | FK → profiles     | no   | cascade delete                                                         |
-| original_filename | string(255)       | no   | nombre del archivo subido por el usuario (inmutable)                   |
-| title             | string(255)       | sí   | editable (FR-022); si falta, la UI muestra `original_filename`         |
-| description       | text              | sí   | editable (FR-022)                                                      |
-| size_bytes        | unsignedBigInteger| no   | tamaño del archivo cargado (FR-005)                                    |
-| checksum          | string(64), único | no   | SHA-256 del contenido; identidad del archivo y base de la integridad   |
-| is_available      | boolean           | no   | default `true`; pasa a `false` si falta o fue alterado (FR-004)        |
-| last_verified_at  | timestamp         | sí   | última verificación de integridad (al visualizar o bajo demanda)       |
-| timestamps        |                   |      | `created_at` = fecha de carga (FR-005)                                 |
+| Columna           | Tipo               | Nulo | Reglas                                                               |
+| ----------------- | ------------------ | ---- | -------------------------------------------------------------------- |
+| id                | integer PK         | no   |                                                                      |
+| profile_id        | FK → profiles      | no   | cascade delete                                                       |
+| original_filename | string(255)        | no   | nombre del archivo subido por el usuario (inmutable)                 |
+| title             | string(255)        | sí   | editable (FR-022); si falta, la UI muestra `original_filename`       |
+| description       | text               | sí   | editable (FR-022)                                                    |
+| size_bytes        | unsignedBigInteger | no   | tamaño del archivo cargado (FR-005)                                  |
+| checksum          | string(64), único  | no   | SHA-256 del contenido; identidad del archivo y base de la integridad |
+| is_available      | boolean            | no   | default `true`; pasa a `false` si falta o fue alterado (FR-004)      |
+| last_verified_at  | timestamp          | sí   | última verificación de integridad (al visualizar o bajo demanda)     |
+| timestamps        |                    |      | `created_at` = fecha de carga (FR-005)                               |
 
 - **Índice único**: `checksum` (global; el perfil es singleton). Garantiza una sola fila por contenido y hace determinista la reutilización.
 - **Archivo en disco**: disco `local`, ruta `documents/{checksum}.pdf`. El archivo se escribe una vez al crear el documento; nunca se modifica ni se renombra (FR-003).
@@ -70,11 +70,11 @@ Profile (1)
 
 ### Pivotes de asociación (FR-009–FR-014)
 
-| Tabla                        | Columnas                                             | Reglas                                            |
-| ---------------------------- | ---------------------------------------------------- | ------------------------------------------------- |
-| `document_certification`     | `document_id`, `certification_id`                    | PK compuesta; ambas FK con `cascadeOnDelete`      |
-| `document_education_entry`   | `document_id`, `education_entry_id`                  | PK compuesta; ambas FK con `cascadeOnDelete`      |
-| `document_work_experience`   | `document_id`, `work_experience_id`                  | PK compuesta; ambas FK con `cascadeOnDelete`      |
+| Tabla                      | Columnas                            | Reglas                                       |
+| -------------------------- | ----------------------------------- | -------------------------------------------- |
+| `document_certification`   | `document_id`, `certification_id`   | PK compuesta; ambas FK con `cascadeOnDelete` |
+| `document_education_entry` | `document_id`, `education_entry_id` | PK compuesta; ambas FK con `cascadeOnDelete` |
+| `document_work_experience` | `document_id`, `work_experience_id` | PK compuesta; ambas FK con `cascadeOnDelete` |
 
 - El pivote `document_id` es el mismo en las tres tablas: un documento puede estar asociado simultáneamente a entidades de distinto tipo (FR-011).
 - Unicidad: la clave compuesta impide vínculos duplicados documento–entidad.
@@ -84,54 +84,54 @@ Profile (1)
 
 ### Carga de documento (FR-001, FR-002)
 
-| Campo             | Reglas                                                                                                 |
-| ----------------- | ------------------------------------------------------------------------------------------------------ |
-| `file`            | obligatorio; archivo real; `mimetypes:application/pdf`; ≤ 20 MB (`max:20480`); estructura PDF válida mínima (prefijo `%PDF-` y marcador `%%EOF`); mensajes en español |
-| `title`           | opcional; string; máximo 255                                                                           |
-| `description`     | opcional; string; máximo 2000                                                                          |
-| `linkable_type`   | opcional; `in:certification,education,experience`                                                      |
-| `linkable_id`     | obligatorio si hay `linkable_type`; entero; existencia en la tabla correspondiente al tipo             |
+| Campo           | Reglas                                                                                                                                                                |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `file`          | obligatorio; archivo real; `mimetypes:application/pdf`; ≤ 20 MB (`max:20480`); estructura PDF válida mínima (prefijo `%PDF-` y marcador `%%EOF`); mensajes en español |
+| `title`         | opcional; string; máximo 255                                                                                                                                          |
+| `description`   | opcional; string; máximo 2000                                                                                                                                         |
+| `linkable_type` | opcional; `in:certification,education,experience`                                                                                                                     |
+| `linkable_id`   | obligatorio si hay `linkable_type`; entero; existencia en la tabla correspondiente al tipo                                                                            |
 
 - Carga de un solo archivo por operación (FR-001, clarificación del 2026-10-15).
 - Si PHP rechaza la carga por límite de configuración, mensaje específico que indica revisar `upload_max_filesize`/`post_max_size` (ver quickstart).
 
 ### Edición de metadatos (FR-022)
 
-| Campo         | Reglas                                  |
-| ------------- | --------------------------------------- |
-| `title`       | opcional; string; máximo 255            |
-| `description` | opcional; string; máximo 2000           |
+| Campo         | Reglas                        |
+| ------------- | ----------------------------- |
+| `title`       | opcional; string; máximo 255  |
+| `description` | opcional; string; máximo 2000 |
 
 El archivo, el checksum, el nombre original y el tamaño son inmutables.
 
 ### Asociación (FR-009, FR-010, FR-012, FR-015)
 
-| Campo           | Reglas                                                                                     |
-| --------------- | ------------------------------------------------------------------------------------------ |
-| `linkable_type` | obligatorio; `in:certification,education,experience`                                       |
-| `linkable_id`   | obligatorio; entero; debe existir en la tabla del tipo; error si el vínculo ya existe      |
+| Campo           | Reglas                                                                                |
+| --------------- | ------------------------------------------------------------------------------------- |
+| `linkable_type` | obligatorio; `in:certification,education,experience`                                  |
+| `linkable_id`   | obligatorio; entero; debe existir en la tabla del tipo; error si el vínculo ya existe |
 
 ## Transiciones de estado
 
 ### Disponibilidad del documento (`is_available`)
 
-| Estado inicial | Evento                                                       | Estado final | Efectos                                           |
-| -------------- | ------------------------------------------------------------ | ------------ | ------------------------------------------------- |
-| `true`         | Verificación al abrir el visor: archivo presente e íntegro    | `true`       | `last_verified_at = ahora`                        |
-| `true`         | Verificación al abrir el visor: archivo ausente o alterado    | `false`      | `last_verified_at = ahora`; visor muestra aviso   |
-| `false`        | Verificación al abrir el visor: archivo presente e íntegro    | `true`       | `last_verified_at = ahora`                        |
-| `true/false`   | `POST /documents/verify` (recorrido completo)                 | según resultado | Reporte `{checked, ok, unavailable, problems[]}` |
+| Estado inicial | Evento                                                     | Estado final    | Efectos                                          |
+| -------------- | ---------------------------------------------------------- | --------------- | ------------------------------------------------ |
+| `true`         | Verificación al abrir el visor: archivo presente e íntegro | `true`          | `last_verified_at = ahora`                       |
+| `true`         | Verificación al abrir el visor: archivo ausente o alterado | `false`         | `last_verified_at = ahora`; visor muestra aviso  |
+| `false`        | Verificación al abrir el visor: archivo presente e íntegro | `true`          | `last_verified_at = ahora`                       |
+| `true/false`   | `POST /documents/verify` (recorrido completo)              | según resultado | Reporte `{checked, ok, unavailable, problems[]}` |
 
 - La alteración nunca se "repara" ni se sustituye automáticamente (FR-004): solo se señala.
 
 ### Vínculos documento–entidad
 
-| Evento                             | Efecto                                                                 |
-| ---------------------------------- | ---------------------------------------------------------------------- |
-| Asociar (documento ↔ entidad)      | Se crea la fila del pivote; el archivo no se toca (FR-016)             |
-| Desasociar                         | Se elimina la fila del pivote; el documento permanece (FR-012)         |
-| Eliminar la entidad                | Cascada de pivotes: documentos quedan sin asociación; archivos intactos (FR-014) |
-| Eliminar el documento              | Cascada de pivotes + borrado del archivo; entidades intactas (FR-023)  |
+| Evento                        | Efecto                                                                           |
+| ----------------------------- | -------------------------------------------------------------------------------- |
+| Asociar (documento ↔ entidad) | Se crea la fila del pivote; el archivo no se toca (FR-016)                       |
+| Desasociar                    | Se elimina la fila del pivote; el documento permanece (FR-012)                   |
+| Eliminar la entidad           | Cascada de pivotes: documentos quedan sin asociación; archivos intactos (FR-014) |
+| Eliminar el documento         | Cascada de pivotes + borrado del archivo; entidades intactas (FR-023)            |
 
 ## Serialización para la UI (Inertia)
 

@@ -44,6 +44,14 @@ class Certification extends Model
     }
 
     /**
+     * @return BelongsToMany<Document, $this>
+     */
+    public function documents(): BelongsToMany
+    {
+        return $this->belongsToMany(Document::class, 'document_certification');
+    }
+
+    /**
      * @param  Builder<$this>  $query
      * @return Builder<$this>
      */

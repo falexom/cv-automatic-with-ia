@@ -19,6 +19,7 @@ type ExperienceRecord = {
     end_year: number | null;
     end_month: number | null;
     is_current: boolean;
+    documents_count: number;
     skills: SkillOption[];
 };
 
@@ -138,7 +139,11 @@ export default function Index({ records }: { records: ExperienceRecord[] }) {
                 title="¿Eliminar esta experiencia?"
                 description={
                     deleteTarget
-                        ? `Se eliminará "${deleteTarget.position}" en ${deleteTarget.company}. Esta acción es definitiva.`
+                        ? `Se eliminará "${deleteTarget.position}" en ${deleteTarget.company}.${
+                              deleteTarget.documents_count > 0
+                                  ? ` Sus ${deleteTarget.documents_count} documento(s) quedarán sin asociar y se conservarán en el repositorio.`
+                                  : ''
+                          } Esta acción es definitiva.`
                         : undefined
                 }
                 processing={processing}

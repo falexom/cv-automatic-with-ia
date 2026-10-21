@@ -1,3 +1,4 @@
+import type { VerificationResult } from '@/components/documents/VerificationReport';
 import type { FlashToast } from '@/types/ui';
 
 declare module '@inertiajs/core' {
@@ -11,6 +12,7 @@ declare module '@inertiajs/core' {
                     institution: string | null;
                 } | null;
                 toast?: FlashToast | null;
+                verification?: VerificationResult | null;
             };
             [key: string]: unknown;
         };

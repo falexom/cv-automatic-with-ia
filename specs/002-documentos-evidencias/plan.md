@@ -36,30 +36,30 @@ Implementar el repositorio documental local del CV Automático: carga validada d
 
 _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-| Principio                                        | Estado | Evidencia del diseño                                                                                                              |
-| ------------------------------------------------ | ------ | --------------------------------------------------------------------------------------------------------------------------------- |
-| I. Fuente única de verdad                        | PASA   | Los documentos son evidencia conservada, no datos duplicados; asociaciones por referencia; no se copian datos del perfil           |
-| II. El CV es resultado                           | PASA   | Sin generación de CV; los documentos no son fuente editable de datos (FR-028)                                                     |
-| III. Separación datos/reglas/presentación        | PASA   | Almacenamiento y reglas en backend; visor y UI como presentación; sin reglas en plantillas                                        |
-| IV. MVP acotado                                  | PASA   | Alcance idéntico al spec: sin OCR, extracción, selección ni concatenación; experiencia incluida por decisión explícita registrada  |
-| V. Perfil Maestro                                | PASA   | Extiende certificaciones ("Archivo PDF original") y educación ("Evidencia documental asociada"); experiencia por clarificación    |
-| VI. Perfiles como configuración                  | N/A    | Capacidad posterior; sin conflicto                                                                                                |
-| VII. Conservación de originales                  | PASA   | Archivo guardado byte a byte en disco privado; checksum como identidad; nunca se re-comprime, regenera ni modifica (FR-003)        |
-| VIII. Extracción primero, OCR solo si necesario  | N/A    | OCR y extracción explícitamente fuera de alcance (FR-027)                                                                         |
-| IX. Confirmación humana obligatoria              | N/A    | No hay datos extraídos en esta capacidad; sin conflicto                                                                           |
-| X–XI. CV documentado y selección de evidencias   | PASA   | Solo se prepara la base (originales íntegros + asociaciones estables, FR-029); selección y concatenación quedan para capacidad futura |
-| XII. Arquitectura simple local                   | PASA   | Almacenamiento local privado del framework; SQLite; sin servicios externos; sin nuevas dependencias                                |
-| XIII. Evitar complejidad prematura               | PASA   | Sin colas, sin librerías PDF, sin visor propio; pivotes simples; rutas delgadas                                                    |
-| XIV. Datos relacionales                          | PASA   | Asociaciones N:M con pivotes dedicados y claves únicas compuestas; sin copias del archivo por entidad                              |
-| XV. UI orientada a tareas                        | PASA   | Nueva sección "Documentos" en la navegación principal; carga y asociación en pocos pasos                                           |
-| XVI–XVIII. Vista previa/plantilla                | N/A    | Capacidades posteriores; sin conflicto                                                                                            |
-| XIX. Spec verificable                            | PASA   | Criterios medibles (SC-001…SC-010) y pruebas requeridas en el spec                                                                 |
-| XX. Tareas dentro del Spec                       | PASA   | Flujo Spec → Plan → Tasks                                                                                                         |
-| XXI. Pruebas proporcionales al riesgo            | PASA   | Pest cubre conservación íntegra, importación, asociaciones, confirmaciones e integridad (puntos críticos de la Constitución)       |
-| XXII. No romper datos                            | PASA   | Migraciones aditivas (1 tabla + 3 pivotes); sin cambios destructivos sobre datos existentes                                        |
-| XXIII. Privacidad local                          | PASA   | Todo permanece en disco y SQLite locales; sin llamadas externas (FR-026)                                                          |
-| XXIV. No secretos en repositorio                 | PASA   | Sin claves nuevas; configuración vía `.env` ya existente                                                                          |
-| XXV–XXVI. Gobernanza de alcance                  | PASA   | Inclusión de experiencia aprobada explícitamente en `/speckit.clarify` (2026-10-15); sin otras ampliaciones                       |
+| Principio                                       | Estado | Evidencia del diseño                                                                                                                  |
+| ----------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| I. Fuente única de verdad                       | PASA   | Los documentos son evidencia conservada, no datos duplicados; asociaciones por referencia; no se copian datos del perfil              |
+| II. El CV es resultado                          | PASA   | Sin generación de CV; los documentos no son fuente editable de datos (FR-028)                                                         |
+| III. Separación datos/reglas/presentación       | PASA   | Almacenamiento y reglas en backend; visor y UI como presentación; sin reglas en plantillas                                            |
+| IV. MVP acotado                                 | PASA   | Alcance idéntico al spec: sin OCR, extracción, selección ni concatenación; experiencia incluida por decisión explícita registrada     |
+| V. Perfil Maestro                               | PASA   | Extiende certificaciones ("Archivo PDF original") y educación ("Evidencia documental asociada"); experiencia por clarificación        |
+| VI. Perfiles como configuración                 | N/A    | Capacidad posterior; sin conflicto                                                                                                    |
+| VII. Conservación de originales                 | PASA   | Archivo guardado byte a byte en disco privado; checksum como identidad; nunca se re-comprime, regenera ni modifica (FR-003)           |
+| VIII. Extracción primero, OCR solo si necesario | N/A    | OCR y extracción explícitamente fuera de alcance (FR-027)                                                                             |
+| IX. Confirmación humana obligatoria             | N/A    | No hay datos extraídos en esta capacidad; sin conflicto                                                                               |
+| X–XI. CV documentado y selección de evidencias  | PASA   | Solo se prepara la base (originales íntegros + asociaciones estables, FR-029); selección y concatenación quedan para capacidad futura |
+| XII. Arquitectura simple local                  | PASA   | Almacenamiento local privado del framework; SQLite; sin servicios externos; sin nuevas dependencias                                   |
+| XIII. Evitar complejidad prematura              | PASA   | Sin colas, sin librerías PDF, sin visor propio; pivotes simples; rutas delgadas                                                       |
+| XIV. Datos relacionales                         | PASA   | Asociaciones N:M con pivotes dedicados y claves únicas compuestas; sin copias del archivo por entidad                                 |
+| XV. UI orientada a tareas                       | PASA   | Nueva sección "Documentos" en la navegación principal; carga y asociación en pocos pasos                                              |
+| XVI–XVIII. Vista previa/plantilla               | N/A    | Capacidades posteriores; sin conflicto                                                                                                |
+| XIX. Spec verificable                           | PASA   | Criterios medibles (SC-001…SC-010) y pruebas requeridas en el spec                                                                    |
+| XX. Tareas dentro del Spec                      | PASA   | Flujo Spec → Plan → Tasks                                                                                                             |
+| XXI. Pruebas proporcionales al riesgo           | PASA   | Pest cubre conservación íntegra, importación, asociaciones, confirmaciones e integridad (puntos críticos de la Constitución)          |
+| XXII. No romper datos                           | PASA   | Migraciones aditivas (1 tabla + 3 pivotes); sin cambios destructivos sobre datos existentes                                           |
+| XXIII. Privacidad local                         | PASA   | Todo permanece en disco y SQLite locales; sin llamadas externas (FR-026)                                                              |
+| XXIV. No secretos en repositorio                | PASA   | Sin claves nuevas; configuración vía `.env` ya existente                                                                              |
+| XXV–XXVI. Gobernanza de alcance                 | PASA   | Inclusión de experiencia aprobada explícitamente en `/speckit.clarify` (2026-10-15); sin otras ampliaciones                           |
 
 **Resultado**: sin violaciones. No se requiere Complexity Tracking.
 

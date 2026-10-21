@@ -6,8 +6,9 @@ use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Profile;
 use App\Models\Project;
+use App\Models\Skill;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -119,7 +120,7 @@ class ProjectController extends Controller
     }
 
     /**
-     * @return Collection<int, array{id: int, name: string, category: string}>
+     * @return Collection<int, Skill>
      */
     private function skillOptions()
     {

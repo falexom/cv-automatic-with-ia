@@ -47,6 +47,14 @@ class WorkExperience extends Model
     }
 
     /**
+     * @return BelongsToMany<Document, $this>
+     */
+    public function documents(): BelongsToMany
+    {
+        return $this->belongsToMany(Document::class, 'document_work_experience');
+    }
+
+    /**
      * Most recent first; a year-only start counts as January and
      * records without a start year are shown last (FR-010, FR-034).
      *

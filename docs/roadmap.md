@@ -29,6 +29,8 @@ Cada nuevo Spec deberá:
 
 # SPEC-002 — Documentos y Evidencias
 
+**Estado:** Completado — implementado, validado y versionado (2026-10-15). El alcance definitivo está en `specs/002-documentos-evidencias/spec.md`.
+
 ## Objetivo
 
 Crear el módulo de Documentos y Evidencias del proyecto CV Automático para permitir almacenar, asociar y consultar archivos PDF originales vinculados al Perfil Profesional Maestro.
@@ -79,8 +81,8 @@ Permitir crear y gestionar perfiles de CV derivados del Perfil Profesional Maest
 - Editar perfiles existentes.
 - Activar o desactivar perfiles.
 - Incluir inicialmente:
-  - Analista de Sistemas.
-  - Programador / Desarrollador.
+    - Analista de Sistemas.
+    - Programador / Desarrollador.
 - Definir título profesional específico por perfil.
 - Definir resumen profesional específico por perfil.
 - Relacionar habilidades con cada perfil.
@@ -125,14 +127,14 @@ Construir el motor que transforma el Perfil Profesional Maestro y un Perfil de C
 - Generar contenido a partir del Perfil Profesional Maestro.
 - Aplicar prioridades y relaciones definidas en el perfil.
 - Mostrar:
-  - Datos personales.
-  - Título profesional.
-  - Resumen.
-  - Experiencia relevante.
-  - Educación relevante.
-  - Certificaciones relevantes.
-  - Habilidades.
-  - Proyectos relevantes.
+    - Datos personales.
+    - Título profesional.
+    - Resumen.
+    - Experiencia relevante.
+    - Educación relevante.
+    - Certificaciones relevantes.
+    - Habilidades.
+    - Proyectos relevantes.
 - Ordenar contenido de acuerdo con reglas definidas.
 - Omitir contenido no seleccionado o no relevante para el perfil.
 - Generar una vista previa del CV.
@@ -215,8 +217,8 @@ Generar una versión documentada del currículum que contenga primero el CV y, a
 - Mostrar claramente los anexos seleccionados antes de generar.
 - Definir un orden estable de anexos.
 - Concatenar:
-  - PDF del CV.
-  - PDFs originales seleccionados.
+    - PDF del CV.
+    - PDFs originales seleccionados.
 - Mantener intactos los PDFs originales.
 - Generar un único archivo final.
 - Permitir descargar el CV documentado.
@@ -270,20 +272,20 @@ Automatizar el registro de cursos y certificaciones a partir de PDFs cargados po
 - Usar OCR únicamente cuando el documento sea una imagen o el texto nativo sea insuficiente.
 - Interpretar la información extraída.
 - Detectar, cuando sea posible:
-  - Nombre del curso.
-  - Institución.
-  - Fecha.
-  - Duración.
-  - Código de certificado.
-  - URL de validación.
-  - Nombre del participante.
-  - Categoría sugerida.
+    - Nombre del curso.
+    - Institución.
+    - Fecha.
+    - Duración.
+    - Código de certificado.
+    - URL de validación.
+    - Nombre del participante.
+    - Categoría sugerida.
 - Proponer habilidades o tecnologías relacionadas cuando sea viable.
 - Presentar una pantalla de revisión antes de guardar.
 - Permitir:
-  - Confirmar.
-  - Corregir.
-  - Cancelar.
+    - Confirmar.
+    - Corregir.
+    - Cancelar.
 - Registrar la certificación solo después de confirmación humana.
 - Asociar automáticamente el PDF original como evidencia.
 - Evitar duplicados cuando sea posible.
@@ -337,11 +339,11 @@ El usuario sube un certificado PDF, revisa los datos detectados y confirma el re
 SPEC-001 — Perfil Profesional Maestro  
 ├── SPEC-002 — Documentos y Evidencias  
 ├── SPEC-003 — Perfiles de CV  
-│   └── SPEC-004 — Generador de CV  
-│       └── SPEC-005 — Exportación PDF  
-│           └── SPEC-006 — CV Documentado  
+│ └── SPEC-004 — Generador de CV  
+│ └── SPEC-005 — Exportación PDF  
+│ └── SPEC-006 — CV Documentado  
 └── SPEC-007 — Importación Inteligente  
-    └── depende también de SPEC-002
+└── depende también de SPEC-002
 
 ---
 
@@ -375,15 +377,15 @@ No debe iniciarse la implementación del siguiente Spec hasta que el anterior se
 
 # Estado del Roadmap
 
-| Spec | Capacidad | Estado |
-|---|---|---|
-| SPEC-001 | Perfil Profesional Maestro | Implementado / cierre en curso |
-| SPEC-002 | Documentos y Evidencias | Pendiente |
-| SPEC-003 | Perfiles de CV | Pendiente |
-| SPEC-004 | Generador de CV | Pendiente |
-| SPEC-005 | Exportación PDF | Pendiente |
-| SPEC-006 | CV Documentado | Pendiente |
-| SPEC-007 | Importación Inteligente de Certificados | Pendiente |
+| Spec     | Capacidad                               | Estado                         |
+| -------- | --------------------------------------- | ------------------------------ |
+| SPEC-001 | Perfil Profesional Maestro              | Implementado / cierre en curso |
+| SPEC-002 | Documentos y Evidencias                 | Implementado                   |
+| SPEC-003 | Perfiles de CV                          | Pendiente                      |
+| SPEC-004 | Generador de CV                         | Pendiente                      |
+| SPEC-005 | Exportación PDF                         | Pendiente                      |
+| SPEC-006 | CV Documentado                          | Pendiente                      |
+| SPEC-007 | Importación Inteligente de Certificados | Pendiente                      |
 
 ---
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreEducationRequest;
 use App\Http\Requests\UpdateEducationRequest;
+use App\Models\Document;
 use App\Models\EducationEntry;
 use App\Models\Profile;
 use Illuminate\Http\RedirectResponse;
@@ -16,6 +17,7 @@ class EducationController extends Controller
     {
         $records = Profile::current()
             ->educationEntries()
+            ->withCount('documents')
             ->chronological()
             ->get()
             ->map(fn (EducationEntry $entry): array => $this->serialize($entry));
@@ -43,6 +45,7 @@ class EducationController extends Controller
     {
         return Inertia::render('Education/Edit', [
             'record' => $this->serialize($education),
+            'documents' => $this->linkedDocuments($education),
         ]);
     }
 
@@ -100,7 +103,24 @@ class EducationController extends Controller
             'end_month' => $entry->end_month,
             'is_in_progress' => $entry->is_in_progress,
             'description' => $entry->description,
+            'documents_count' => (int) ($entry->getAttribute('documents_count') ?? 0),
         ];
+    }
+
+    /**
+     * Documents linked to the entity (short payload for the edit page).
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function linkedDocuments(EducationEntry $education): array
+    {
+        return $education->documents()
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->get()
+            ->map(fn (Document $document): array => $document->toEntityPayload())
+            ->values()
+            ->all();
     }
 
     private function redirectToIndex(string $message): RedirectResponse

@@ -7,18 +7,18 @@ Aplicación Inertia: cada petición web devuelve una página Inertia (HTML + pro
 
 ## Rutas (routes/web.php)
 
-| Método | URI                             | Nombre                 | Acción                           | Respuesta                                                          |
-| ------ | ------------------------------- | ---------------------- | -------------------------------- | ------------------------------------------------------------------ |
-| GET    | `/documents`                    | `documents.index`      | DocumentController@index         | página `Documents/Index`                                           |
-| GET    | `/documents/create`             | `documents.create`     | DocumentController@create        | página `Documents/Create`                                          |
-| POST   | `/documents`                    | `documents.store`      | DocumentController@store         | redirect → entidad Edit (si viene de una entidad) o `documents.index` |
-| PUT    | `/documents/{document}`         | `documents.update`     | DocumentController@update        | redirect → `documents.index`                                       |
-| DELETE | `/documents/{document}`         | `documents.destroy`    | DocumentController@destroy       | redirect → `documents.index`                                       |
-| GET    | `/documents/{document}/viewer`  | `documents.viewer`     | DocumentController@viewer        | página `Documents/Viewer`                                          |
-| GET    | `/documents/{document}/file`    | `documents.file`       | DocumentController@file          | stream PDF `inline` (no Inertia); 404 si no existe                 |
-| POST   | `/documents/{document}/links`   | `documents.links.store`| DocumentLinkController@store     | redirect back (asociación creada)                                  |
-| DELETE | `/documents/{document}/links`   | `documents.links.destroy` | DocumentLinkController@destroy | redirect back (vínculo eliminado)                                  |
-| POST   | `/documents/verify`             | `documents.verify`     | DocumentController@verify        | redirect back con flash `verification`                             |
+| Método | URI                            | Nombre                    | Acción                         | Respuesta                                                             |
+| ------ | ------------------------------ | ------------------------- | ------------------------------ | --------------------------------------------------------------------- |
+| GET    | `/documents`                   | `documents.index`         | DocumentController@index       | página `Documents/Index`                                              |
+| GET    | `/documents/create`            | `documents.create`        | DocumentController@create      | página `Documents/Create`                                             |
+| POST   | `/documents`                   | `documents.store`         | DocumentController@store       | redirect → entidad Edit (si viene de una entidad) o `documents.index` |
+| PUT    | `/documents/{document}`        | `documents.update`        | DocumentController@update      | redirect → `documents.index`                                          |
+| DELETE | `/documents/{document}`        | `documents.destroy`       | DocumentController@destroy     | redirect → `documents.index`                                          |
+| GET    | `/documents/{document}/viewer` | `documents.viewer`        | DocumentController@viewer      | página `Documents/Viewer`                                             |
+| GET    | `/documents/{document}/file`   | `documents.file`          | DocumentController@file        | stream PDF `inline` (no Inertia); 404 si no existe                    |
+| POST   | `/documents/{document}/links`  | `documents.links.store`   | DocumentLinkController@store   | redirect back (asociación creada)                                     |
+| DELETE | `/documents/{document}/links`  | `documents.links.destroy` | DocumentLinkController@destroy | redirect back (vínculo eliminado)                                     |
+| POST   | `/documents/verify`            | `documents.verify`        | DocumentController@verify      | redirect back con flash `verification`                                |
 
 - Parámetros de filtro de `GET /documents`: `q` (texto sobre título/nombre original), `status` (`all|linked|unlinked`), `entity_type` (`certification|education|experience`) + `entity_id` (entidad concreta). Los filtros se preservan como query string.
 - `linkable_type` se resuelve contra allow-list en servidor: `certification` → `Certification`, `education` → `EducationEntry`, `experience` → `WorkExperience`.
