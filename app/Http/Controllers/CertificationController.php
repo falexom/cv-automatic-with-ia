@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCertificationRequest;
 use App\Http\Requests\UpdateCertificationRequest;
 use App\Models\Certification;
+use App\Models\Document;
 use App\Models\Profile;
+use App\Models\Skill;
 use App\Support\NameNormalizer;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -19,6 +21,7 @@ class CertificationController extends Controller
         $records = Profile::current()
             ->certifications()
             ->with('skills:id,name,category')
+            ->withCount('documents')
             ->chronological()
             ->get()
             ->map(fn (Certification $certification): array => $this->serialize($certification));
@@ -65,6 +68,7 @@ class CertificationController extends Controller
                 'skill_ids' => $certification->skills->pluck('id')->all(),
             ],
             'skills' => $this->skillOptions(),
+            'documents' => $this->linkedDocuments($certification),
         ]);
     }
 
@@ -153,6 +157,7 @@ class CertificationController extends Controller
             'code' => $certification->code,
             'validation_url' => $certification->validation_url,
             'category' => $certification->category,
+            'documents_count' => (int) ($certification->getAttribute('documents_count') ?? 0),
             'skills' => $certification->skills
                 ->map(fn ($skill): array => [
                     'id' => $skill->id,
@@ -165,7 +170,7 @@ class CertificationController extends Controller
     }
 
     /**
-     * @return Collection<int, array{id: int, name: string, category: string}>
+     * @return Collection<int, Skill>
      */
     private function skillOptions()
     {
@@ -173,6 +178,22 @@ class CertificationController extends Controller
             ->skills()
             ->orderBy('name')
             ->get(['id', 'name', 'category']);
+    }
+
+    /**
+     * Documents linked to the entity (short payload for the edit page).
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function linkedDocuments(Certification $certification): array
+    {
+        return $certification->documents()
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->get()
+            ->map(fn (Document $document): array => $document->toEntityPayload())
+            ->values()
+            ->all();
     }
 
     private function redirectToIndex(string $message): RedirectResponse

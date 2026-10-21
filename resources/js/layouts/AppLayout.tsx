@@ -11,6 +11,7 @@ const navigation = [
     { label: 'Cursos y certificaciones', href: '/certifications' },
     { label: 'Habilidades', href: '/skills' },
     { label: 'Proyectos', href: '/projects' },
+    { label: 'Documentos', href: '/documents' },
 ];
 
 export default function AppLayout({ children, title }: AppLayoutProps) {

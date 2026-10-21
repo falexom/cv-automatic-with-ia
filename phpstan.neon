@@ -11,3 +11,7 @@ parameters:
         - routes/
 
     level: 7
+
+    # El proyecto declara casts en el método casts(); sin esto, Larastan
+    # infiere los tipos desde el esquema y pierde los casts declarados.
+    parseModelCastsMethod: true

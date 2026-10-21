@@ -1,4 +1,7 @@
 import { Head } from '@inertiajs/react';
+import LinkedDocumentsSection, {
+    type LinkedDocument,
+} from '@/components/documents/LinkedDocumentsSection';
 import WorkExperienceForm, {
     type WorkExperienceFormRecord,
 } from '@/components/forms/WorkExperienceForm';
@@ -9,9 +12,11 @@ import { formatRange } from '@/lib/dates';
 export default function Edit({
     record,
     skills,
+    documents,
 }: {
     record: WorkExperienceFormRecord;
     skills: SkillOption[];
+    documents: LinkedDocument[];
 }) {
     const range = formatRange(
         record.start_year,
@@ -30,7 +35,14 @@ export default function Edit({
             }
         >
             <Head title={`Editar ${record.position}`} />
-            <WorkExperienceForm record={record} skills={skills} />
+            <div className="space-y-6">
+                <WorkExperienceForm record={record} skills={skills} />
+                <LinkedDocumentsSection
+                    entityType="experience"
+                    entityId={record.id}
+                    documents={documents}
+                />
+            </div>
         </AppLayout>
     );
 }

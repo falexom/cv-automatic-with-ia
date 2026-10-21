@@ -18,10 +18,12 @@ class SkillFactory extends Factory
      */
     public function definition(): array
     {
+        $faker = $this->faker->unique();
+
         return [
             'profile_id' => fn () => Profile::current()->id,
-            'name' => ucfirst(fake()->unique()->words(2, true)),
-            'category' => fake()->randomElement(Skill::CATEGORIES),
+            'name' => ucfirst($faker->word().' '.$faker->word()),
+            'category' => $this->faker->randomElement(Skill::CATEGORIES),
         ];
     }
 }

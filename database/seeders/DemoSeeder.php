@@ -3,8 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\Profile;
+use App\Models\Skill;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Datos ficticios y realistas para revisar visualmente todas las
@@ -48,6 +50,11 @@ class DemoSeeder extends Seeder
 
     private function clearExistingData(): void
     {
+        Storage::disk('local')->deleteDirectory('documents');
+        DB::table('document_certification')->delete();
+        DB::table('document_education_entry')->delete();
+        DB::table('document_work_experience')->delete();
+        DB::table('documents')->delete();
         DB::table('skill_work_experience')->delete();
         DB::table('skill_certification')->delete();
         DB::table('skill_project')->delete();
@@ -61,7 +68,7 @@ class DemoSeeder extends Seeder
     }
 
     /**
-     * @return array<string, \App\Models\Skill>
+     * @return array<string, Skill>
      */
     private function createSkills(Profile $profile): array
     {
@@ -93,7 +100,7 @@ class DemoSeeder extends Seeder
     }
 
     /**
-     * @param  array<string, \App\Models\Skill>  $skills
+     * @param  array<string, Skill>  $skills
      */
     private function createWorkExperiences(Profile $profile, array $skills): void
     {
@@ -170,7 +177,7 @@ class DemoSeeder extends Seeder
     }
 
     /**
-     * @param  array<string, \App\Models\Skill>  $skills
+     * @param  array<string, Skill>  $skills
      */
     private function createCertifications(Profile $profile, array $skills): void
     {
@@ -242,7 +249,7 @@ class DemoSeeder extends Seeder
     }
 
     /**
-     * @param  array<string, \App\Models\Skill>  $skills
+     * @param  array<string, Skill>  $skills
      */
     private function createProjects(Profile $profile, array $skills): void
     {
@@ -307,7 +314,7 @@ class DemoSeeder extends Seeder
     }
 
     /**
-     * @param  array<string, \App\Models\Skill>  $skills
+     * @param  array<string, Skill>  $skills
      * @param  array<int, string>  $names
      * @return array<int, int>
      */

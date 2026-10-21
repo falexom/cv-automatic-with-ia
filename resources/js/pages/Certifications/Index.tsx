@@ -17,6 +17,7 @@ type CertificationRecord = {
     date_year: number | null;
     date_month: number | null;
     category: string | null;
+    documents_count: number;
     skills: SkillOption[];
 };
 
@@ -136,7 +137,11 @@ export default function Index({ records }: { records: CertificationRecord[] }) {
                 title="¿Eliminar esta certificación?"
                 description={
                     deleteTarget
-                        ? `Se eliminará "${deleteTarget.name}". Esta acción es definitiva.`
+                        ? `Se eliminará "${deleteTarget.name}".${
+                              deleteTarget.documents_count > 0
+                                  ? ` Sus ${deleteTarget.documents_count} documento(s) quedarán sin asociar y se conservarán en el repositorio.`
+                                  : ''
+                          } Esta acción es definitiva.`
                         : undefined
                 }
                 processing={processing}
