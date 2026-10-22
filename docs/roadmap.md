@@ -377,15 +377,15 @@ No debe iniciarse la implementación del siguiente Spec hasta que el anterior se
 
 # Estado del Roadmap
 
-| Spec     | Capacidad                               | Estado                                                                                                                                                            |
-| -------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SPEC-001 | Perfil Profesional Maestro              | Implementado — pruebas automatizadas aprobadas (2026-10-21); validación manual (T064), auditoría offline (T063) y cierre formal pendientes; versión no acreditada |
-| SPEC-002 | Documentos y Evidencias                 | Cerrado formalmente (2026-10-21) — validación manual 2026-10-15; pruebas 2026-10-21; main 1f154bc; sin tag                                                        |
-| SPEC-003 | Perfiles de CV                          | Pendiente                                                                                                                                                         |
-| SPEC-004 | Generador de CV                         | Pendiente                                                                                                                                                         |
-| SPEC-005 | Exportación PDF                         | Pendiente                                                                                                                                                         |
-| SPEC-006 | CV Documentado                          | Pendiente                                                                                                                                                         |
-| SPEC-007 | Importación Inteligente de Certificados | Pendiente                                                                                                                                                         |
+| Spec     | Capacidad                               | Estado                                                                                                                                                                                                          |
+| -------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SPEC-001 | Perfil Profesional Maestro              | Cerrado formalmente (2026-10-22) — validación manual del responsable aprobada; T063/T064 completadas; SC-001 retirado por decisión del responsable; pendiente de integración en main (commits 63bb79c, a04954d) |
+| SPEC-002 | Documentos y Evidencias                 | Cerrado formalmente (2026-10-21) — validación manual 2026-10-15; pruebas 2026-10-21; main 1f154bc; sin tag                                                                                                      |
+| SPEC-003 | Perfiles de CV                          | Pendiente                                                                                                                                                                                                       |
+| SPEC-004 | Generador de CV                         | Pendiente                                                                                                                                                                                                       |
+| SPEC-005 | Exportación PDF                         | Pendiente                                                                                                                                                                                                       |
+| SPEC-006 | CV Documentado                          | Pendiente                                                                                                                                                                                                       |
+| SPEC-007 | Importación Inteligente de Certificados | Pendiente                                                                                                                                                                                                       |
 
 ---
 

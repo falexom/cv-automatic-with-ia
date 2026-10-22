@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-15
 
-**Status**: Implementado — pruebas automatizadas aprobadas (2026-10-21); validación manual pendiente de registro (T064); auditoría offline pendiente (T063); cierre formal no declarado y versión no acreditada
+**Status**: Cerrado (2026-10-22) — validación manual del responsable aprobada (9 escenarios, 4.5 y formularios corregidos); T063/T064 completadas; SC-001 retirado por decisión del responsable; pendiente de integración en `main` (commits `63bb79c`, `a04954d`)
 
 **Input**: User description: "Gestión centralizada del Perfil Profesional Maestro: datos personales, resumen profesional, experiencia laboral, educación, cursos y certificaciones, habilidades y proyectos. Es la base de todo el sistema: una sola trayectoria profesional registrada una única vez."
 
@@ -248,13 +248,16 @@ Como usuario, quiero registrar mis proyectos con descripción, rol, habilidades 
 
 ### Measurable Outcomes
 
-- **SC-001**: Un usuario nuevo puede registrar su perfil completo —datos personales, una experiencia, una entrada de educación, una certificación, cinco habilidades y un proyecto— en menos de 20 minutos.
 - **SC-002**: El 100% de los datos registrados permanece intacto y accesible tras cerrar y volver a abrir la aplicación.
 - **SC-003**: El 100% de las correcciones sobre un dato se refleja de inmediato en todas las vistas que lo utilizan, sin quedar valores obsoletos ni copias desincronizadas.
 - **SC-004**: El 100% de los intentos de guardar con fechas incoherentes (fin anterior a inicio) es bloqueado con un mensaje que explica el motivo.
 - **SC-005**: Registrar una experiencia laboral o una certificación nueva toma menos de 2 minutos.
 - **SC-006**: Al menos el 90% de los usuarios encuentra cualquier sección del perfil en un máximo de 2 clics desde el menú principal, en su primer intento.
 - **SC-007**: El 100% de las eliminaciones requiere confirmación explícita; ninguna acción destructiva ocurre en un solo paso.
+
+### Criterios retirados
+
+- **SC-001 — Retirado formalmente el 2026-10-22 por decisión del responsable.** Texto original: «Un usuario nuevo puede registrar su perfil completo —datos personales, una experiencia, una entrada de educación, una certificación, cinco habilidades y un proyecto— en menos de 20 minutos.» Motivo: el flujo previsto de captura y aprovechamiento de la información profesional contempla asistencia mediante inteligencia artificial; la duración de entrada manual no constituye una medida representativa del objetivo futuro del producto. No fue medido ni aprobado y no se sustituye por otro criterio.
 
 ## Pruebas Requeridas
 

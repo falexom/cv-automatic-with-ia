@@ -3,7 +3,7 @@
 Aplicación web local monousuario para gestionar el **Perfil Profesional Maestro**: una sola trayectoria profesional registrada una única vez (datos personales, resumen, experiencia laboral, educación, cursos y certificaciones, habilidades y proyectos).
 
 - **Stack**: Laravel 13 + PHP 8.3–8.5, Inertia + React 19 + TypeScript, Tailwind CSS 4, shadcn/ui, SQLite local.
-- **Sin autenticación** y **sin servicios externos en las capacidades implementadas**: la información permanece en tu equipo. La auditoría offline de SPEC-001 (T063) sigue pendiente.
+- **Sin autenticación** y **sin servicios externos en runtime**: la información permanece en tu equipo. Auditoría offline de SPEC-001 (T063) completada y comprobación manual aprobada (2026-10-22); Instrument Sans se descarga solo en build/dev cuando falta caché.
 - Especificaciones: `specs/001-perfil-profesional-maestro/` y `specs/002-documentos-evidencias/` (spec, plan, modelo de datos, contratos, quickstart, tasks).
 - Reglas del proyecto: `.specify/memory/constitution.md`.
 
@@ -62,5 +62,5 @@ Fuera de alcance por ahora: extracción/OCR, perfiles objetivo (Analista/Program
 
 ### Estado de las especificaciones
 
-- SPEC-001 — Perfil Profesional Maestro: implementado; cierre formal pendiente (T063 y T064).
+- SPEC-001 — Perfil Profesional Maestro: cerrado formalmente (2026-10-22) — validación manual del responsable aprobada; SC-001 retirado por decisión del responsable; pendiente de integración en `main` (commits `63bb79c`, `a04954d`).
 - SPEC-002 — Documentos y Evidencias: cerrado formalmente el 2026-10-21; integración en main: `1f154bc`; sin tag.

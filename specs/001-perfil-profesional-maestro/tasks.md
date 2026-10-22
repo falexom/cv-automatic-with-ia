@@ -212,8 +212,8 @@
 - [x] T060 [P] Feature test `tests/Feature/PersistenceTest.php`: escribir perfil completo (todas las secciones + relaciones) y releerlo en una instancia fresca de la aplicación simulando reinicio (FR-027, SC-002)
 - [x] T061 Run full backend suite `php artisan test` and fix any failures
 - [x] T062 [P] Run `npm test`, `npm run check` and Pint (`composer` script) and fix any issues
-- [ ] T063 [P] Audit privacy/offline (FR-031, Principio XXIII): no CDNs, fuentes/iconos locales, ninguna llamada externa en runtime; verificar `.env` fuera de git — PARCIAL: `.env` no versionado verificado; pendiente auditoría de llamadas externas en runtime.
-- [ ] T064 Manual validation of `specs/001-perfil-profesional-maestro/quickstart.md` (9 escenarios) including SC-001 timing (<20 min) and acentos/texto extenso; record results — PENDIENTE: no consta registro de los 9 escenarios ni de SC-001 (<20 min); reabrir hasta adjuntar evidencia.
+- [x] T063 [P] Audit privacy/offline (FR-031, Principio XXIII): no CDNs, fuentes/iconos locales, ninguna llamada externa en runtime; verificar `.env` fuera de git — COMPLETADA (2026-10-22): auditoría técnica completada (sin dependencias externas de runtime; dependencia Instrument Sans de build/dev documentada y aceptada); comprobación manual offline aprobada por el responsable (escenario 9); `.env` no versionado verificado.
+- [x] T064 Manual validation of `specs/001-perfil-profesional-maestro/quickstart.md` (9 escenarios) including SC-001 timing (<20 min) and acentos/texto extenso; record results — COMPLETADA (2026-10-22): 9 escenarios aprobados por el responsable; SC-001 retirado por decisión del responsable (ver spec.md); evidencia abajo.
 - [x] T065 [P] Update `README.md` with setup, run and test instructions for the application
 
 ---
@@ -233,23 +233,41 @@ Esta sección registra la evidencia real disponible. La validación manual pendi
 
 ### T063 — Privacidad y entorno
 
-- [ ] Comprobar ausencia de llamadas externas en runtime (sin CDNs ni servicios remotos).
+- [x] Comprobar ausencia de llamadas externas en runtime (sin CDNs ni servicios remotos).
+- [x] Auditoría técnica (2026-10-22): sin dependencias externas de runtime; dependencia Bunny (Instrument Sans) en build/dev documentada y aceptada.
+- [x] Comprobación manual offline aprobada por el responsable (escenario 9): red desconectada con servidor local en marcha.
 - [x] Comprobar que `.env` no está versionado en Git — `git ls-files .env` no devuelve resultados y `.gitignore` incluye `.env`.
 
 ### T064 — Validación manual (9 escenarios de `quickstart.md`)
 
-- [ ] 1. Persistencia del perfil (FR-027, SC-002).
-- [ ] 2. Validaciones del perfil (FR-005, FR-006).
-- [ ] 3. Experiencia laboral con fechas (FR-007–FR-011, FR-034).
-- [ ] 4. Habilidades: catálogo, duplicados y relaciones (FR-019–FR-021).
-- [ ] 5. Cursos y certificaciones (FR-015–FR-018).
-- [ ] 6. Confirmaciones de eliminación (FR-026, SC-007).
-- [ ] 7. Estados vacíos y navegación (FR-028, FR-029, SC-006).
-- [ ] 8. Acentos y texto extenso (FR-030, caso límite).
-- [ ] 9. Sin dependencia externa (FR-031).
-- [ ] SC-001: registrar el perfil completo (datos personales, una experiencia, una educación, una certificación, cinco habilidades y un proyecto) en menos de 20 minutos, con duración registrada.
+- [x] 1. Persistencia del perfil (FR-027, SC-002).
+- [x] 2. Validaciones del perfil (FR-005, FR-006).
+- [x] 3. Experiencia laboral con fechas (FR-007–FR-011, FR-034).
+- [x] 4. Habilidades: catálogo, duplicados y relaciones (FR-019–FR-021).
+- [x] 5. Cursos y certificaciones (FR-015–FR-018).
+- [x] 6. Confirmaciones de eliminación (FR-026, SC-007).
+- [x] 7. Estados vacíos y navegación (FR-028, FR-029, SC-006).
+- [x] 8. Acentos y texto extenso (FR-030, caso límite).
+- [x] 9. Sin dependencia externa (FR-031).
+- SC-001: **retirado formalmente** por decisión del responsable (2026-10-22) — no medido, no aprobado, no sustituido (ver `spec.md` → Criterios retirados).
 
-> **Nota de cierre**: T061/T062 cuentan con evidencia automatizada; T063 tiene `.env` verificado y la auditoría de llamadas externas pendiente; T064 sigue pendiente de validación manual.
+### T064 — Incidencia setData resuelta y confirmación humana parcial (2026-10-22)
+
+- [x] Incidencia detectada en validación manual: pantalla en blanco al seleccionar año en `/projects/create` (`TypeError: Cannot read properties of undefined (reading 'map')` en `ProjectForm.tsx`); causa raíz: `setData(objeto)` de Inertia 3.9.1 reemplaza el estado completo del formulario.
+- [x] Corrección aplicada en `ProjectForm`, `WorkExperienceForm`, `EducationForm` y `CertificationForm` (patrón de fusión `setData((current) => ({ ...current, ... }))`) + 4 pruebas de regresión.
+- [x] QA independiente: PASS — 4 tests de regresión; suite JS 11 archivos / 20 tests; `npm run types:check` sin errores.
+- [x] Confirmación humana (2026-10-22): los cuatro formularios funcionan correctamente al cambiar años y opciones; no se reproduce la pantalla en blanco. **Alcance limitado a este defecto.**
+- [x] Resto de escenarios manuales de T064: aprobados por el responsable (2026-10-22). SC-001: retirado por decisión del responsable (no medido).
+
+### Cierre de SPEC-001 — validación manual del responsable (2026-10-22)
+
+- [x] Escenarios 1–9 aprobados por el responsable (incluye 4.5: conteos 0/1/3, cancelar/confirmar; offline con desconexión real y revisión de red).
+- [x] Formularios Proyectos, Experiencia, Educación y Certificaciones verificados tras la corrección setData (2026-10-22).
+- [x] SC-001 retirado por decisión del responsable — no medido ni sustituido (ver `spec.md`).
+- [x] Commits funcionales: `63bb79c` (conteo de usos al eliminar habilidades) y `a04954d` (estado de formularios setData).
+- Registro: validación manual ejecutada y aprobada por el responsable; no es prueba automatizada ni ejecución de QA.
+
+> **Nota de cierre**: SPEC-001 cerrado documentalmente (2026-10-22): validación manual del responsable aprobada; T063/T064 completadas; SC-001 retirado por decisión del responsable; commits funcionales `63bb79c` y `a04954d`; pendiente integración en `main`.
 
 ---
 
