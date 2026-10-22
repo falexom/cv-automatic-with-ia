@@ -15,7 +15,18 @@ type SkillRecord = {
     id: number;
     name: string;
     category: string;
+    usage_count: number;
 };
+
+function deleteDescription(name: string, usageCount: number): string {
+    if (usageCount === 0) {
+        return `No se usa en ningún elemento. Se eliminará "${name}" del catálogo.`;
+    }
+
+    const usage = usageCount === 1 ? '1 elemento' : `${usageCount} elementos`;
+
+    return `Se usa en ${usage}. Se eliminará "${name}" del catálogo y sus vínculos con experiencias, certificaciones y proyectos. Los registros que la usan permanecerán intactos.`;
+}
 
 export default function Index({ records }: { records: SkillRecord[] }) {
     const [deleteTarget, setDeleteTarget] = useState<SkillRecord | null>(null);
@@ -120,7 +131,10 @@ export default function Index({ records }: { records: SkillRecord[] }) {
                 title="¿Eliminar esta habilidad?"
                 description={
                     deleteTarget
-                        ? `Se eliminará "${deleteTarget.name}" del catálogo y sus vínculos con experiencias, certificaciones y proyectos. Los registros que la usan permanecerán intactos.`
+                        ? deleteDescription(
+                              deleteTarget.name,
+                              deleteTarget.usage_count,
+                          )
                         : undefined
                 }
                 processing={processing}

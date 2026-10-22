@@ -18,6 +18,7 @@ class SkillController extends Controller
     {
         $records = Profile::current()
             ->skills()
+            ->withCount(['workExperiences', 'certifications', 'projects'])
             ->orderByRaw("CASE category
                 WHEN 'tecnica' THEN 1
                 WHEN 'funcional' THEN 2
@@ -27,7 +28,12 @@ class SkillController extends Controller
                 ELSE 6 END")
             ->orderBy('name')
             ->get()
-            ->map(fn (Skill $skill): array => $this->serialize($skill));
+            ->map(fn (Skill $skill): array => [
+                ...$this->serialize($skill),
+                'usage_count' => $skill->work_experiences_count
+                    + $skill->certifications_count
+                    + $skill->projects_count,
+            ]);
 
         return Inertia::render('Skills/Index', [
             'records' => $records,

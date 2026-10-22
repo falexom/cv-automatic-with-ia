@@ -76,7 +76,9 @@ it('shows the catalog grouped data and where a skill is used', function () {
         ->assertInertia(fn (Assert $page) => $page
             ->component('Skills/Index')
             ->where('records.0.name', 'Análisis de procesos')
-            ->where('records.1.name', 'PHP'));
+            ->where('records.0.usage_count', 0)
+            ->where('records.1.name', 'PHP')
+            ->where('records.1.usage_count', 3));
 
     $this->get("/skills/{$skill->id}/edit")
         ->assertOk()
