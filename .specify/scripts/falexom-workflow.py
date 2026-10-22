@@ -57,10 +57,38 @@ def safe_path(value):
     return p
 
 
+def ancestor(left, right):
+    result = subprocess.run([GIT, 'merge-base', '--is-ancestor', left, right],
+                            cwd=ROOT, env=environment(), capture_output=True)
+    if result.returncode not in (0, 1):
+        fail('Cannot verify branch ancestry; human preparation required')
+    return result.returncode == 0
+
+
+def prepared_base(ref='HEAD'):
+    head, base = git('rev-parse', '--verify', ref), git('rev-parse', '--verify', 'main')
+    if not ancestor(base, head):
+        if ancestor(head, base):
+            fail('BASE_OUTDATED_FAST_FORWARD: SPEC branch is behind main. Stop before development. '
+                 'A fast-forward of the SPEC branch is not a merge into main, but still requires '
+                 'effective authorization. Request human preparation immediately; do not retry '
+                 'denied merge commands through another tool or wrapper.')
+        fail('BASE_DIVERGED: SPEC and main have diverged. Stop writes and request a human decision; '
+             'no automatic merge, rebase or history rewrite.')
+    for relative in ['AGENTS.md', '.specify/memory/constitution.md',
+                     '.specify/scripts/falexom-workflow.py']:
+        result = subprocess.run([GIT, 'cat-file', '-e', ref + ':' + relative],
+                                cwd=ROOT, env=environment(), capture_output=True)
+        if result.returncode or (ref == 'HEAD' and not (ROOT / safe_path(relative)).is_file()):
+            fail('INTEGRATION_MISSING: ' + relative + '. Stop before development; human preparation required.')
+    return {'HEAD': head, 'MAIN': base, 'BASE_READY': True}
+
+
 def check():
     branch = repository()
     if not SPEC.fullmatch(branch):
         fail('Writes blocked: select the SPEC branch, never main/master or a detached HEAD')
+    readiness = prepared_base()
     f = safe_path('.specify/feature.json')
     feature = json.loads((ROOT / f).read_text())['feature_directory']
     if feature != 'specs/' + branch:
@@ -75,7 +103,7 @@ def check():
             fail('Conflicting environment selection: ' + key)
     if os.environ.get('SPECIFY_INIT_DIR') and Path(os.environ['SPECIFY_INIT_DIR']).resolve() != ROOT:
         fail('Conflicting SPECIFY_INIT_DIR')
-    return {'BRANCH_NAME': branch, 'FEATURE_DIR': str(ROOT / feature)}
+    return {'BRANCH_NAME': branch, 'FEATURE_DIR': str(ROOT / feature), **readiness}
 
 
 def clean():
@@ -94,6 +122,7 @@ def prepare(slug, description):
     if current != 'main':
         fail('New SPEC preparation requires clean main; use resume for existing work')
     clean()
+    prepared_base()
     if any(os.environ.get(k) for k in ['SPECIFY_FEATURE', 'SPECIFY_FEATURE_DIRECTORY', 'SPECIFY_INIT_DIR']):
         fail('Clear explicit SPECIFY overrides before preparing a new SPEC')
     safe_path('specs')
@@ -119,28 +148,41 @@ def prepare(slug, description):
 def resume(name):
     if not SPEC.fullmatch(name):
         fail('Expected NNN-feature-name')
-    if repository() == name:
-        return check()
-    clean()
+    current = repository()
+    if current != name:
+        clean()
     if name not in git('for-each-ref', '--format=%(refname:short)', 'refs/heads/').splitlines():
         fail('No existing branch; will not create a duplicate')
-    if any(os.environ.get(k) for k in ['SPECIFY_FEATURE', 'SPECIFY_FEATURE_DIRECTORY', 'SPECIFY_INIT_DIR']):
-        fail('Clear explicit SPECIFY overrides before resuming')
-    # feature.json is intentionally ignored machine-local state in this Spec Kit version.
-    # Explicit resume selects a proven existing branch/spec pair, then updates that pointer.
+    # Validate the target BEFORE switching, selecting context or delegating edits.
+    prepared_base('HEAD' if current == name else name)
+    for key, expected in [('SPECIFY_FEATURE', name), ('SPECIFY_FEATURE_DIRECTORY', 'specs/' + name)]:
+        actual = os.environ.get(key)
+        if actual and actual != expected and actual != str(ROOT / expected):
+            fail('Conflicting environment selection: ' + key)
+    if os.environ.get('SPECIFY_INIT_DIR') and Path(os.environ['SPECIFY_INIT_DIR']).resolve() != ROOT:
+        fail('Conflicting SPECIFY_INIT_DIR')
     git('cat-file', '-e', name + ':specs/' + name + '/spec.md')
     pointer = ROOT / safe_path('.specify/feature.json')
     if subprocess.run([GIT, 'check-ignore', '-q', '.specify/feature.json'], cwd=ROOT,
                       env=environment()).returncode != 0:
         fail('feature.json is tracked or not ignored; manual reconciliation required')
-    git('switch', name)
-    fd, temp = tempfile.mkstemp(prefix='.feature-', dir=pointer.parent)
-    try:
-        with os.fdopen(fd, 'w') as stream:
-            stream.write(json.dumps({'feature_directory': 'specs/' + name}, indent=4) + '\n')
-        os.replace(temp, pointer)
-    finally:
-        if os.path.exists(temp): os.unlink(temp)
+    data = json.loads(pointer.read_text()) if pointer.exists() else {}
+    if not isinstance(data, dict):
+        fail('Invalid feature.json; manual reconciliation required')
+    if current != name:
+        git('switch', name)
+    # On the SAME branch this only selects the explicitly requested ignored pointer.
+    # Existing product edits/index are preserved; no stash, reset or merge is attempted.
+    if data.get('feature_directory') != 'specs/' + name:
+        data['feature_directory'] = 'specs/' + name
+        fd, temp = tempfile.mkstemp(prefix='.feature-', dir=pointer.parent)
+        try:
+            with os.fdopen(fd, 'w') as stream:
+                os.fchmod(stream.fileno(), pointer.stat().st_mode & 0o777 if pointer.exists() else 0o644)
+                stream.write(json.dumps(data, indent=4) + '\n')
+            os.replace(temp, pointer)
+        finally:
+            if os.path.exists(temp): os.unlink(temp)
     return check()
 
 
@@ -209,12 +251,14 @@ def main():
     elif a.operation == 'preflight':
         if repository() == 'main':
             clean()
+            prepared_base()
             result = {'base': 'main', 'ready': 'new SPEC preparation authorized separately'}
         else:
             result = check()
     elif a.operation == 'check-create':
         if not SPEC.fullmatch(a.spec) or repository() != a.spec:
             fail('Generator must run on its matching SPEC branch, never main')
+        prepared_base()
         safe_path('specs/' + a.spec)
         if (ROOT / 'specs' / a.spec).exists():
             fail('Existing SPEC: use resume, do not regenerate')

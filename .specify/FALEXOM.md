@@ -95,3 +95,23 @@ Spec Kit puede reemplazarlas. Revisar el diff y respaldarlas antes de actualizar
 La instalación deja cambios de integración sin commit en el repositorio; deben
 versionarse mediante revisión humana antes de preparar un SPEC desde main limpio.
 SPEC-002 permanece cerrado; T063/T064 y SPEC-003 no cambian.
+
+## Recuperación de ramas históricas y gate previo al desarrollo
+
+Antes de delegar código, Orchestrator exige AGENTS.md, Constitución y ejecutor;
+si faltan, solicita preparación humana sin desarrollar ni reconstruir integración.
+Developer ejecuta primero resume/check, como encargo separado de implementación.
+check devuelve HEAD, MAIN y BASE_READY solo si main es antecesor de la rama y la
+integración requerida existe. Una base atrasada informa BASE_OUTDATED_FAST_FORWARD;
+una divergente, BASE_DIVERGED. Ambas bloquean antes de editar, staging o commit.
+No se añade una operación merge al ejecutor ni se cambia ningún permiso general.
+Un avance lineal de main a la rama SPEC no integra nada en main, pero puede seguir
+requiriendo intervención humana. Ante denegación, detenerse inmediatamente sin
+variar comandos, wrappers o especialistas. La protección condicional de edit nativo
+sigue siendo una regla operativa; no es una sandbox por rama.
+
+resume sobre la rama ya activa puede corregir el puntero local ignorado incluso
+con trabajo funcional pendiente; conserva archivos, staging y otros campos JSON.
+No cambia de rama con trabajo sin guardar. Una rama histórica atrasada debe ser
+actualizada primero por el usuario autorizado, preservando y verificando su trabajo.
+Esta recuperación no cierra SPEC-001 ni acredita validación funcional del escenario 4.5.
