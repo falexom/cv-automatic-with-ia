@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-22
 
-**Status**: Clarified — 2026-10-22; D1–D3 aprobadas; lista para Plan
+**Status**: Implemented — 2026-10-22; validación automatizada aprobada (143 tests backend, 31 frontend, typecheck/lint de código); T050 manual pendiente; sin merge ni push.
 
 **Input**: User description: "Permitir crear y administrar múltiples perfiles de CV especializados a partir de los datos del Perfil Profesional Maestro, sin duplicar innecesariamente sus registros. Cada perfil debe conservar relaciones con los registros maestros, poder seleccionar y ordenar contenido relevante y disponer de nombre, título profesional y resumen propios. Los perfiles iniciales previstos son Analista y Programador/Desarrollador. La gestión de perfiles activos/inactivos forma parte del alcance. La generación de CV/PDF, plantillas, exportación, IA, análisis de ofertas, postulaciones y gestión documental adicional están fuera de alcance."
 
