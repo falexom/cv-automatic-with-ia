@@ -3,8 +3,8 @@
 Aplicación web local monousuario para gestionar el **Perfil Profesional Maestro**: una sola trayectoria profesional registrada una única vez (datos personales, resumen, experiencia laboral, educación, cursos y certificaciones, habilidades y proyectos).
 
 - **Stack**: Laravel 13 + PHP 8.3–8.5, Inertia + React 19 + TypeScript, Tailwind CSS 4, shadcn/ui, SQLite local.
-- **Sin autenticación** y **sin servicios externos**: toda la información permanece en tu equipo.
-- Especificaciones: `specs/001-perfil-profesional-maestro/` (spec, plan, modelo de datos, contratos, quickstart, tasks).
+- **Sin autenticación** y **sin servicios externos en las capacidades implementadas**: la información permanece en tu equipo. La auditoría offline de SPEC-001 (T063) sigue pendiente.
+- Especificaciones: `specs/001-perfil-profesional-maestro/` y `specs/002-documentos-evidencias/` (spec, plan, modelo de datos, contratos, quickstart, tasks).
 - Reglas del proyecto: `.specify/memory/constitucion.md`.
 
 ## Requisitos
@@ -46,16 +46,21 @@ npm run check         # formato + lint + tipos (Vite+)
 app/
 ├── Http/Controllers/      # Un controlador por sección del perfil
 ├── Http/Requests/         # Validaciones (incluye reglas de fechas mes-año)
-├── Models/                # Profile, ProfileLink, WorkExperience, EducationEntry, Certification, Skill, Project
-└── Support/               # YearMonth (reglas de fechas), NameNormalizer (duplicados)
+├── Models/                # Profile, ProfileLink, WorkExperience, EducationEntry, Certification, Skill, Project, Document
+└── Support/               # YearMonth (reglas de fechas), NameNormalizer (duplicados), PdfFile (validación de PDF), DocumentEntities (entidades asociables)
 
 resources/js/
 ├── components/            # UI compartida (YearMonthInput, SkillMultiSelect, DeleteConfirmDialog...)
 ├── layouts/AppLayout.tsx  # Navegación principal
-└── pages/                 # Una sección por carpeta (Profile, Experiences, Education, Certifications, Skills, Projects)
+└── pages/                 # Una sección por carpeta (Profile, Experiences, Education, Certifications, Skills, Projects, Documents)
 ```
 
 ## Alcance actual
 
-Implementada la capacidad **Perfil Profesional Maestro** (`specs/001-perfil-profesional-maestro/`).
-Fuera de alcance por ahora: repositorio documental (PDFs), extracción automática, perfiles objetivo (Analista/Programador), generación de CV y CV documentado.
+Implementadas las capacidades **Perfil Profesional Maestro** (`specs/001-perfil-profesional-maestro/`) y **Documentos y Evidencias** (`specs/002-documentos-evidencias/`): PDFs originales conservados sin alteración, visualización dentro de la aplicación y asociación a certificaciones, educación y experiencia laboral.
+Fuera de alcance por ahora: extracción/OCR, perfiles objetivo (Analista/Programador), generación de CV, exportación PDF y CV documentado.
+
+### Estado de las especificaciones
+
+- SPEC-001 — Perfil Profesional Maestro: implementado; cierre formal pendiente (T063 y T064).
+- SPEC-002 — Documentos y Evidencias: cerrado formalmente el 2026-10-21; integración en main: `1f154bc`; sin tag.

@@ -211,10 +211,45 @@
 
 - [x] T060 [P] Feature test `tests/Feature/PersistenceTest.php`: escribir perfil completo (todas las secciones + relaciones) y releerlo en una instancia fresca de la aplicación simulando reinicio (FR-027, SC-002)
 - [x] T061 Run full backend suite `php artisan test` and fix any failures
-- [x] T062 [P] Run `npm test`, `npm run lint` and Pint (`composer` script) and fix any issues
-- [x] T063 [P] Audit privacy/offline (FR-031, Principio XXIII): no CDNs, fuentes/iconos locales, ninguna llamada externa en runtime; verificar `.env` fuera de git
-- [x] T064 Manual validation of `specs/001-perfil-profesional-maestro/quickstart.md` (9 escenarios) including SC-001 timing (<20 min) and acentos/texto extenso; record results
+- [x] T062 [P] Run `npm test`, `npm run check` and Pint (`composer` script) and fix any issues
+- [ ] T063 [P] Audit privacy/offline (FR-031, Principio XXIII): no CDNs, fuentes/iconos locales, ninguna llamada externa en runtime; verificar `.env` fuera de git — PARCIAL: `.env` no versionado verificado; pendiente auditoría de llamadas externas en runtime.
+- [ ] T064 Manual validation of `specs/001-perfil-profesional-maestro/quickstart.md` (9 escenarios) including SC-001 timing (<20 min) and acentos/texto extenso; record results — PENDIENTE: no consta registro de los 9 escenarios ni de SC-001 (<20 min); reabrir hasta adjuntar evidencia.
 - [x] T065 [P] Update `README.md` with setup, run and test instructions for the application
+
+---
+
+## Evidencia de validación
+
+Esta sección registra la evidencia real disponible. La validación manual pendiente no sustituye el cierre formal.
+
+### T061 / T062 — Pruebas automatizadas (2026-10-21)
+
+- [x] `php artisan test` — 2026-10-21: 89 tests passed, 585 assertions (exit 0).
+- [x] `npm test` — 2026-10-21: 7 test files, 16 tests passed (exit 0).
+- [x] `npm run check` — 2026-10-21: 110 files formatted, 63 files linted, exit 0.
+- [x] `npm run types:check` — 2026-10-21: sin errores (exit 0).
+- [x] `vendor/bin/pint --parallel --test` — 2026-10-21: passed (exit 0).
+- [x] `vendor/bin/phpstan analyse --memory-limit=1G` — 2026-10-21: 0 errors (exit 0).
+
+### T063 — Privacidad y entorno
+
+- [ ] Comprobar ausencia de llamadas externas en runtime (sin CDNs ni servicios remotos).
+- [x] Comprobar que `.env` no está versionado en Git — `git ls-files .env` no devuelve resultados y `.gitignore` incluye `.env`.
+
+### T064 — Validación manual (9 escenarios de `quickstart.md`)
+
+- [ ] 1. Persistencia del perfil (FR-027, SC-002).
+- [ ] 2. Validaciones del perfil (FR-005, FR-006).
+- [ ] 3. Experiencia laboral con fechas (FR-007–FR-011, FR-034).
+- [ ] 4. Habilidades: catálogo, duplicados y relaciones (FR-019–FR-021).
+- [ ] 5. Cursos y certificaciones (FR-015–FR-018).
+- [ ] 6. Confirmaciones de eliminación (FR-026, SC-007).
+- [ ] 7. Estados vacíos y navegación (FR-028, FR-029, SC-006).
+- [ ] 8. Acentos y texto extenso (FR-030, caso límite).
+- [ ] 9. Sin dependencia externa (FR-031).
+- [ ] SC-001: registrar el perfil completo (datos personales, una experiencia, una educación, una certificación, cinco habilidades y un proyecto) en menos de 20 minutos, con duración registrada.
+
+> **Nota de cierre**: T061/T062 cuentan con evidencia automatizada; T063 tiene `.env` verificado y la auditoría de llamadas externas pendiente; T064 sigue pendiente de validación manual.
 
 ---
 

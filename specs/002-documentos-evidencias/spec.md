@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-15
 
-**Status**: Draft
+**Status**: Cerrado formalmente — 2026-10-21. Implementación terminada; validación manual aprobada (2026-10-15); pruebas automatizadas aprobadas (2026-10-21); integrado en main mediante el commit 1f154bc. Cierre aprobado por el responsable del proyecto. Sin tag de versión: la Constitución y el roadmap no exigen tag y se acepta el commit de integración como referencia de cierre.
 
 **Input**: User description: "Crear el módulo Documentos y Evidencias del proyecto CV Automático. Debe permitir subir y conservar PDFs originales, asociarlos a certificaciones y otras entidades permitidas, visualizar los documentos y preparar la base para el futuro CV documentado. Respetar estrictamente la Constitución activa. No incluir OCR ni generación de CV en este Spec."
 
@@ -205,7 +205,7 @@ Como usuario, quiero consultar, buscar y mantener mis documentos (título, descr
 ### Key Entities _(include if feature involves data)_
 
 - **Documento**: PDF original conservado sin alteración, con metadatos (nombre original del archivo, tamaño, fecha de carga, título y descripción opcionales) y estado de disponibilidad. Puede existir sin asociación; cuando se asocia a una entidad permitida, el documento actúa como evidencia documental de esa entidad. Si el mismo archivo ya está almacenado, no se crea una copia adicional y se reutiliza el original.
-- **Asociación documento–entidad**: vínculo explícito entre un documento y una entidad permitida (curso/certificación o educación). No contiene copias del archivo ni de los datos de la entidad; puede crearse, cambiarse y eliminarse sin afectar a ninguno de los dos extremos.
+- **Asociación documento–entidad**: vínculo explícito entre un documento y una entidad permitida (curso/certificación, educación o experiencia laboral). No contiene copias del archivo ni de los datos de la entidad; puede crearse, cambiarse y eliminarse sin afectar a ninguno de los dos extremos.
 - **Curso / Certificación (existente, SPEC-001)**: extiende su modelo con uno o más documentos asociados, correspondiente al "Archivo PDF original" previsto en el Principio V.
 - **Educación (existente, SPEC-001)**: extiende su modelo con uno o más documentos asociados que actúan como evidencia documental, correspondiente a la "Evidencia documental asociada" prevista en el Principio V.
 - **Experiencia laboral (existente, SPEC-001)**: admite uno o más documentos asociados por decisión explícita registrada en esta clarificación; la Constitución no detalla evidencia documental para experiencia, pero no la prohíbe.

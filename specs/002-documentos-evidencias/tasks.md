@@ -264,7 +264,7 @@ With multiple developers:
 
 ## Validación funcional (2026-10-15)
 
-Validación manual en navegador realizada y aprobada por el usuario:
+Validación manual declarada en este documento: en navegador, realizada y aprobada por el usuario. Es una declaración registrada; no se adjunta salida de comandos de la validación manual. La evidencia automatizada se registra más abajo.
 
 1. El módulo Documentos y Evidencias carga correctamente.
 2. Los PDFs originales pueden visualizarse.
@@ -276,4 +276,26 @@ Validación manual en navegador realizada y aprobada por el usuario:
 8. La verificación de integridad funciona.
 9. Los documentos y asociaciones persisten después de reiniciar el servidor.
 
-**Estado**: 56/56 tareas completadas; validación técnica automatizada y validación manual aprobadas.
+**Estado**: Cierre formal aprobado el 2026-10-21. 56/56 tareas marcadas como completadas; validación manual aprobada (2026-10-15); pruebas automatizadas aprobadas (2026-10-21); integrado en `main` mediante `1f154bc`; sin tag de versión.
+
+T055 cuenta con evidencia automatizada (2026-10-21). T056 se sustenta en la declaración manual registrada (2026-10-15), no reejecutada; ambas permanecen marcadas `[x]`.
+
+**Versión**: `git tag --list` no devuelve tags. No se exige tag: el commit de integración `1f154bc` es la referencia de cierre.
+
+### Evidencia automatizada (2026-10-21)
+
+- [x] `php artisan test` — 2026-10-21: 89 tests passed, 585 assertions (exit 0).
+- [x] `npm test` — 2026-10-21: 7 test files, 16 tests passed (exit 0).
+- [x] `npm run check` — 2026-10-21: 110 files formatted, 63 files linted, exit 0.
+- [x] `npm run types:check` — 2026-10-21: sin errores (exit 0).
+- [x] Pint (`vendor/bin/pint --parallel --test`) — 2026-10-21: passed (exit 0).
+- [x] PHPStan (`vendor/bin/phpstan analyse --memory-limit=1G`) — 2026-10-21: 0 errors (exit 0).
+
+## Cierre formal (2026-10-21)
+
+- **Estado**: cerrado formalmente.
+- **Aprobación humana**: responsable del proyecto, 2026-10-21.
+- **Validación manual**: aceptada la aprobación registrada el 2026-10-15, sin repetición.
+- **Pruebas automatizadas**: aprobadas el 2026-10-21 (Pest 89/585 assertions; Vitest 16; TypeScript, Pint y PHPStan sin errores).
+- **Integración en `main`**: commit `1f154bc` (merge de `002-documentos-evidencias`).
+- **Tag**: no existe; no se exige tag. El commit de integración es la referencia de cierre.

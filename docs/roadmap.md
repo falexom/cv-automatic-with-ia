@@ -15,7 +15,7 @@ Este roadmap no sustituye a los archivos formales `spec.md` que serán creados p
 
 La fuente normativa global del proyecto sigue siendo:
 
-`.specify/memory/constitution.md`
+`.specify/memory/constitucion.md`
 
 Cada nuevo Spec deberá:
 
@@ -29,7 +29,9 @@ Cada nuevo Spec deberá:
 
 # SPEC-002 — Documentos y Evidencias
 
-**Estado:** Completado — implementado, validado y versionado (2026-10-15). El alcance definitivo está en `specs/002-documentos-evidencias/spec.md`.
+**Estado:** Cerrado formalmente (2026-10-21) — implementación terminada; validación manual aprobada (2026-10-15); pruebas automatizadas aprobadas (2026-10-21); integrado en main mediante `1f154bc`; sin tag (no exigido por la Constitución ni el roadmap). El alcance definitivo está en `specs/002-documentos-evidencias/spec.md`.
+
+**Referencia de cierre:** commit de integración `1f154bc` en `main`; no existe tag de versión.
 
 ## Objetivo
 
@@ -40,12 +42,10 @@ Crear el módulo de Documentos y Evidencias del proyecto CV Automático para per
 - Subir archivos PDF desde la interfaz.
 - Conservar el archivo original sin reconstruirlo.
 - Registrar metadatos básicos del documento.
-- Asociar documentos a certificaciones.
-- Permitir asociarlos a otras entidades compatibles cuando corresponda.
-- Visualizar documentos desde la aplicación.
-- Descargar documentos.
-- Mostrar qué registro profesional utiliza cada evidencia.
-- Permitir reemplazar o eliminar un documento con confirmación.
+- Asociación a cursos/certificaciones, educación y experiencia laboral; proyectos excluido.
+- Visualización desde la aplicación.
+- Mostrar qué registro utiliza cada evidencia.
+- Eliminación con confirmación; sustituir un archivo exige eliminar el documento y cargar uno nuevo, sin versionado ni descarga.
 - Mantener integridad entre el archivo físico y su registro en base de datos.
 - Preparar la base documental necesaria para el futuro CV documentado.
 
@@ -377,15 +377,15 @@ No debe iniciarse la implementación del siguiente Spec hasta que el anterior se
 
 # Estado del Roadmap
 
-| Spec     | Capacidad                               | Estado                         |
-| -------- | --------------------------------------- | ------------------------------ |
-| SPEC-001 | Perfil Profesional Maestro              | Implementado / cierre en curso |
-| SPEC-002 | Documentos y Evidencias                 | Implementado                   |
-| SPEC-003 | Perfiles de CV                          | Pendiente                      |
-| SPEC-004 | Generador de CV                         | Pendiente                      |
-| SPEC-005 | Exportación PDF                         | Pendiente                      |
-| SPEC-006 | CV Documentado                          | Pendiente                      |
-| SPEC-007 | Importación Inteligente de Certificados | Pendiente                      |
+| Spec     | Capacidad                               | Estado                                                                                                                                                            |
+| -------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SPEC-001 | Perfil Profesional Maestro              | Implementado — pruebas automatizadas aprobadas (2026-10-21); validación manual (T064), auditoría offline (T063) y cierre formal pendientes; versión no acreditada |
+| SPEC-002 | Documentos y Evidencias                 | Cerrado formalmente (2026-10-21) — validación manual 2026-10-15; pruebas 2026-10-21; main 1f154bc; sin tag                                                        |
+| SPEC-003 | Perfiles de CV                          | Pendiente                                                                                                                                                         |
+| SPEC-004 | Generador de CV                         | Pendiente                                                                                                                                                         |
+| SPEC-005 | Exportación PDF                         | Pendiente                                                                                                                                                         |
+| SPEC-006 | CV Documentado                          | Pendiente                                                                                                                                                         |
+| SPEC-007 | Importación Inteligente de Certificados | Pendiente                                                                                                                                                         |
 
 ---
 
