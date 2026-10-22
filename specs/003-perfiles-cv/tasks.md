@@ -164,25 +164,50 @@ description: 'Task list for Perfiles de CV (SPEC-003)'
 - [x] T045 Ejecutar la suite completa de backend con `php artisan test`; no debe haber fallos ni pruebas omitidas que afecten a esta capacidad.
 - [x] T046 [P] Ejecutar la suite completa de frontend con `npm test`; no debe haber fallos en `CvProfileForm` ni en `use-current-url`. **Evidencia 2026-10-22:** 13 archivos / 31 tests passed con Vitest directo antes de restaurar `package.json`; el frontend no cambió después de esa restauración.
 - [x] T047 [P] Ejecutar `npm run types:check` y corregir cualquier error de TypeScript en los archivos de esta capacidad.
-- [ ] T048 [P] Ejecutar `npm run check` y `composer lint:check`; corregir solo los archivos de esta capacidad. No usar `npm run check:fix` ni formateadores automáticos sobre archivos ajenos. **Estado 2026-10-22: parcial.** El código pasa lint (`vpr check --no-fmt` sobre 75 archivos y `composer lint:check`), pero `vpr check` global falla solo por formato de 7 documentos SPEC (`spec.md`, `plan.md`, `research.md`, `data-model.md`, `contracts/http-contracts.md`, `quickstart.md`, `tasks.md`). No es un defecto de código; queda pendiente resolver o aceptar el formato documental.
+- [x] T048 [P] Ejecutar `npm run check` y `composer lint:check`; corregir solo los archivos de esta capacidad. No usar `npm run check:fix` ni formateadores automáticos sobre archivos ajenos. **Estado 2026-10-22: PASS.** Los 7 documentos SPEC se formatearon con `vp fmt`; `./node_modules/.bin/vpr check` pasa (131 archivos formateados; 75 sin lint), `vpr check --no-fmt` pasa y `git diff --check` está limpio. `package.json` restaurado sin `devEngines`.
 - [x] T049 [P] Aplicar la migración en la base local con `php artisan migrate` y verificar con `php artisan migrate:status` que `2026_10_22_000001_create_cv_profiles_and_content_tables` figura como aplicada. No usar `migrate:fresh`, `migrate:refresh` ni `db:wipe`; confirmar que las tablas y datos del Perfil Maestro y de SPEC-002 no cambiaron.
-- [ ] T050 Ejecutar manualmente los 11 escenarios de [quickstart.md](./quickstart.md) en la aplicación local: estado vacío y presets, creación/nombre, selección, relevancia/orden, reutilización, herencia/título propio, actualización/eliminación de maestros, activo/inactivo, persistencia tras reiniciar, fallo de guardado y límites de alcance. Registrar la evidencia (resultado de cada escenario y cualquier incidencia) en el informe de Implement/Validate; no crear artefactos nuevos ni modificar la especificación. **Estado 2026-10-22: pendiente.** Los 11 escenarios manuales no se ejecutaron porque requieren navegador; no se declara aceptación manual.
+- [ ] T050 Ejecutar manualmente los 11 escenarios de [quickstart.md](./quickstart.md) en la aplicación local: estado vacío y presets, creación/nombre, selección, relevancia/orden, reutilización, herencia/título propio, actualización/eliminación de maestros, activo/inactivo, persistencia tras reiniciar, fallo de guardado y límites de alcance. Registrar la evidencia (resultado de cada escenario y cualquier incidencia) en el informe de Implement/Validate; no crear artefactos nuevos ni modificar la especificación. **Estado 2026-10-22: parcial — aceptación manual del responsable; subescenarios no confirmados documentados en `quickstart.md`; el responsable autorizó el cierre, pero no se declara cobertura total de los 11 escenarios.**
 - [x] T051 [P] Auditar el alcance: `php artisan route:list --name=profiles` debe mostrar solo las nueve rutas y ninguna `DELETE`; revisar que no exista `Route::resource('profiles')`, `profiles.destroy` ni `CvProfileController@destroy`, botón de eliminación, orden manual/drag-and-drop, generación de CV/PDF, plantillas, exportación, IA, ofertas, postulaciones, asociación documental, historial/versionado ni dependencias nuevas. Confirmar que no se modificaron SPEC-001, SPEC-002 ni sus datos.
 
-**Checkpoint final (parcial, sin cierre)**: automatizado verde (backend, frontend, tipos, lint de código y migración); prueba negativa de no `DELETE` verificada; T048 parcial por formato de 7 documentos SPEC; T050 pendiente de los 11 escenarios manuales. Sin commits, merge ni push. La capacidad no se declara cerrada y la aceptación humana sigue pendiente.
+**Checkpoint final (cierre documental autorizado)**: automatizado verde (backend, frontend, tipos, lint de código y migración); prueba negativa de no `DELETE` verificada; T048 PASS; T050 parcial con aceptación manual del responsable y subescenarios no confirmados documentados en `quickstart.md`. El cierre documental está autorizado; queda pendiente el merge manual a `main`, sin push. No se declara cobertura manual total de los 11 escenarios ni aceptación funcional total.
 
 ## Validation Evidence (2026-10-22)
 
-- **Implementación**: T001–T047, T049 y T051 completadas según la evidencia recibida; T048 parcial y T050 pendiente.
+- **Implementación**: T001–T049 y T051 completadas; T050 parcial con aceptación manual del responsable. T048 PASS.
 - **Backend**: `php artisan test` → **143 passed, 1255 assertions**.
 - **QA edge cases**: `php artisan test tests/Feature/CvProfileQaEdgeCasesTest.php` → **7 passed, 114 assertions**.
 - **Frontend**: **13 archivos / 31 tests passed** con Vitest directo, antes de restaurar `package.json`; el frontend no cambió después. No se re-ejecutó `npm test` tras la restauración.
 - **Tipos**: `tsc --noEmit` → **0 errores**.
-- **Lint de código**: `vpr check --no-fmt` → **75 archivos, sin errores de lint**; `composer lint:check` → **passed**.
+- **Lint y formato**: `./node_modules/.bin/vpr check` → **PASS** (131 archivos formateados; 75 sin lint); `vpr check --no-fmt` → **PASS**; `composer lint:check` → **passed**; `git diff --check` limpio.
 - **Rutas**: `php artisan route:list --name=profiles` → **9 rutas, ninguna DELETE**. Verificada la ausencia de `profiles.destroy`, `destroy`, rutas DELETE y botones de eliminación (T044/T051).
 - **Migración**: `php artisan migrate:status` → `2026_10_22_000001_create_cv_profiles_and_content_tables` **Ran, batch 2**.
 - **package.json**: restaurado sin `devEngines`; `git diff -- package.json` vacío.
-- **Limitaciones**: T048 queda parcial porque `vpr check` global falla solo por formato de 7 documentos SPEC, no por código; T050 sigue pendiente de validación manual en navegador. No hubo commits, merge ni push. La capacidad no se marca como cerrada ni la aceptación humana como completada.
+- **Limitaciones**: T050 conserva subescenarios no confirmados documentados en `quickstart.md`; el cierre documental fue autorizado por el responsable y queda pendiente el merge manual a `main`, sin push. No se declara cobertura total de los 11 escenarios.
+
+## Manual Acceptance & Closure (2026-10-22)
+
+**Carácter**: aceptación manual del responsable de SPEC-003 registrada en la conversación de cierre; **no** es una prueba automatizada ni una validación de QA. Las pruebas automatizadas se registran en «Validation Evidence».
+
+**Evidencias manuales aceptadas (10)**:
+
+1. Creación, edición, consulta, activación y desactivación de perfiles.
+2. Selección, guardado y consulta de registros del Perfil Maestro con relevancia Alta/Media/Baja.
+3. Reutilización de elementos entre perfiles con relevancias independientes.
+4. Actualizaciones del Perfil Maestro reflejadas en los perfiles asociados.
+5. Eliminación de registros maestros sin afectar a los perfiles restantes.
+6. Conservación del contenido al desactivar y reactivar.
+7. Persistencia de perfiles y asociaciones después de reiniciar.
+8. Validaciones de nombres duplicados y vacíos.
+9. Recuperación ante fallos de guardado y reintento.
+10. Exclusiones de alcance: sin generación de CV, PDF, exportaciones ni eliminación definitiva de perfiles.
+
+**Mapeo y alcance**: [quickstart.md](./quickstart.md), sección «Registro de validación manual del responsable — 2026-10-22», contiene el mapeo a escenarios/pasos y los subescenarios no confirmados. Esos subescenarios no se declaran aprobados.
+
+**T048**: PASS. Los 7 documentos SPEC se formatearon con `vp fmt`; `./node_modules/.bin/vpr check` pasa (131 archivos formateados; 75 sin lint), `vpr check --no-fmt` pasa y `git diff --check` está limpio. `package.json` restaurado sin `devEngines`.
+
+**T050**: parcial. Aceptación manual del responsable con 10 evidencias; no se declara cobertura total de los 11 escenarios ni de los subescenarios no confirmados.
+
+**Cierre**: el responsable autorizó el cierre documental de SPEC-003; el spec quedó en estado `Closed` con T050 parcial documentada. Queda pendiente el merge manual a `main`; no se realizó push.
 
 ---
 
@@ -255,7 +280,7 @@ Ambos archivos son independientes; después, un único Developer ejecuta T027–
 2. Completar Foundational (T009–T013).
 3. Completar US1 (T014–T024) y validar su checkpoint: gestión y ciclo de vida del perfil.
 4. Completar US2 (T025–T033) y validar su checkpoint: selección, relevancia, orden y reutilización.
-5. **MVP P1 implementado**: US1 + US2. US1 por sí sola es un corte demostrable, pero no el MVP funcional, porque la selección y la relevancia son el núcleo de la capacidad. Queda pendiente la validación manual y la aceptación humana.
+5. **MVP P1 implementado**: US1 + US2. US1 por sí sola es un corte demostrable, pero no el MVP funcional, porque la selección y la relevancia son el núcleo de la capacidad. Queda registrada la aceptación manual parcial del responsable y el cierre documental autorizado; T050 conserva subescenarios no confirmados.
 
 ### Incremental Delivery
 
@@ -275,7 +300,7 @@ Cada incremento debe dejar las pruebas de las historias anteriores en verde y no
 - **Tras T033**: `php artisan test tests/Feature/CvProfileContentTest.php` y `npm test -- resources/js/components/__tests__/CvProfileForm.test.tsx` en verde.
 - **Tras T039**: `php artisan test tests/Feature/CvProfileTest.php` y `php artisan test tests/Feature/CvProfileContentTest.php` en verde.
 - **Tras T043**: `php artisan test tests/Feature/CvProfileInitialProfilesTest.php` en verde.
-- **Tras T051 (parcial)**: backend, frontend, tipos, lint de código y migración verificados; T048 parcial por formato documental y T050 pendiente de validación manual. No se declara cierre total.
+- **Tras T051 (cierre documental autorizado)**: backend, frontend, tipos, lint de código y migración verificados; T048 PASS; T050 parcial con subescenarios no confirmados en `quickstart.md`. Cierre autorizado; pendiente merge manual a `main`, sin push. No se declara cobertura manual total.
 
 ---
 
@@ -283,48 +308,48 @@ Cada incremento debe dejar las pruebas de las historias anteriores en verde y no
 
 ### Cobertura por historia
 
-| Historia | Tareas | Requisitos principales |
-| --- | --- | --- |
-| US1 | T014–T024 | FR-005, FR-013, FR-014, FR-016, FR-018, FR-019, FR-020 |
-| US2 | T025–T033 | FR-003, FR-004, FR-008, FR-009, FR-010, FR-011, FR-012, FR-020 |
-| US3 | T034–T039 | FR-001, FR-002, FR-006, FR-007, FR-014, FR-015, FR-016 |
-| US4 | T040–T043 | FR-005, FR-017, FR-018 |
+| Historia | Tareas    | Requisitos principales                                         |
+| -------- | --------- | -------------------------------------------------------------- |
+| US1      | T014–T024 | FR-005, FR-013, FR-014, FR-016, FR-018, FR-019, FR-020         |
+| US2      | T025–T033 | FR-003, FR-004, FR-008, FR-009, FR-010, FR-011, FR-012, FR-020 |
+| US3      | T034–T039 | FR-001, FR-002, FR-006, FR-007, FR-014, FR-015, FR-016         |
+| US4      | T040–T043 | FR-005, FR-017, FR-018                                         |
 
 ### Requisitos funcionales
 
-| Requisito | Tareas de implementación | Tareas de prueba |
-| --- | --- | --- |
-| FR-001 | T001, T002, T010, T012, T013, T028 | T025, T034 |
-| FR-002 | T001, T010, T012, T037 | T035 |
-| FR-003 | T010, T013, T028, T031 | T014, T025 |
-| FR-004 | T001, T010, T012, T036 | T025, T035 |
-| FR-005 | T007, T008, T016, T021, T022, T023 | T014 |
-| FR-006 | T018, T030, T036, T037, T038 | T034, T035 |
-| FR-007 | T001, T012, T031, T038 | T014, T025, T034 |
-| FR-008 | T011, T013, T027, T028, T031 | T025 |
-| FR-009 | T010, T012, T031, T032 | T025, T026 |
-| FR-010 | T001, T002, T011, T013, T030, T038 | T025, T026 |
-| FR-011 | T010, T012, T030 | T025, T035 |
-| FR-012 | T009, T010, T012 | T025 |
-| FR-013 | T002, T011, T015, T017, T019 | T014 |
-| FR-014 | T002, T011, T015, T019, T036, T037 | T014, T034 |
-| FR-015 | T012, T036, T037 | T034 |
-| FR-016 | T001, T002, T016, T020, T021, T037 | T014, T034 |
-| FR-017 | T003, T007, T041, T042 | T040 |
-| FR-018 | T007, T020, T021, T023, T037 | T014, T044 |
-| FR-019 | T001, T002, T013 | T014, T050 |
-| FR-020 | T011, T013, T015, T027, T028, T031 | T025, T026 |
+| Requisito | Tareas de implementación           | Tareas de prueba |
+| --------- | ---------------------------------- | ---------------- |
+| FR-001    | T001, T002, T010, T012, T013, T028 | T025, T034       |
+| FR-002    | T001, T010, T012, T037             | T035             |
+| FR-003    | T010, T013, T028, T031             | T014, T025       |
+| FR-004    | T001, T010, T012, T036             | T025, T035       |
+| FR-005    | T007, T008, T016, T021, T022, T023 | T014             |
+| FR-006    | T018, T030, T036, T037, T038       | T034, T035       |
+| FR-007    | T001, T012, T031, T038             | T014, T025, T034 |
+| FR-008    | T011, T013, T027, T028, T031       | T025             |
+| FR-009    | T010, T012, T031, T032             | T025, T026       |
+| FR-010    | T001, T002, T011, T013, T030, T038 | T025, T026       |
+| FR-011    | T010, T012, T030                   | T025, T035       |
+| FR-012    | T009, T010, T012                   | T025             |
+| FR-013    | T002, T011, T015, T017, T019       | T014             |
+| FR-014    | T002, T011, T015, T019, T036, T037 | T014, T034       |
+| FR-015    | T012, T036, T037                   | T034             |
+| FR-016    | T001, T002, T016, T020, T021, T037 | T014, T034       |
+| FR-017    | T003, T007, T041, T042             | T040             |
+| FR-018    | T007, T020, T021, T023, T037       | T014, T044       |
+| FR-019    | T001, T002, T013                   | T014, T050       |
+| FR-020    | T011, T013, T015, T027, T028, T031 | T025, T026       |
 
 ### Criterios de éxito
 
-| Criterio | Tareas de implementación | Tareas de prueba |
-| --- | --- | --- |
-| SC-001 | T001, T010, T012 | T025, T034, T035 |
-| SC-002 | T010, T013, T028 | T014, T025 |
-| SC-003 | T010, T012, T030 | T025, T035 |
-| SC-004 | T001, T020, T041, T042 | T014, T040, T044 |
-| SC-005 | T011, T015, T017, T019, T031 | T014, T025, T026 |
-| SC-006 | T001, T002, T013 | T014, T050 |
+| Criterio | Tareas de implementación     | Tareas de prueba |
+| -------- | ---------------------------- | ---------------- |
+| SC-001   | T001, T010, T012             | T025, T034, T035 |
+| SC-002   | T010, T013, T028             | T014, T025       |
+| SC-003   | T010, T012, T030             | T025, T035       |
+| SC-004   | T001, T020, T041, T042       | T014, T040, T044 |
+| SC-005   | T011, T015, T017, T019, T031 | T014, T025, T026 |
+| SC-006   | T001, T002, T013             | T014, T050       |
 
 ---
 

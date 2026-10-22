@@ -9,17 +9,17 @@ Aplicación Inertia: cada petición devuelve una página Inertia (HTML + props J
 
 Todas las rutas se declaran explícitamente en `routes/web.php`; no se usa `Route::resource`. El parámetro `{cvProfile}` se resuelve por implicit binding al modelo `CvProfile`.
 
-| Método | URI                                  | Nombre              | Acción                          | Respuesta                                      |
-| ------ | ------------------------------------ | ------------------- | ------------------------------- | ---------------------------------------------- |
-| GET    | `/profiles`                          | `profiles.index`    | `CvProfileController@index`     | Página `Profiles/Index`                        |
-| GET    | `/profiles/create`                   | `profiles.create`   | `CvProfileController@create`    | Página `Profiles/Create`                       |
-| POST   | `/profiles`                          | `profiles.store`    | `CvProfileController@store`     | Redirect 302 → `profiles.show`                 |
-| POST   | `/profiles/initial`                  | `profiles.initial`  | `CvProfileController@storeInitial` | Redirect 302 → `profiles.index`             |
-| GET    | `/profiles/{cvProfile}`              | `profiles.show`     | `CvProfileController@show`      | Página `Profiles/Show`                         |
-| GET    | `/profiles/{cvProfile}/edit`         | `profiles.edit`     | `CvProfileController@edit`      | Página `Profiles/Edit`                         |
-| PUT    | `/profiles/{cvProfile}`              | `profiles.update`   | `CvProfileController@update`    | Redirect 302 → `profiles.show`                 |
-| POST   | `/profiles/{cvProfile}/activate`     | `profiles.activate` | `CvProfileController@activate`  | Redirect 302 → `profiles.index`                |
-| POST   | `/profiles/{cvProfile}/deactivate`   | `profiles.deactivate` | `CvProfileController@deactivate` | Redirect 302 → `profiles.index`             |
+| Método | URI                                | Nombre                | Acción                             | Respuesta                       |
+| ------ | ---------------------------------- | --------------------- | ---------------------------------- | ------------------------------- |
+| GET    | `/profiles`                        | `profiles.index`      | `CvProfileController@index`        | Página `Profiles/Index`         |
+| GET    | `/profiles/create`                 | `profiles.create`     | `CvProfileController@create`       | Página `Profiles/Create`        |
+| POST   | `/profiles`                        | `profiles.store`      | `CvProfileController@store`        | Redirect 302 → `profiles.show`  |
+| POST   | `/profiles/initial`                | `profiles.initial`    | `CvProfileController@storeInitial` | Redirect 302 → `profiles.index` |
+| GET    | `/profiles/{cvProfile}`            | `profiles.show`       | `CvProfileController@show`         | Página `Profiles/Show`          |
+| GET    | `/profiles/{cvProfile}/edit`       | `profiles.edit`       | `CvProfileController@edit`         | Página `Profiles/Edit`          |
+| PUT    | `/profiles/{cvProfile}`            | `profiles.update`     | `CvProfileController@update`       | Redirect 302 → `profiles.show`  |
+| POST   | `/profiles/{cvProfile}/activate`   | `profiles.activate`   | `CvProfileController@activate`     | Redirect 302 → `profiles.index` |
+| POST   | `/profiles/{cvProfile}/deactivate` | `profiles.deactivate` | `CvProfileController@deactivate`   | Redirect 302 → `profiles.index` |
 
 **Orden de declaración**: `/profiles/create` y `/profiles/initial` se declaran antes de `/profiles/{cvProfile}` para que el comodín no las capture.
 
@@ -40,15 +40,15 @@ Props:
 
 ```json
 {
-  "profiles": [
-    {
-      "id": 1,
-      "name": "Analista",
-      "professional_title": "Analista de Sistemas",
-      "is_active": true
-    }
-  ],
-  "can_create_initial_profiles": false
+    "profiles": [
+        {
+            "id": 1,
+            "name": "Analista",
+            "professional_title": "Analista de Sistemas",
+            "is_active": true
+        }
+    ],
+    "can_create_initial_profiles": false
 }
 ```
 
@@ -65,25 +65,25 @@ Props:
 
 ```json
 {
-  "options": {
-    "work_experiences": [],
-    "education_entries": [],
-    "certifications": [],
-    "skills": [],
-    "projects": []
-  }
+    "options": {
+        "work_experiences": [],
+        "education_entries": [],
+        "certifications": [],
+        "skills": [],
+        "projects": []
+    }
 }
 ```
 
 Cada opción incluye los campos necesarios para mostrar una etiqueta legible y su período, sin datos de asociación:
 
-| Sección             | Campos de cada opción                                                                 | Etiqueta sugerida                              |
-| ------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| `work_experiences`  | `id`, `company`, `position`, `start_year`, `start_month`, `end_year`, `end_month`, `is_current` | «Cargo — Empresa» + período                    |
+| Sección             | Campos de cada opción                                                                                                  | Etiqueta sugerida                  |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| `work_experiences`  | `id`, `company`, `position`, `start_year`, `start_month`, `end_year`, `end_month`, `is_current`                        | «Cargo — Empresa» + período        |
 | `education_entries` | `id`, `institution`, `program`, `degree_level`, `start_year`, `start_month`, `end_year`, `end_month`, `is_in_progress` | «Programa — Institución» + período |
-| `certifications`    | `id`, `name`, `institution`, `date_year`, `date_month`                                 | «Nombre — Institución» + fecha                 |
-| `skills`            | `id`, `name`, `category`                                                              | Nombre + etiqueta de categoría                 |
-| `projects`          | `id`, `name`, `role`, `start_year`, `start_month`, `end_year`, `end_month`             | «Nombre — Rol» + período                       |
+| `certifications`    | `id`, `name`, `institution`, `date_year`, `date_month`                                                                 | «Nombre — Institución» + fecha     |
+| `skills`            | `id`, `name`, `category`                                                                                               | Nombre + etiqueta de categoría     |
+| `projects`          | `id`, `name`, `role`, `start_year`, `start_month`, `end_year`, `end_month`                                             | «Nombre — Rol» + período           |
 
 - Las opciones se ordenan con el orden del Perfil Maestro (cronológico descendente o categoría/nombre) para que el usuario las vea en el mismo orden que en sus secciones.
 - Las secciones sin opciones muestran orientación y un enlace a la sección del Maestro correspondiente.
@@ -95,21 +95,21 @@ Props:
 
 ```json
 {
-  "profile": {
-    "id": 1,
-    "name": "Analista",
-    "professional_title": "Analista de Sistemas",
-    "summary": null,
-    "is_active": true
-  },
-  "options": { "...": "igual que en Create" },
-  "selections": {
-    "work_experiences": [{ "id": 12, "relevance": "alta" }],
-    "education_entries": [],
-    "certifications": [{ "id": 4, "relevance": "media" }],
-    "skills": [{ "id": 7, "relevance": "baja" }],
-    "projects": []
-  }
+    "profile": {
+        "id": 1,
+        "name": "Analista",
+        "professional_title": "Analista de Sistemas",
+        "summary": null,
+        "is_active": true
+    },
+    "options": { "...": "igual que en Create" },
+    "selections": {
+        "work_experiences": [{ "id": 12, "relevance": "alta" }],
+        "education_entries": [],
+        "certifications": [{ "id": 4, "relevance": "media" }],
+        "skills": [{ "id": 7, "relevance": "baja" }],
+        "projects": []
+    }
 }
 ```
 
@@ -124,53 +124,55 @@ Props:
 
 ```json
 {
-  "profile": {
-    "id": 1,
-    "name": "Analista",
-    "professional_title": "Analista de Sistemas",
-    "summary": "Resumen propio del perfil.",
-    "is_active": true
-  },
-  "personal_data": {
-    "full_name": "Ada Lovelace",
-    "phone": "+54 11 5555 1234",
-    "email": "ada@example.com",
-    "location": "Buenos Aires, Argentina",
-    "linkedin_url": "https://www.linkedin.com/in/ada",
-    "github_url": "https://github.com/ada",
-    "website_url": "https://ada.example.com",
-    "links": [{ "id": 1, "label": "Blog", "url": "https://blog.example.com" }],
-    "has_data": true
-  },
-  "content": {
-    "work_experiences": [
-      {
-        "id": 12,
-        "relevance": "alta",
-        "master_path": "/experiences/12/edit",
-        "company": "Acme",
-        "position": "Analista funcional",
-        "start_year": 2022,
-        "start_month": 3,
-        "end_year": null,
-        "end_month": null,
-        "is_current": true,
-        "description": "Relevamiento y documentación de procesos."
-      }
-    ],
-    "education_entries": [],
-    "certifications": [],
-    "skills": [
-      {
-        "id": 7,
-        "relevance": "baja",
-        "master_path": "/skills/7/edit",
-        "name": "PHP",
-        "category": "tecnologia"
-      }
-    ],
-    "projects": []
-  }
+    "profile": {
+        "id": 1,
+        "name": "Analista",
+        "professional_title": "Analista de Sistemas",
+        "summary": "Resumen propio del perfil.",
+        "is_active": true
+    },
+    "personal_data": {
+        "full_name": "Ada Lovelace",
+        "phone": "+54 11 5555 1234",
+        "email": "ada@example.com",
+        "location": "Buenos Aires, Argentina",
+        "linkedin_url": "https://www.linkedin.com/in/ada",
+        "github_url": "https://github.com/ada",
+        "website_url": "https://ada.example.com",
+        "links": [
+            { "id": 1, "label": "Blog", "url": "https://blog.example.com" }
+        ],
+        "has_data": true
+    },
+    "content": {
+        "work_experiences": [
+            {
+                "id": 12,
+                "relevance": "alta",
+                "master_path": "/experiences/12/edit",
+                "company": "Acme",
+                "position": "Analista funcional",
+                "start_year": 2022,
+                "start_month": 3,
+                "end_year": null,
+                "end_month": null,
+                "is_current": true,
+                "description": "Relevamiento y documentación de procesos."
+            }
+        ],
+        "education_entries": [],
+        "certifications": [],
+        "skills": [
+            {
+                "id": 7,
+                "relevance": "baja",
+                "master_path": "/skills/7/edit",
+                "name": "PHP",
+                "category": "tecnologia"
+            }
+        ],
+        "projects": []
+    }
 }
 ```
 
@@ -183,13 +185,13 @@ Props:
 
 **`content`**
 
-| Sección             | Campos de cada elemento                                                                                      |
-| ------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `work_experiences`  | `id`, `relevance`, `master_path`, `company`, `position`, `start_year`, `start_month`, `end_year`, `end_month`, `is_current`, `description` |
+| Sección             | Campos de cada elemento                                                                                                                                           |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `work_experiences`  | `id`, `relevance`, `master_path`, `company`, `position`, `start_year`, `start_month`, `end_year`, `end_month`, `is_current`, `description`                        |
 | `education_entries` | `id`, `relevance`, `master_path`, `institution`, `program`, `degree_level`, `start_year`, `start_month`, `end_year`, `end_month`, `is_in_progress`, `description` |
-| `certifications`    | `id`, `relevance`, `master_path`, `name`, `institution`, `date_year`, `date_month`, `duration`, `category`, `code`, `validation_url` |
-| `skills`            | `id`, `relevance`, `master_path`, `name`, `category`                                                         |
-| `projects`          | `id`, `relevance`, `master_path`, `name`, `role`, `start_year`, `start_month`, `end_year`, `end_month`, `url`, `description` |
+| `certifications`    | `id`, `relevance`, `master_path`, `name`, `institution`, `date_year`, `date_month`, `duration`, `category`, `code`, `validation_url`                              |
+| `skills`            | `id`, `relevance`, `master_path`, `name`, `category`                                                                                                              |
+| `projects`          | `id`, `relevance`, `master_path`, `name`, `role`, `start_year`, `start_month`, `end_year`, `end_month`, `url`, `description`                                      |
 
 - Cada arreglo llega **ya ordenado** por relevancia descendente y, en empate, por el orden del Maestro. La UI debe renderizar el orden recibido y no reordenar.
 - `master_path` identifica la procedencia y permite navegar al registro maestro (`/experiences/{id}/edit`, `/education/{id}/edit`, `/certifications/{id}/edit`, `/skills/{id}/edit` o `/projects/{id}/edit`); no se muestra un formulario de edición dentro del perfil.
@@ -203,22 +205,14 @@ Props:
 
 ```json
 {
-  "name": "Analista",
-  "professional_title": "Analista de Sistemas",
-  "summary": null,
-  "work_experiences": [
-    { "id": 12, "relevance": "alta" }
-  ],
-  "education_entries": [
-    { "id": 3, "relevance": "media" }
-  ],
-  "certifications": [
-    { "id": 4 }
-  ],
-  "skills": [
-    { "id": 7, "relevance": "baja" }
-  ],
-  "projects": []
+    "name": "Analista",
+    "professional_title": "Analista de Sistemas",
+    "summary": null,
+    "work_experiences": [{ "id": 12, "relevance": "alta" }],
+    "education_entries": [{ "id": 3, "relevance": "media" }],
+    "certifications": [{ "id": 4 }],
+    "skills": [{ "id": 7, "relevance": "baja" }],
+    "projects": []
 }
 ```
 
@@ -242,22 +236,22 @@ Props:
 
 ## Validaciones
 
-| Campo                                   | Reglas                                                                 | Mensaje esperado                                                                 |
-| --------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `name`                                  | `required`, `string`, `max:100`, único normalizado (excluyendo el propio perfil al actualizar) | «El nombre del perfil es obligatorio.» / «Ya existe un perfil con ese nombre.» |
-| `professional_title`                    | `nullable`, `string`, `max:255`                                        | «El título profesional no puede superar los 255 caracteres.»                    |
-| `summary`                               | `nullable`, `string`                                                   | —                                                                                |
-| `work_experiences`                      | `sometimes`, `array`                                                   | —                                                                                |
-| `work_experiences.*.id`                 | `required`, `integer`, `distinct`, existe en `work_experiences` con `profile_id` del Maestro actual | «El elemento seleccionado no pertenece al Perfil Maestro o ya no existe.»        |
-| `work_experiences.*.relevance`          | `sometimes`, `in:alta,media,baja`                                      | «La relevancia debe ser Alta, Media o Baja.»                                     |
-| `education_entries.*.id`                | igual, contra `education_entries`                                      | igual                                                                            |
-| `education_entries.*.relevance`         | igual                                                                  | igual                                                                            |
-| `certifications.*.id`                   | igual, contra `certifications`                                         | igual                                                                            |
-| `certifications.*.relevance`            | igual                                                                  | igual                                                                            |
-| `skills.*.id`                           | igual, contra `skills`                                                 | igual                                                                            |
-| `skills.*.relevance`                    | igual                                                                  | igual                                                                            |
-| `projects.*.id`                         | igual, contra `projects`                                               | igual                                                                            |
-| `projects.*.relevance`                  | igual                                                                  | igual                                                                            |
+| Campo                           | Reglas                                                                                              | Mensaje esperado                                                               |
+| ------------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `name`                          | `required`, `string`, `max:100`, único normalizado (excluyendo el propio perfil al actualizar)      | «El nombre del perfil es obligatorio.» / «Ya existe un perfil con ese nombre.» |
+| `professional_title`            | `nullable`, `string`, `max:255`                                                                     | «El título profesional no puede superar los 255 caracteres.»                   |
+| `summary`                       | `nullable`, `string`                                                                                | —                                                                              |
+| `work_experiences`              | `sometimes`, `array`                                                                                | —                                                                              |
+| `work_experiences.*.id`         | `required`, `integer`, `distinct`, existe en `work_experiences` con `profile_id` del Maestro actual | «El elemento seleccionado no pertenece al Perfil Maestro o ya no existe.»      |
+| `work_experiences.*.relevance`  | `sometimes`, `in:alta,media,baja`                                                                   | «La relevancia debe ser Alta, Media o Baja.»                                   |
+| `education_entries.*.id`        | igual, contra `education_entries`                                                                   | igual                                                                          |
+| `education_entries.*.relevance` | igual                                                                                               | igual                                                                          |
+| `certifications.*.id`           | igual, contra `certifications`                                                                      | igual                                                                          |
+| `certifications.*.relevance`    | igual                                                                                               | igual                                                                          |
+| `skills.*.id`                   | igual, contra `skills`                                                                              | igual                                                                          |
+| `skills.*.relevance`            | igual                                                                                               | igual                                                                          |
+| `projects.*.id`                 | igual, contra `projects`                                                                            | igual                                                                          |
+| `projects.*.relevance`          | igual                                                                                               | igual                                                                          |
 
 - Los IDs de otro Maestro se rechazan porque la regla de existencia incluye `profile_id` del Maestro actual.
 - Los IDs inexistentes o de otra clase se rechazan.

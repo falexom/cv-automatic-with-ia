@@ -47,28 +47,28 @@ Implementar **perfiles de CV** como configuraciones derivadas del Perfil Profesi
 
 _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-| Principio                                        | Estado | Evidencia del diseño                                                                                                                     |
-| ------------------------------------------------ | ------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| I. Fuente única de verdad                        | PASA   | `cv_profiles` solo guarda datos propios; los pivotes guardan IDs y relevancia; el detalle lee el Maestro en vivo.                        |
-| II. El CV es un resultado                        | PASA   | No se genera, previsualiza, edita ni exporta ningún CV; solo se configura la selección y la relevancia.                                  |
-| III. Separación datos/reglas/presentación        | PASA   | Datos en el Maestro; reglas de selección/relevancia en los pivotes; presentación en páginas Inertia; sin mezclar responsabilidades.       |
-| IV. MVP estrictamente acotado                    | PASA   | Alcance idéntico al spec; sin generación, documentos, IA ni funcionalidades accesorias.                                                  |
-| V. Perfil Profesional Maestro                    | PASA   | No se modifican sus entidades, campos, validaciones ni datos; solo se leen sus registros y datos personales.                              |
-| VI. Perfiles profesionales como configuración    | PASA   | Los perfiles Analista y Programador se crean por acción explícita; un mismo elemento se reutiliza con relevancia independiente.          |
-| VII–XI. Documentos, evidencias y CV documentado  | N/A    | Fuera de alcance; no se asocian documentos ni evidencias a perfiles.                                                                      |
-| XII. Arquitectura simple para aplicación local   | PASA   | Laravel + Inertia/React + SQLite + almacenamiento local; sin servicios externos.                                                          |
-| XIII. Evitar complejidad prematura               | PASA   | Cinco pivotes tipados en lugar de polimorfismo/JSON; sin colas, contenedores ni API separada.                                             |
-| XIV. Datos relacionales, no contenido duplicado  | PASA   | Claves foráneas, claves primarias compuestas y cascadas; no se copian textos ni registros maestros.                                       |
-| XV. Administrador orientado a tareas             | PASA   | Navegación «Perfiles» y pantallas de listado, creación, edición y detalle con estados vacíos y acciones directas.                         |
-| XVI–XVIII. Vista previa, plantilla y calidad     | N/A    | Capacidades futuras; el detalle del perfil es configuración, no una vista previa de CV.                                                   |
-| XIX. Cada Spec entrega una capacidad verificable | PASA   | FR-001 a FR-020 y SC-001 a SC-006 con pruebas automatizadas y validación manual en `quickstart.md`.                                       |
-| XX. Las tareas no sustituyen a los Specs         | PASA   | El trabajo se descompone en Tasks dentro de este Spec; no se abren tareas funcionales independientes.                                     |
-| XXI. Pruebas proporcionales al riesgo            | PASA   | Feature tests para persistencia, validación, orden, aislamiento, cascadas y ciclo de vida; Vitest para el formulario y la navegación.     |
-| XXII. No romper datos existentes                 | PASA   | Migración aditiva: solo crea tablas nuevas; no altera ni reescribe tablas del Maestro. `down()` elimina únicamente datos de esta capacidad. |
-| XXIII. Privacidad local por defecto              | PASA   | Todos los datos permanecen en SQLite local; no hay llamadas externas.                                                                     |
-| XXIV. No almacenar secretos en código fuente     | PASA   | No se agregan credenciales, claves ni configuración sensible.                                                                             |
-| XXV. No expandir el MVP durante la implementación | PASA   | Sin orden manual, historial, versionado, exportación ni documentos; cualquier mejora futura queda fuera del alcance.                      |
-| XXVI. Cambios importantes requieren decisión     | PASA   | No se cambia el stack, SQLite, autenticación, modelo del Maestro, edición del CV ni plantillas.                                            |
+| Principio                                         | Estado | Evidencia del diseño                                                                                                                        |
+| ------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| I. Fuente única de verdad                         | PASA   | `cv_profiles` solo guarda datos propios; los pivotes guardan IDs y relevancia; el detalle lee el Maestro en vivo.                           |
+| II. El CV es un resultado                         | PASA   | No se genera, previsualiza, edita ni exporta ningún CV; solo se configura la selección y la relevancia.                                     |
+| III. Separación datos/reglas/presentación         | PASA   | Datos en el Maestro; reglas de selección/relevancia en los pivotes; presentación en páginas Inertia; sin mezclar responsabilidades.         |
+| IV. MVP estrictamente acotado                     | PASA   | Alcance idéntico al spec; sin generación, documentos, IA ni funcionalidades accesorias.                                                     |
+| V. Perfil Profesional Maestro                     | PASA   | No se modifican sus entidades, campos, validaciones ni datos; solo se leen sus registros y datos personales.                                |
+| VI. Perfiles profesionales como configuración     | PASA   | Los perfiles Analista y Programador se crean por acción explícita; un mismo elemento se reutiliza con relevancia independiente.             |
+| VII–XI. Documentos, evidencias y CV documentado   | N/A    | Fuera de alcance; no se asocian documentos ni evidencias a perfiles.                                                                        |
+| XII. Arquitectura simple para aplicación local    | PASA   | Laravel + Inertia/React + SQLite + almacenamiento local; sin servicios externos.                                                            |
+| XIII. Evitar complejidad prematura                | PASA   | Cinco pivotes tipados en lugar de polimorfismo/JSON; sin colas, contenedores ni API separada.                                               |
+| XIV. Datos relacionales, no contenido duplicado   | PASA   | Claves foráneas, claves primarias compuestas y cascadas; no se copian textos ni registros maestros.                                         |
+| XV. Administrador orientado a tareas              | PASA   | Navegación «Perfiles» y pantallas de listado, creación, edición y detalle con estados vacíos y acciones directas.                           |
+| XVI–XVIII. Vista previa, plantilla y calidad      | N/A    | Capacidades futuras; el detalle del perfil es configuración, no una vista previa de CV.                                                     |
+| XIX. Cada Spec entrega una capacidad verificable  | PASA   | FR-001 a FR-020 y SC-001 a SC-006 con pruebas automatizadas y validación manual en `quickstart.md`.                                         |
+| XX. Las tareas no sustituyen a los Specs          | PASA   | El trabajo se descompone en Tasks dentro de este Spec; no se abren tareas funcionales independientes.                                       |
+| XXI. Pruebas proporcionales al riesgo             | PASA   | Feature tests para persistencia, validación, orden, aislamiento, cascadas y ciclo de vida; Vitest para el formulario y la navegación.       |
+| XXII. No romper datos existentes                  | PASA   | Migración aditiva: solo crea tablas nuevas; no altera ni reescribe tablas del Maestro. `down()` elimina únicamente datos de esta capacidad. |
+| XXIII. Privacidad local por defecto               | PASA   | Todos los datos permanecen en SQLite local; no hay llamadas externas.                                                                       |
+| XXIV. No almacenar secretos en código fuente      | PASA   | No se agregan credenciales, claves ni configuración sensible.                                                                               |
+| XXV. No expandir el MVP durante la implementación | PASA   | Sin orden manual, historial, versionado, exportación ni documentos; cualquier mejora futura queda fuera del alcance.                        |
+| XXVI. Cambios importantes requieren decisión      | PASA   | No se cambia el stack, SQLite, autenticación, modelo del Maestro, edición del CV ni plantillas.                                             |
 
 **Resultado**: sin violaciones. No se requiere justificación en Complexity Tracking.
 
@@ -152,28 +152,28 @@ tests/Feature/
 
 ## Requirement Coverage
 
-| Requisito | Diseño                                                                                                   | Prueba prevista                                                                 |
-| --------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| FR-001    | `cv_profiles` solo con datos propios; pivotes con IDs y relevancia; sin copias.                           | Esquema de `cv_profiles`/pivotes y actualización del Maestro reflejada en el perfil. |
-| FR-002    | Relaciones en vivo al Maestro; cascada al eliminar un registro maestro; datos personales leídos en vivo.  | Actualizar y eliminar registros maestros; el perfil conserva el resto.           |
-| FR-003    | Sin escrituras al Maestro desde el perfil; pivotes independientes por perfil.                             | Reutilización en dos perfiles, cambio y desasociación aislados.                  |
-| FR-004    | Una tabla pivote por clase; el detalle identifica la sección y `master_path`.                              | Cinco clases serializadas con relevancia y procedencia.                          |
-| FR-005    | Índice, creación, edición, detalle, activación/desactivación, navegación y estado vacío.                  | Feature tests de índice/creación/estado vacío; validación manual de navegación.  |
-| FR-006    | `Profiles/Show` con datos propios, `personal_data` heredado y `content` agrupado.                         | Props Inertia de detalle con las cinco secciones.                                |
-| FR-007    | Arreglos vacíos válidos; cada sección muestra orientación.                                                | Perfil sin contenido se guarda y se consulta.                                    |
-| FR-008    | `exists` restringido al Maestro actual, `distinct`, PK compuesta y `sync`; sin creación de maestros.       | IDs inválidos/ajenos/duplicados rechazados; desasociación solo en el perfil.     |
-| FR-009    | Perfil nuevo sin pivotes; solo se serializan los elementos incluidos.                                     | Perfil recién creado sin contenido; no incluidos ausentes.                       |
-| FR-010    | Relevancia `alta` / `media` / `baja`, default `media`, validación y visualización.                        | Default, valores inválidos, relevancia independiente y mostrada.                 |
-| FR-011    | Orden por relevancia descendente y desempate por orden del Maestro.                                       | Orden por clase con relevancias mixtas.                                          |
-| FR-012    | `chronological()` en cuatro clases; `masterOrder()` en habilidades; sin orden manual.                      | Fechas, sin fecha al final, categoría y nombre; comparación con el listado maestro. |
-| FR-013    | `NameNormalizer` + `normalized_name` único; revalidación al renombrar; incluye inactivos.                 | Nombre vacío, duplicado por mayúsculas/espacios, renombrado y perfil inactivo.    |
-| FR-014    | Título y resumen propios, opcionales; el título propio se usa en índice, edición y detalle.                | Título propio sin modificar el Maestro; perfil sin título válido.                |
-| FR-015    | `personal_data` leído del Maestro, sin campos editables; sin título ni resumen del Maestro.               | Datos heredados actualizados; título del Maestro ausente; sin overrides.          |
-| FR-016    | `is_active` con default verdadero; acciones reversibles; inactivos visibles y editables.                   | Crear activo, desactivar conservando contenido, reactivar.                        |
-| FR-017    | Acción `POST /profiles/initial` solo si no hay perfiles; transacción; valores exactos; sin recreación.     | Presets exactos, sin contenido, segunda ejecución sin duplicados, renombrado/desactivado. |
-| FR-018    | Sin ruta, método, botón ni nombre `profiles.destroy`; solo desactivación.                                 | `Route::has('profiles.destroy')` falso y `DELETE` responde 405.                   |
-| FR-019    | SQLite local; UTF-8; sin servicios externos.                                                              | Persistencia entre peticiones y validación manual tras reiniciar; acentos.         |
-| FR-020    | Validación antes de persistir; transacción; `useForm` conserva lo ingresado ante 422.                      | Errores de validación y reintento sin pérdida silenciosa.                         |
+| Requisito | Diseño                                                                                                   | Prueba prevista                                                                           |
+| --------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| FR-001    | `cv_profiles` solo con datos propios; pivotes con IDs y relevancia; sin copias.                          | Esquema de `cv_profiles`/pivotes y actualización del Maestro reflejada en el perfil.      |
+| FR-002    | Relaciones en vivo al Maestro; cascada al eliminar un registro maestro; datos personales leídos en vivo. | Actualizar y eliminar registros maestros; el perfil conserva el resto.                    |
+| FR-003    | Sin escrituras al Maestro desde el perfil; pivotes independientes por perfil.                            | Reutilización en dos perfiles, cambio y desasociación aislados.                           |
+| FR-004    | Una tabla pivote por clase; el detalle identifica la sección y `master_path`.                            | Cinco clases serializadas con relevancia y procedencia.                                   |
+| FR-005    | Índice, creación, edición, detalle, activación/desactivación, navegación y estado vacío.                 | Feature tests de índice/creación/estado vacío; validación manual de navegación.           |
+| FR-006    | `Profiles/Show` con datos propios, `personal_data` heredado y `content` agrupado.                        | Props Inertia de detalle con las cinco secciones.                                         |
+| FR-007    | Arreglos vacíos válidos; cada sección muestra orientación.                                               | Perfil sin contenido se guarda y se consulta.                                             |
+| FR-008    | `exists` restringido al Maestro actual, `distinct`, PK compuesta y `sync`; sin creación de maestros.     | IDs inválidos/ajenos/duplicados rechazados; desasociación solo en el perfil.              |
+| FR-009    | Perfil nuevo sin pivotes; solo se serializan los elementos incluidos.                                    | Perfil recién creado sin contenido; no incluidos ausentes.                                |
+| FR-010    | Relevancia `alta` / `media` / `baja`, default `media`, validación y visualización.                       | Default, valores inválidos, relevancia independiente y mostrada.                          |
+| FR-011    | Orden por relevancia descendente y desempate por orden del Maestro.                                      | Orden por clase con relevancias mixtas.                                                   |
+| FR-012    | `chronological()` en cuatro clases; `masterOrder()` en habilidades; sin orden manual.                    | Fechas, sin fecha al final, categoría y nombre; comparación con el listado maestro.       |
+| FR-013    | `NameNormalizer` + `normalized_name` único; revalidación al renombrar; incluye inactivos.                | Nombre vacío, duplicado por mayúsculas/espacios, renombrado y perfil inactivo.            |
+| FR-014    | Título y resumen propios, opcionales; el título propio se usa en índice, edición y detalle.              | Título propio sin modificar el Maestro; perfil sin título válido.                         |
+| FR-015    | `personal_data` leído del Maestro, sin campos editables; sin título ni resumen del Maestro.              | Datos heredados actualizados; título del Maestro ausente; sin overrides.                  |
+| FR-016    | `is_active` con default verdadero; acciones reversibles; inactivos visibles y editables.                 | Crear activo, desactivar conservando contenido, reactivar.                                |
+| FR-017    | Acción `POST /profiles/initial` solo si no hay perfiles; transacción; valores exactos; sin recreación.   | Presets exactos, sin contenido, segunda ejecución sin duplicados, renombrado/desactivado. |
+| FR-018    | Sin ruta, método, botón ni nombre `profiles.destroy`; solo desactivación.                                | `Route::has('profiles.destroy')` falso y `DELETE` responde 405.                           |
+| FR-019    | SQLite local; UTF-8; sin servicios externos.                                                             | Persistencia entre peticiones y validación manual tras reiniciar; acentos.                |
+| FR-020    | Validación antes de persistir; transacción; `useForm` conserva lo ingresado ante 422.                    | Errores de validación y reintento sin pérdida silenciosa.                                 |
 
 ## Complexity Tracking
 

@@ -110,8 +110,8 @@ El orden se calcula siempre en el servidor, en este orden:
 
 1. Relevancia descendente (Alta, Media, Baja).
 2. En empate, el orden del Perfil Maestro:
-   - Experiencia, educación, certificaciones y proyectos: `chronological()` existente, de más reciente a más antiguo, con los registros sin fecha al final y desempate estable por `id` descendente.
-   - Habilidades: categoría en el orden técnica, funcional, metodológica, herramienta, tecnología; luego nombre ascendente.
+    - Experiencia, educación, certificaciones y proyectos: `chronological()` existente, de más reciente a más antiguo, con los registros sin fecha al final y desempate estable por `id` descendente.
+    - Habilidades: categoría en el orden técnica, funcional, metodológica, herramienta, tecnología; luego nombre ascendente.
 
 Las relaciones de `CvProfile` incorporan la relevancia y el orden, de modo que el controlador recibe colecciones ya ordenadas. El contrato devuelve arreglos ordenados y la UI no vuelve a ordenar.
 
@@ -228,8 +228,8 @@ En un entorno multiusuario habría carrera entre la comprobación y la inserció
 - Acciones explícitas: `POST /profiles/{cvProfile}/activate` y `POST /profiles/{cvProfile}/deactivate`; no hay payload y no se toca el contenido.
 - No existe `destroy`, ni botón de eliminación, ni nombre de ruta `profiles.destroy`.
 - La acción `POST /profiles/initial` crea exactamente:
-  - «Analista», título «Analista de Sistemas», activo, sin resumen ni contenido.
-  - «Programador», título «Programador / Desarrollador», activo, sin resumen ni contenido.
+    - «Analista», título «Analista de Sistemas», activo, sin resumen ni contenido.
+    - «Programador», título «Programador / Desarrollador», activo, sin resumen ni contenido.
 - La acción solo escribe si no existe **ningún** perfil; si ya existe alguno, no modifica nada y redirige con un aviso informativo. La creación de ambos se hace en una transacción.
 - No hay seeders ni creación automática en migraciones o al abrir la aplicación.
 - Los perfiles iniciales, una vez creados, se editan como cualquier otro; renombrarlos o desactivarlos no hace que se vuelvan a crear.
@@ -334,20 +334,20 @@ La corrección de `use-current-url` se prueba con casos `/profile` vs `/profiles
 
 ## 13. Riesgos y mitigaciones
 
-| Riesgo                                                           | Probabilidad | Impacto | Mitigación                                                                                                      |
-| ---------------------------------------------------------------- | ------------ | ------- | --------------------------------------------------------------------------------------------------------------- |
-| Divergencia entre el orden del perfil y el orden del Maestro      | Media        | Alto    | Reutilizar `chronological()`; scope `masterOrder()`; prueba que compara ambos listados.                          |
-| «Perfil» activo también en `/profiles`                            | Alta si no se corrige | Medio | Corrección de límite de segmento en `use-current-url` y prueba unitaria.                                        |
-| Boilerplate de cinco pivotes                                      | Media        | Bajo    | Nombres consistentes, relaciones en `CvProfile`, un helper de sincronización y pruebas de esquema.               |
-| IDs de otro Maestro o inexistentes                                | Baja         | Alto    | `Rule::exists` restringido a `Profile::current()`, `distinct`, PK compuesta y prueba con un segundo Maestro.     |
-| Carrera de nombre duplicado                                       | Baja         | Bajo    | Índice único en `normalized_name`; app monousuario.                                                              |
-| Asociaciones huérfanas al eliminar un maestro                     | Baja         | Alto    | FKs en cascada en las cinco pivotes y prueba de eliminación por clase.                                           |
-| Pérdida de selección por actualización parcial del formulario     | Media        | Medio   | Contrato de reemplazo completo por clase, `sync`, pruebas de desmarcado y errores de validación con `useForm`.   |
-| Perfil Maestro vacío                                              | Media        | Medio   | Opciones vacías, estados de orientación y pruebas de perfil sin datos heredados ni contenido.                     |
-| Listas maestras extensas sin paginación                           | Baja         | Bajo    | Escala local de cientos de registros; no se introduce paginación en el MVP.                                      |
-| Acoplamiento futuro con SPEC-004                                  | Baja         | Medio   | Contrato explícito `is_active` y contenido ordenado; no se implementa generación.                                |
-| Eliminación accidental de perfiles                                | Baja         | Alto    | No existe ruta/método/botón de borrado; prueba de ausencia de `profiles.destroy` y respuesta 405 a `DELETE`.     |
-| Cambios en datos existentes                                       | Baja         | Alto    | Migración aditiva y reversible; no se modifican tablas ni filas del Maestro; rollback solo afecta datos nuevos.   |
+| Riesgo                                                        | Probabilidad          | Impacto | Mitigación                                                                                                      |
+| ------------------------------------------------------------- | --------------------- | ------- | --------------------------------------------------------------------------------------------------------------- |
+| Divergencia entre el orden del perfil y el orden del Maestro  | Media                 | Alto    | Reutilizar `chronological()`; scope `masterOrder()`; prueba que compara ambos listados.                         |
+| «Perfil» activo también en `/profiles`                        | Alta si no se corrige | Medio   | Corrección de límite de segmento en `use-current-url` y prueba unitaria.                                        |
+| Boilerplate de cinco pivotes                                  | Media                 | Bajo    | Nombres consistentes, relaciones en `CvProfile`, un helper de sincronización y pruebas de esquema.              |
+| IDs de otro Maestro o inexistentes                            | Baja                  | Alto    | `Rule::exists` restringido a `Profile::current()`, `distinct`, PK compuesta y prueba con un segundo Maestro.    |
+| Carrera de nombre duplicado                                   | Baja                  | Bajo    | Índice único en `normalized_name`; app monousuario.                                                             |
+| Asociaciones huérfanas al eliminar un maestro                 | Baja                  | Alto    | FKs en cascada en las cinco pivotes y prueba de eliminación por clase.                                          |
+| Pérdida de selección por actualización parcial del formulario | Media                 | Medio   | Contrato de reemplazo completo por clase, `sync`, pruebas de desmarcado y errores de validación con `useForm`.  |
+| Perfil Maestro vacío                                          | Media                 | Medio   | Opciones vacías, estados de orientación y pruebas de perfil sin datos heredados ni contenido.                   |
+| Listas maestras extensas sin paginación                       | Baja                  | Bajo    | Escala local de cientos de registros; no se introduce paginación en el MVP.                                     |
+| Acoplamiento futuro con SPEC-004                              | Baja                  | Medio   | Contrato explícito `is_active` y contenido ordenado; no se implementa generación.                               |
+| Eliminación accidental de perfiles                            | Baja                  | Alto    | No existe ruta/método/botón de borrado; prueba de ausencia de `profiles.destroy` y respuesta 405 a `DELETE`.    |
+| Cambios en datos existentes                                   | Baja                  | Alto    | Migración aditiva y reversible; no se modifican tablas ni filas del Maestro; rollback solo afecta datos nuevos. |
 
 ---
 

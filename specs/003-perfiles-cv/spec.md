@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-22
 
-**Status**: Implemented — 2026-10-22; validación automatizada aprobada (143 tests backend, 31 frontend, typecheck/lint de código); T050 manual pendiente; sin merge ni push.
+**Status**: Closed — 2026-10-22; aceptación manual del responsable registrada; T050 con cobertura parcial documentada en quickstart.md (subescenarios no confirmados no aprobados); T048 de formato documental corregido; pendiente de merge a main, sin push.
 
 **Input**: User description: "Permitir crear y administrar múltiples perfiles de CV especializados a partir de los datos del Perfil Profesional Maestro, sin duplicar innecesariamente sus registros. Cada perfil debe conservar relaciones con los registros maestros, poder seleccionar y ordenar contenido relevante y disponer de nombre, título profesional y resumen propios. Los perfiles iniciales previstos son Analista y Programador/Desarrollador. La gestión de perfiles activos/inactivos forma parte del alcance. La generación de CV/PDF, plantillas, exportación, IA, análisis de ofertas, postulaciones y gestión documental adicional están fuera de alcance."
 
@@ -240,12 +240,12 @@ Como usuario, quiero disponer de los perfiles iniciales Analista y Programador/D
 
 ## Trazabilidad
 
-| Origen | Requisitos | Historias | Observación |
-| --- | --- | --- | --- |
-| Constitución, Principios I, II, III, V, VI y XIV; SPEC-001 | FR-001 a FR-004, FR-014, FR-015 | US1 a US4 | Fuente única, no copia, aislamiento, título propio y herencia. |
-| Constitución, Principios XIX, XXI, XXII, XXV y XXVI; encargo autorizado | FR-005 a FR-008, FR-019 y FR-020 | US1 a US4 | Capacidad verificable, gestión, persistencia, robustez y alcance acotado. |
-| Clarify D1 — aprobada 2026-10-22 | FR-009 a FR-012 | US2, US3 | Selección explícita, relevancia y orden con empates según el Perfil Maestro. |
-| Clarify D2 — aprobada 2026-10-22 | FR-005, FR-016 a FR-018 | US1, US3, US4 | Perfiles iniciales, activo/inactivo y ausencia de eliminación definitiva. |
-| Clarify D3 — aprobada 2026-10-22 | FR-013 a FR-015 | US1, US3 | Nombre, datos propios y herencia con título propio. |
-| SPEC-002 (relación opcional) | — | — | Sin asociación documental; no es dependencia funcional. |
-| SPEC-004 (dependencia futura) | FR-014 y FR-016 | US3, US4 | Título propio en la futura vista y disponibilidad por estado activo; sin implementar generación. |
+| Origen                                                                  | Requisitos                       | Historias     | Observación                                                                                      |
+| ----------------------------------------------------------------------- | -------------------------------- | ------------- | ------------------------------------------------------------------------------------------------ |
+| Constitución, Principios I, II, III, V, VI y XIV; SPEC-001              | FR-001 a FR-004, FR-014, FR-015  | US1 a US4     | Fuente única, no copia, aislamiento, título propio y herencia.                                   |
+| Constitución, Principios XIX, XXI, XXII, XXV y XXVI; encargo autorizado | FR-005 a FR-008, FR-019 y FR-020 | US1 a US4     | Capacidad verificable, gestión, persistencia, robustez y alcance acotado.                        |
+| Clarify D1 — aprobada 2026-10-22                                        | FR-009 a FR-012                  | US2, US3      | Selección explícita, relevancia y orden con empates según el Perfil Maestro.                     |
+| Clarify D2 — aprobada 2026-10-22                                        | FR-005, FR-016 a FR-018          | US1, US3, US4 | Perfiles iniciales, activo/inactivo y ausencia de eliminación definitiva.                        |
+| Clarify D3 — aprobada 2026-10-22                                        | FR-013 a FR-015                  | US1, US3      | Nombre, datos propios y herencia con título propio.                                              |
+| SPEC-002 (relación opcional)                                            | —                                | —             | Sin asociación documental; no es dependencia funcional.                                          |
+| SPEC-004 (dependencia futura)                                           | FR-014 y FR-016                  | US3, US4      | Título propio en la futura vista y disponibilidad por estado activo; sin implementar generación. |
