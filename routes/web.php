@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CertificationController;
+use App\Http\Controllers\CvProfileController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DocumentLinkController;
 use App\Http\Controllers\EducationController;
@@ -31,3 +32,13 @@ Route::resource('education', EducationController::class)->except('show');
 Route::resource('certifications', CertificationController::class)->except('show');
 Route::resource('skills', SkillController::class)->except('show');
 Route::resource('projects', ProjectController::class)->except('show');
+
+Route::get('/profiles', [CvProfileController::class, 'index'])->name('profiles.index');
+Route::get('/profiles/create', [CvProfileController::class, 'create'])->name('profiles.create');
+Route::post('/profiles', [CvProfileController::class, 'store'])->name('profiles.store');
+Route::post('/profiles/initial', [CvProfileController::class, 'storeInitial'])->name('profiles.initial');
+Route::get('/profiles/{cvProfile}', [CvProfileController::class, 'show'])->name('profiles.show');
+Route::get('/profiles/{cvProfile}/edit', [CvProfileController::class, 'edit'])->name('profiles.edit');
+Route::put('/profiles/{cvProfile}', [CvProfileController::class, 'update'])->name('profiles.update');
+Route::post('/profiles/{cvProfile}/activate', [CvProfileController::class, 'activate'])->name('profiles.activate');
+Route::post('/profiles/{cvProfile}/deactivate', [CvProfileController::class, 'deactivate'])->name('profiles.deactivate');

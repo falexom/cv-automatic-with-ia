@@ -12,6 +12,7 @@ const navigation = [
     { label: 'Habilidades', href: '/skills' },
     { label: 'Proyectos', href: '/projects' },
     { label: 'Documentos', href: '/documents' },
+    { label: 'Perfiles', href: '/profiles' },
 ];
 
 export default function AppLayout({ children, title }: AppLayoutProps) {

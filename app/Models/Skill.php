@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Support\NameNormalizer;
 use Database\Factories\SkillFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -65,5 +66,24 @@ class Skill extends Model
     public function projects(): BelongsToMany
     {
         return $this->belongsToMany(Project::class, 'skill_project');
+    }
+
+    /**
+     * Master order for skills: category order, then name ascending.
+     *
+     * @param  Builder<$this>  $query
+     * @return Builder<$this>
+     */
+    public function scopeMasterOrder(Builder $query): Builder
+    {
+        return $query
+            ->orderByRaw("CASE category
+                WHEN 'tecnica' THEN 1
+                WHEN 'funcional' THEN 2
+                WHEN 'metodologica' THEN 3
+                WHEN 'herramienta' THEN 4
+                WHEN 'tecnologia' THEN 5
+                ELSE 6 END")
+            ->orderBy('name');
     }
 }
