@@ -113,10 +113,11 @@ export default function ProjectForm({
                         year={data.start_year}
                         month={data.start_month}
                         onChange={(year, month) =>
-                            setData({
+                            setData((current) => ({
+                                ...current,
                                 start_year: year,
                                 start_month: year === '' ? '' : month,
-                            })
+                            }))
                         }
                         yearError={errors.start_year}
                         monthError={errors.start_month}
@@ -128,10 +129,11 @@ export default function ProjectForm({
                         year={data.end_year}
                         month={data.end_month}
                         onChange={(year, month) =>
-                            setData({
+                            setData((current) => ({
+                                ...current,
                                 end_year: year,
                                 end_month: year === '' ? '' : month,
-                            })
+                            }))
                         }
                         yearError={errors.end_year}
                         monthError={errors.end_month}

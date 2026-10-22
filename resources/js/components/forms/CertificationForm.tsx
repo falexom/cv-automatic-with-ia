@@ -138,10 +138,11 @@ export default function CertificationForm({
                             year={data.date_year}
                             month={data.date_month}
                             onChange={(year, month) =>
-                                setData({
+                                setData((current) => ({
+                                    ...current,
                                     date_year: year,
                                     date_month: year === '' ? '' : month,
-                                })
+                                }))
                             }
                             yearError={errors.date_year}
                             monthError={errors.date_month}

@@ -108,10 +108,11 @@ export default function EducationForm({
                         year={data.start_year}
                         month={data.start_month}
                         onChange={(year, month) =>
-                            setData({
+                            setData((current) => ({
+                                ...current,
                                 start_year: year,
                                 start_month: year === '' ? '' : month,
-                            })
+                            }))
                         }
                         yearError={errors.start_year}
                         monthError={errors.start_month}
@@ -124,14 +125,15 @@ export default function EducationForm({
                             year={data.end_year}
                             month={data.end_month}
                             onChange={(year, month) =>
-                                setData({
+                                setData((current) => ({
+                                    ...current,
                                     end_year: year,
                                     end_month: year === '' ? '' : month,
                                     is_in_progress:
                                         year === ''
-                                            ? data.is_in_progress
+                                            ? current.is_in_progress
                                             : false,
-                                })
+                                }))
                             }
                             yearError={errors.end_year}
                             monthError={errors.end_month}
@@ -142,17 +144,18 @@ export default function EducationForm({
                             <Checkbox
                                 checked={data.is_in_progress}
                                 onCheckedChange={(checked) =>
-                                    setData({
+                                    setData((current) => ({
+                                        ...current,
                                         is_in_progress: checked === true,
                                         end_year:
                                             checked === true
                                                 ? ''
-                                                : data.end_year,
+                                                : current.end_year,
                                         end_month:
                                             checked === true
                                                 ? ''
-                                                : data.end_month,
-                                    })
+                                                : current.end_month,
+                                    }))
                                 }
                             />
                             En curso (sin fecha de fin)

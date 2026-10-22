@@ -62,11 +62,12 @@ export default function WorkExperienceForm({
     };
 
     const toggleCurrent = (checked: boolean) => {
-        setData({
+        setData((current) => ({
+            ...current,
             is_current: checked,
-            end_year: checked ? '' : data.end_year,
-            end_month: checked ? '' : data.end_month,
-        });
+            end_year: checked ? '' : current.end_year,
+            end_month: checked ? '' : current.end_month,
+        }));
     };
 
     return (
@@ -114,10 +115,11 @@ export default function WorkExperienceForm({
                         year={data.start_year}
                         month={data.start_month}
                         onChange={(year, month) =>
-                            setData({
+                            setData((current) => ({
+                                ...current,
                                 start_year: year,
                                 start_month: year === '' ? '' : month,
-                            })
+                            }))
                         }
                         yearError={errors.start_year}
                         monthError={errors.start_month}
@@ -130,12 +132,15 @@ export default function WorkExperienceForm({
                             year={data.end_year}
                             month={data.end_month}
                             onChange={(year, month) =>
-                                setData({
+                                setData((current) => ({
+                                    ...current,
                                     end_year: year,
                                     end_month: year === '' ? '' : month,
                                     is_current:
-                                        year === '' ? data.is_current : false,
-                                })
+                                        year === ''
+                                            ? current.is_current
+                                            : false,
+                                }))
                             }
                             yearError={errors.end_year}
                             monthError={errors.end_month}
