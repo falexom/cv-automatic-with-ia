@@ -5,7 +5,7 @@ Aplicación web local monousuario para gestionar el **Perfil Profesional Maestro
 - **Stack**: Laravel 13 + PHP 8.3–8.5, Inertia + React 19 + TypeScript, Tailwind CSS 4, shadcn/ui, SQLite local.
 - **Sin autenticación** y **sin servicios externos en las capacidades implementadas**: la información permanece en tu equipo. La auditoría offline de SPEC-001 (T063) sigue pendiente.
 - Especificaciones: `specs/001-perfil-profesional-maestro/` y `specs/002-documentos-evidencias/` (spec, plan, modelo de datos, contratos, quickstart, tasks).
-- Reglas del proyecto: `.specify/memory/constitucion.md`.
+- Reglas del proyecto: `.specify/memory/constitution.md`.
 
 ## Requisitos
 

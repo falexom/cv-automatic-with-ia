@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+"""Run installed Spec Kit with the repository adapter and one explicit XDG profile."""
+import os
+from pathlib import Path
+import shutil
+import sys
+
+root = Path(__file__).resolve().parents[2]
+if len(sys.argv) < 4 or sys.argv[1] != '--profile' or sys.argv[2] not in ['aom', 'falexom']:
+    raise SystemExit('Usage: .specify/scripts/speckit-local --profile aom|falexom <specify arguments>')
+binary = shutil.which('specify')
+if not binary:
+    raise SystemExit('Installed specify executable not found; nothing installed')
+profile = Path.home() / '.opencode-profiles' / sys.argv[2]
+if not (profile / 'config/opencode').is_dir():
+    raise SystemExit('Profile configuration missing')
+env = {k: os.environ[k] for k in ['PATH', 'HOME', 'TERM', 'LANG', 'LC_ALL', 'TMPDIR'] if k in os.environ}
+env.update({'XDG_' + kind.upper() + '_HOME': str(profile / kind)
+            for kind in ['config', 'data', 'state', 'cache']})
+env['SPECKIT_INTEGRATION_OPENCODE_EXECUTABLE'] = str(root / '.specify/scripts/opencode-speckit')
+os.chdir(root)
+os.execve(binary, [binary, *sys.argv[3:]], env)

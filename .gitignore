@@ -37,7 +37,7 @@ yarn-error.log
 /.kiro
 /.pi
 /.mcp.json
-/AGENTS.md
+# AGENTS.md is the versioned project operational policy.
 /CLAUDE.md
 /boost.json
 /opencode.json

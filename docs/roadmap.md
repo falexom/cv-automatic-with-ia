@@ -15,7 +15,7 @@ Este roadmap no sustituye a los archivos formales `spec.md` que serán creados p
 
 La fuente normativa global del proyecto sigue siendo:
 
-`.specify/memory/constitucion.md`
+`.specify/memory/constitution.md`
 
 Cada nuevo Spec deberá:
 

@@ -11,6 +11,19 @@ handoffs:
       send: true
 ---
 
+## Integración operativa local FALEXOM
+
+Aplicar AGENTS.md y `.specify/memory/constitution.md`. Orchestrator coordina;
+Developer es el ejecutor de scripts, estructura documental y Git autorizado.
+Transmitir instrucciones y rutas concretas al especialista: Analyst redacta
+Specify/Clarify; Architect Plan; Project Manager Tasks; Developer Implement;
+QA valida independientemente y Security según riesgo. No dar shell a otros roles.
+Conservar revisiones humanas obligatorias de spec/plan y el gate de checklists.
+No cerrar tareas sin evidencia; no realizar merge ni push. Los handoffs son
+comandos Spec Kit, no identificadores de especialistas FALEXOM.
+
+Antes de continuar, delegar a Developer `python3 .specify/scripts/falexom-workflow.py check`. Si falla, detener toda escritura; no cambiar feature.json para ocultar una discrepancia. Cualquier script shell indicado más abajo se encarga a Developer.
+
 ## User Input
 
 ```text
@@ -143,7 +156,7 @@ The tasks.md should be immediately executable - each task must be specific enoug
 
 **CRITICAL**: Tasks MUST be organized by user story to enable independent implementation and testing.
 
-**Tests are OPTIONAL**: Only generate test tasks if explicitly requested in the feature specification or if user requests TDD approach.
+**Tests follow the Constitution, risk and acceptance criteria**: Generate required test tasks even without an explicit TDD request. Only additional optional tests depend on the feature specification or user request; never omit constitutionally required validation.
 
 ### Checklist Format (REQUIRED)
 

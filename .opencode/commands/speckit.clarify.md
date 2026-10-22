@@ -6,6 +6,19 @@ handoffs:
       prompt: Create a plan for the spec. I am building with...
 ---
 
+## Integración operativa local FALEXOM
+
+Aplicar AGENTS.md y `.specify/memory/constitution.md`. Orchestrator coordina;
+Developer es el ejecutor de scripts, estructura documental y Git autorizado.
+Transmitir instrucciones y rutas concretas al especialista: Analyst redacta
+Specify/Clarify; Architect Plan; Project Manager Tasks; Developer Implement;
+QA valida independientemente y Security según riesgo. No dar shell a otros roles.
+Conservar revisiones humanas obligatorias de spec/plan y el gate de checklists.
+No cerrar tareas sin evidencia; no realizar merge ni push. Los handoffs son
+comandos Spec Kit, no identificadores de especialistas FALEXOM.
+
+Antes de continuar, delegar a Developer `python3 .specify/scripts/falexom-workflow.py check`. Si falla, detener toda escritura; no cambiar feature.json para ocultar una discrepancia. Cualquier script shell indicado más abajo se encarga a Developer.
+
 ## User Input
 
 ```text

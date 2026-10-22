@@ -1,0 +1,90 @@
+#!/usr/bin/env python3
+"""Local Spec Kit 1.1 adapter: canonical command body -> supported OpenCode run stdin.
+
+No API emulation, shell template expansion, auto approval or implicit retries.
+Executing without --dry-run can consume the selected profile's model quota.
+"""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+ROOT = Path(__file__).resolve().parents[2]
+BINARY = '/opt/homebrew/bin/opencode'
+COMMANDS = ['specify', 'clarify', 'plan', 'tasks', 'implement']
+
+
+def profile_environment():
+    home = Path.home()
+    profiles = home / '.opencode-profiles'
+    profile = next((name for name in ['aom', 'falexom'] if all(
+        os.environ.get('XDG_' + kind.upper() + '_HOME') == str(profiles / name / kind)
+        for kind in ['config', 'data', 'state', 'cache'])), None)
+    if profile is None:
+        raise ValueError('Select AOM or FALEXOM with speckit-local --profile; no default/global profile')
+    env = {k: os.environ[k] for k in ['PATH', 'HOME', 'TERM', 'LANG', 'LC_ALL', 'TMPDIR'] if k in os.environ}
+    env.update({'XDG_' + k.upper() + '_HOME': str(profiles / profile / k)
+                for k in ['config', 'data', 'state', 'cache']})
+    env.update(OPENCODE_DISABLE_AUTOUPDATE='1', OPENCODE_DISABLE_MODELS_FETCH='1', DO_NOT_TRACK='1')
+    return profile, env
+
+
+def build(argv):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('operation', choices=['run'])
+    parser.add_argument('--command', required=True, choices=['speckit.' + x for x in COMMANDS])
+    parser.add_argument('--format', choices=['json', 'default'], default='json')
+    parser.add_argument('-m', '--model')
+    parser.add_argument('--dry-run', action='store_true')
+    parser.add_argument('message', nargs='?')
+    args = parser.parse_intermixed_args(argv)
+    # Every phase except the creation of a new SPEC requires a coherent existing context.
+    guard = ROOT / '.specify/scripts/falexom-workflow.py'
+    subprocess.run([sys.executable, '-B', str(guard),
+                    'preflight' if args.command == 'speckit.specify' else 'check'], check=True,
+                   cwd=ROOT, stdout=subprocess.DEVNULL)
+    path = ROOT / '.opencode/commands' / (args.command + '.md')
+    if path.is_symlink() or path.resolve().parent != ROOT / '.opencode/commands':
+        raise ValueError('Unsafe command path')
+    text = path.read_text()
+    front, body = text[4:].split('\n---\n', 1)
+    if not text.startswith('---\n') or re.search(r'^(model|agent|subtask|subagent):', front, re.M):
+        raise ValueError('Command metadata changed: explicit adapter review required')
+    if '!`' in body or re.search(r'\$[1-9]', body):
+        raise ValueError('Dynamic native templates are unsupported; use the interactive command')
+    body = body.replace('$ARGUMENTS', args.message or '')
+    prefix = ('Ejecuta las instrucciones canónicas de ' + args.command +
+              ' que siguen. Respeta AGENTS.md y constitution.md. Coordina mediante los seis '
+              'especialistas FALEXOM; no edites ni ejecutes shell como Orchestrator. '
+              'Developer ejecuta los scripts autorizados; cada especialista redacta su parte. '
+              'No omitas revisiones humanas de spec/plan ni permisos del harness. '
+              'Si falta una aprobación o una respuesta humana, informa BLOQUEADO y detente; '
+              'no inventes una aprobación. No hagas merge ni push.\n\n')
+    command = [BINARY, 'run', '--standalone', '--agent', 'falexom-orchestrator', '--format', args.format]
+    if args.model:
+        command += ['--model', args.model]
+    profile, env = profile_environment()
+    return args, command, prefix + body, env, profile, hashlib.sha256(text.encode()).hexdigest()
+
+
+def main():
+    args, command, body, env, profile, digest = build(sys.argv[1:])
+    if args.dry_run:
+        print(json.dumps({'profile': profile, 'executable': BINARY, 'command': args.command,
+                          'transport': 'run stdin, canonical command body with $ARGUMENTS substitution',
+                          'source_sha256': digest, 'standalone': True, 'model_calls': 0}))
+        return
+    result = subprocess.run(command, input=body, text=True, cwd=ROOT, env=env)
+    sys.exit(result.returncode)
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except (OSError, ValueError, subprocess.CalledProcessError) as error:
+        print('BLOCKED: ' + str(error), file=sys.stderr)
+        sys.exit(1)
