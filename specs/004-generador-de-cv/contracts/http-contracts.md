@@ -7,9 +7,9 @@ Aplicación Inertia: cada petición devuelve una página Inertia (HTML + props J
 
 ## Ruta
 
-| Método | URI     | Nombre     | Acción                        | Respuesta              |
-| ------ | ------- | ---------- | ----------------------------- | ---------------------- |
-| GET    | `/cv`   | `cv.index` | `CvGeneratorController@index` | Página `Cv/Index`      |
+| Método | URI   | Nombre     | Acción                        | Respuesta         |
+| ------ | ----- | ---------- | ----------------------------- | ----------------- |
+| GET    | `/cv` | `cv.index` | `CvGeneratorController@index` | Página `Cv/Index` |
 
 - La ruta se declara explícitamente en `routes/web.php`; no se usa `Route::resource`.
 - El perfil se indica con el query param opcional `profile`.
@@ -19,12 +19,12 @@ Aplicación Inertia: cada petición devuelve una página Inertia (HTML + props J
 
 ## Query param `profile`
 
-| Valor                                  | Interpretación                                      | Estado resultante     |
-| -------------------------------------- | --------------------------------------------------- | --------------------- |
-| Ausente                                | No hay selección.                                   | `selection_required`  |
-| Cadena vacía (`?profile=`)             | No hay selección.                                   | `selection_required`  |
-| Cadena de dígitos que representa un entero ≥ 1 | Candidato a perfil; se busca entre los activos. | `ready` o `unavailable` |
-| Cualquier otro valor (texto, cero, negativo, espacios, array) | Query inválido.                    | `unavailable`         |
+| Valor                                                         | Interpretación                                  | Estado resultante       |
+| ------------------------------------------------------------- | ----------------------------------------------- | ----------------------- |
+| Ausente                                                       | No hay selección.                               | `selection_required`    |
+| Cadena vacía (`?profile=`)                                    | No hay selección.                               | `selection_required`    |
+| Cadena de dígitos que representa un entero ≥ 1                | Candidato a perfil; se busca entre los activos. | `ready` o `unavailable` |
+| Cualquier otro valor (texto, cero, negativo, espacios, array) | Query inválido.                                 | `unavailable`           |
 
 - Si no existe ningún perfil activo, el estado es `no_active_profiles` independientemente del query.
 - Si hay perfiles activos y el ID no corresponde a ninguno activo, el estado es `unavailable`.
@@ -410,13 +410,13 @@ type CvGeneratorPageProps = {
 
 ## Significado de los estados
 
-| Estado                | Condición                                                                 | `preview` | Hoja de CV | Acciones de la página                                      |
-| --------------------- | ------------------------------------------------------------------------- | --------- | ---------- | ---------------------------------------------------------- |
-| `no_active_profiles`  | No existe ningún perfil activo.                                            | `null`    | No         | Enlace a `/profiles` para crear o activar.                 |
-| `selection_required`  | Hay activos y no hay perfil seleccionado.                                  | `null`    | No         | Selector sin preselección y envío explícito.               |
-| `unavailable`         | Hay activos y el query es inválido, inactivo o inexistente.                | `null`    | No         | Aviso y selector con alternativas activas.                 |
-| `ready`               | Hay un perfil activo seleccionado y la composición terminó.                | Objeto    | Sí, si `has_data`; si no, estado vacío | Selector, hoja/estado vacío, enlaces a fuentes y perfil.   |
-| `error`               | Falló la carga o la composición.                                           | `null`    | No         | Alerta y reintento; sin pérdida de la selección en la URL. |
+| Estado               | Condición                                                   | `preview` | Hoja de CV                             | Acciones de la página                                      |
+| -------------------- | ----------------------------------------------------------- | --------- | -------------------------------------- | ---------------------------------------------------------- |
+| `no_active_profiles` | No existe ningún perfil activo.                             | `null`    | No                                     | Enlace a `/profiles` para crear o activar.                 |
+| `selection_required` | Hay activos y no hay perfil seleccionado.                   | `null`    | No                                     | Selector sin preselección y envío explícito.               |
+| `unavailable`        | Hay activos y el query es inválido, inactivo o inexistente. | `null`    | No                                     | Aviso y selector con alternativas activas.                 |
+| `ready`              | Hay un perfil activo seleccionado y la composición terminó. | Objeto    | Sí, si `has_data`; si no, estado vacío | Selector, hoja/estado vacío, enlaces a fuentes y perfil.   |
+| `error`              | Falló la carga o la composición.                            | `null`    | No                                     | Alerta y reintento; sin pérdida de la selección en la URL. |
 
 **Regla de `has_data`**
 
@@ -425,8 +425,8 @@ type CvGeneratorPageProps = {
 ## Orden garantizado
 
 - El servidor devuelve las cinco colecciones **ya ordenadas** por la regla de SPEC-003:
-  - relevancia descendente: Alta → Media → Baja;
-  - empate: orden del Perfil Maestro (fecha de inicio más reciente primero, sin fecha al final, `id` descendente como desempate estable; habilidades por categoría y luego nombre).
+    - relevancia descendente: Alta → Media → Baja;
+    - empate: orden del Perfil Maestro (fecha de inicio más reciente primero, sin fecha al final, `id` descendente como desempate estable; habilidades por categoría y luego nombre).
 - La UI **no debe** ordenar, agrupar por relevancia, invertir ni reordenar los arreglos. Solo los recorre.
 - Habilidades se muestran como lista plana con etiqueta de categoría; no se agrupan para no romper el orden por relevancia.
 - El orden de las secciones es fijo: datos personales y contacto, título, resumen, experiencia, educación, cursos y certificaciones, habilidades, proyectos.
@@ -450,16 +450,16 @@ type CvGeneratorPageProps = {
 
 ## Errores y fallos
 
-| Situación                                                        | Respuesta                                                                 | UI                                                                 |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| Perfil inactivo, inexistente o query inválido                     | **200** con `status = unavailable`, `preview = null` y alternativas.       | Aviso; selector de activos; sin hoja.                              |
-| Sin perfiles activos                                              | **200** con `status = no_active_profiles`.                                 | Estado vacío; enlace a `/profiles`; sin hoja.                      |
-| Fallo de carga o composición (excepción capturada)                | **200** con `status = error`, `preview = null`; `report()` registra el error. | Alerta; reintento; sin vista parcial.                              |
-| Fallo de renderizado o error no controlado del framework          | **500** estándar de Laravel/Inertia.                                       | Página/modal de error; no se genera una hoja parcial desde el servidor. |
-| Método distinto de `GET` en `/cv`                                 | **405 Method Not Allowed**.                                                | No aplica.                                                         |
-| `DELETE /cv`                                                      | **405**.                                                                   | No aplica.                                                         |
-| Perfil inexistente en el query                                    | **200** `unavailable`; **no** 404.                                         | Aviso y alternativas.                                              |
-| Error de validación de formulario                                 | No aplica: no hay payload de escritura.                                    | No aplica.                                                         |
+| Situación                                                | Respuesta                                                                     | UI                                                                      |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Perfil inactivo, inexistente o query inválido            | **200** con `status = unavailable`, `preview = null` y alternativas.          | Aviso; selector de activos; sin hoja.                                   |
+| Sin perfiles activos                                     | **200** con `status = no_active_profiles`.                                    | Estado vacío; enlace a `/profiles`; sin hoja.                           |
+| Fallo de carga o composición (excepción capturada)       | **200** con `status = error`, `preview = null`; `report()` registra el error. | Alerta; reintento; sin vista parcial.                                   |
+| Fallo de renderizado o error no controlado del framework | **500** estándar de Laravel/Inertia.                                          | Página/modal de error; no se genera una hoja parcial desde el servidor. |
+| Método distinto de `GET` en `/cv`                        | **405 Method Not Allowed**.                                                   | No aplica.                                                              |
+| `DELETE /cv`                                             | **405**.                                                                      | No aplica.                                                              |
+| Perfil inexistente en el query                           | **200** `unavailable`; **no** 404.                                            | Aviso y alternativas.                                                   |
+| Error de validación de formulario                        | No aplica: no hay payload de escritura.                                       | No aplica.                                                              |
 
 - El estado `error` no presenta una vista parcial ni una versión anterior como válida.
 - El reintento usa la URL actual, de modo que `?profile=ID` se conserva cuando existe.

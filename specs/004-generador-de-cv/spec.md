@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-23
 
-**Status**: Ready for documentation review — 2026-10-23; implementación en pausa a pedido del usuario; autorización del ciclo registrada; aceptación manual final pendiente.
+**Status**: Closed — 2026-10-23; aceptación funcional y visual del MVP por el responsable; T025 con escenarios manuales 1–13 no ejecutados individualmente y documentados; integración en main mediante merge --no-ff; sin push.
 
 **Input**: User description: "Construir el Generador de CV de SPEC-004: seleccionar un perfil de CV activo y obtener una vista de currículum de solo lectura, derivada de los datos vigentes del Perfil Profesional Maestro y de la configuración del perfil —selección, relevancia y orden—, con una única plantilla profesional, sin PDF, CV documentado, edición directa ni almacenamiento."
 
@@ -260,14 +260,23 @@ No se introduce ninguna entidad persistente nueva ni se redefinen las entidades 
 
 ## Trazabilidad
 
-| Origen                                                              | Requisitos                                       | Historias     | Observación                                                                 |
-| ------------------------------------------------------------------- | ------------------------------------------------ | ------------- | --------------------------------------------------------------------------- |
-| Constitución I, II, III, XIV y XXVI; SPEC-001                       | FR-006, FR-009, FR-010, FR-011, FR-013, FR-015, FR-016 | US1, US3      | Fuente única, vista derivada, sin copia ni edición del CV.                  |
-| Constitución XVI y XVIII; SPEC-003 D1/FR-009–FR-012                 | FR-007, FR-008, FR-012                           | US1, US2      | Selección explícita, orden por relevancia, vista previa y una plantilla.    |
-| Constitución XIX y XXI; encargo autorizado                          | FR-017–FR-021; Pruebas Requeridas                | US1, US4      | Capacidad verificable, pruebas proporcionales, robustez y accesibilidad.    |
-| Constitución XXIII y XXV                                            | FR-015, FR-022                                   | US1, US4      | Composición local, sin servicios externos y alcance acotado.                |
-| SPEC-003 D2/FR-016                                                  | FR-002, FR-005, FR-017                           | US4           | Solo perfiles activos; inactivos no disponibles; reactivación.              |
-| SPEC-003 D3/FR-014–FR-015                                           | FR-009, FR-010                                   | US1, US3      | Título y resumen propios; datos personales heredados en lectura.            |
-| Roadmap SPEC-004                                                    | FR-001–FR-022                                    | US1–US4       | Alcance definitivo de la capacidad.                                         |
-| Criterio de éxito del MVP, pasos 10–12                              | SC-008                                           | US1, US2      | Selección de perfil, inclusión o priorización y visualización del CV.       |
-| SPEC-002                                                            | —                                                | —             | Sin asociación documental; no es dependencia funcional.                     |
+| Origen                                              | Requisitos                                             | Historias | Observación                                                              |
+| --------------------------------------------------- | ------------------------------------------------------ | --------- | ------------------------------------------------------------------------ |
+| Constitución I, II, III, XIV y XXVI; SPEC-001       | FR-006, FR-009, FR-010, FR-011, FR-013, FR-015, FR-016 | US1, US3  | Fuente única, vista derivada, sin copia ni edición del CV.               |
+| Constitución XVI y XVIII; SPEC-003 D1/FR-009–FR-012 | FR-007, FR-008, FR-012                                 | US1, US2  | Selección explícita, orden por relevancia, vista previa y una plantilla. |
+| Constitución XIX y XXI; encargo autorizado          | FR-017–FR-021; Pruebas Requeridas                      | US1, US4  | Capacidad verificable, pruebas proporcionales, robustez y accesibilidad. |
+| Constitución XXIII y XXV                            | FR-015, FR-022                                         | US1, US4  | Composición local, sin servicios externos y alcance acotado.             |
+| SPEC-003 D2/FR-016                                  | FR-002, FR-005, FR-017                                 | US4       | Solo perfiles activos; inactivos no disponibles; reactivación.           |
+| SPEC-003 D3/FR-014–FR-015                           | FR-009, FR-010                                         | US1, US3  | Título y resumen propios; datos personales heredados en lectura.         |
+| Roadmap SPEC-004                                    | FR-001–FR-022                                          | US1–US4   | Alcance definitivo de la capacidad.                                      |
+| Criterio de éxito del MVP, pasos 10–12              | SC-008                                                 | US1, US2  | Selección de perfil, inclusión o priorización y visualización del CV.    |
+| SPEC-002                                            | —                                                      | —         | Sin asociación documental; no es dependencia funcional.                  |
+
+## Cierre
+
+- **Aceptación del MVP**: el responsable aceptó funcional y visualmente el MVP de SPEC-004 el 2026-10-23. El cierre se autoriza con cobertura manual parcial documentada.
+- **Cobertura manual**: la aceptación no equivale a la ejecución individual de los escenarios manuales 1–13 de `quickstart.md`; la tarea T025 queda documentada con esos escenarios como no verificados individualmente.
+- **Escenario 14**: acreditado mediante prueba automatizada.
+- **Tareas**: 26/26 tareas completadas, con evidencia en `tasks.md`.
+- **Observaciones preexistentes no corregidas**: formato de `docs/roadmap.md` y 16 errores PHPStan de SPEC-003.
+- **Cierre formal e integración**: cierre formal de la capacidad e integración en `main` mediante merge `--no-ff`, sin push. El commit local y el merge fueron autorizados y aún no se ejecutaron al momento de esta actualización.

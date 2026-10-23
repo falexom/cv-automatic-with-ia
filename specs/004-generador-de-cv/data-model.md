@@ -41,16 +41,16 @@ No se modela ninguna entidad de CV, PDF, plantilla, exportación, documento, evi
 
 ## Fuentes de datos
 
-| Dato                                             | Fuente                                                     | Tipo de acceso | Observación                                              |
-| ------------------------------------------------ | ---------------------------------------------------------- | -------------- | -------------------------------------------------------- |
-| Nombre completo, teléfono, correo, ubicación     | `profiles` (Maestro)                                       | Lectura viva   | Heredado; sin copia ni sobrescritura por perfil.         |
-| LinkedIn, GitHub, sitio web                      | `profiles` (Maestro)                                       | Lectura viva   | Enlaces clicables cuando existen.                        |
-| Enlaces adicionales                              | `profile_links` (Maestro)                                  | Lectura viva   | Orden por `id`; etiqueta y URL.                          |
-| Título profesional del CV                        | `cv_profiles.professional_title`                           | Lectura viva   | Propio del perfil; sin fallback al Maestro.              |
-| Resumen del CV                                   | `cv_profiles.summary`                                      | Lectura viva   | Propio del perfil; sin fallback al Maestro.              |
-| Nombre del perfil y estado                       | `cv_profiles.name`, `cv_profiles.is_active`                | Lectura viva   | El nombre solo etiqueta el selector; el estado filtra.   |
-| Experiencia, educación, certificaciones, habilidades y proyectos | Tablas maestras + pivotes de SPEC-003 | Lectura viva | Solo las asociaciones incluidas; orden ya aplicado.     |
-| Relevancia de una asociación                     | Pivotes de SPEC-003                                        | Lectura viva   | Solo gobierna el orden; no se envía ni se muestra.       |
+| Dato                                                             | Fuente                                      | Tipo de acceso | Observación                                            |
+| ---------------------------------------------------------------- | ------------------------------------------- | -------------- | ------------------------------------------------------ |
+| Nombre completo, teléfono, correo, ubicación                     | `profiles` (Maestro)                        | Lectura viva   | Heredado; sin copia ni sobrescritura por perfil.       |
+| LinkedIn, GitHub, sitio web                                      | `profiles` (Maestro)                        | Lectura viva   | Enlaces clicables cuando existen.                      |
+| Enlaces adicionales                                              | `profile_links` (Maestro)                   | Lectura viva   | Orden por `id`; etiqueta y URL.                        |
+| Título profesional del CV                                        | `cv_profiles.professional_title`            | Lectura viva   | Propio del perfil; sin fallback al Maestro.            |
+| Resumen del CV                                                   | `cv_profiles.summary`                       | Lectura viva   | Propio del perfil; sin fallback al Maestro.            |
+| Nombre del perfil y estado                                       | `cv_profiles.name`, `cv_profiles.is_active` | Lectura viva   | El nombre solo etiqueta el selector; el estado filtra. |
+| Experiencia, educación, certificaciones, habilidades y proyectos | Tablas maestras + pivotes de SPEC-003       | Lectura viva   | Solo las asociaciones incluidas; orden ya aplicado.    |
+| Relevancia de una asociación                                     | Pivotes de SPEC-003                         | Lectura viva   | Solo gobierna el orden; no se envía ni se muestra.     |
 
 **Título y resumen del Maestro**: no se leen para el CV. `CvProfileContent::personalData()` ya los excluye y el generador no los consulta por otra vía.
 
@@ -58,23 +58,23 @@ No se modela ninguna entidad de CV, PDF, plantilla, exportación, documento, evi
 
 La página `Cv/Index` recibe cuatro props:
 
-| Prop                  | Tipo                                      | Descripción                                                                 |
-| --------------------- | ----------------------------------------- | --------------------------------------------------------------------------- |
-| `profiles`            | `Array<{id, name, professional_title}>`   | Solo perfiles activos, ordenados por `name`; alimenta el selector.          |
-| `status`              | `no_active_profiles \| selection_required \| unavailable \| ready \| error` | Estado de la página. |
-| `selected_profile_id` | `number \| null`                           | Perfil activo cuya vista se está mostrando o se intentó mostrar.             |
-| `preview`             | `CvPreviewData \| null`                   | Vista derivada; solo existe en `ready`.                                     |
+| Prop                  | Tipo                                                                        | Descripción                                                        |
+| --------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `profiles`            | `Array<{id, name, professional_title}>`                                     | Solo perfiles activos, ordenados por `name`; alimenta el selector. |
+| `status`              | `no_active_profiles \| selection_required \| unavailable \| ready \| error` | Estado de la página.                                               |
+| `selected_profile_id` | `number \| null`                                                            | Perfil activo cuya vista se está mostrando o se intentó mostrar.   |
+| `preview`             | `CvPreviewData \| null`                                                     | Vista derivada; solo existe en `ready`.                            |
 
 `CvPreviewData`:
 
-| Campo                | Tipo                                      | Descripción                                                                 |
-| -------------------- | ----------------------------------------- | --------------------------------------------------------------------------- |
-| `personal_data`      | `CvPreviewPersonalData`                   | Datos heredados del Maestro, incluidos `links` y `has_data`; misma forma que `CvProfilePersonalData`. |
-| `professional_title` | `string \| null`                          | Título propio del perfil; `null` si está vacío.                              |
-| `summary`            | `string \| null`                          | Resumen propio del perfil; `null` si está vacío.                             |
-| `content`            | `CvPreviewSections`                       | Cinco colecciones ya ordenadas.                                              |
-| `source_links`       | `CvPreviewSourceLinks`                    | Enlaces al perfil y a las secciones del Maestro.                             |
-| `has_data`           | `boolean`                                 | `false` solo si no hay ningún dato que mostrar; la UI usa estado vacío.       |
+| Campo                | Tipo                    | Descripción                                                                                           |
+| -------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------- |
+| `personal_data`      | `CvPreviewPersonalData` | Datos heredados del Maestro, incluidos `links` y `has_data`; misma forma que `CvProfilePersonalData`. |
+| `professional_title` | `string \| null`        | Título propio del perfil; `null` si está vacío.                                                       |
+| `summary`            | `string \| null`        | Resumen propio del perfil; `null` si está vacío.                                                      |
+| `content`            | `CvPreviewSections`     | Cinco colecciones ya ordenadas.                                                                       |
+| `source_links`       | `CvPreviewSourceLinks`  | Enlaces al perfil y a las secciones del Maestro.                                                      |
+| `has_data`           | `boolean`               | `false` solo si no hay ningún dato que mostrar; la UI usa estado vacío.                               |
 
 `CvPreviewData` **no incluye** el nombre del perfil, `is_active`, `relevance`, `master_path`, `normalized_name` ni ningún identificador de plantilla.
 
@@ -82,74 +82,74 @@ La página `Cv/Index` recibe cuatro props:
 
 ### Experiencia laboral (`work_experiences`)
 
-| Campo payload      | Origen                          | Regla de presentación / omisión                                      |
-| ------------------ | ------------------------------- | -------------------------------------------------------------------- |
-| `id`               | `work_experiences.id`           | Clave interna de React; no se muestra.                               |
-| `position`         | `work_experiences.position`     | Obligatorio; se muestra.                                             |
-| `company`          | `work_experiences.company`      | Obligatorio; se muestra.                                             |
-| `start_year`       | `work_experiences.start_year`   | Se pasa a `formatRange`; si no hay fechas, se omite el período.       |
-| `start_month`      | `work_experiences.start_month`  | Se pasa a `formatRange`; mes abreviado si existe.                    |
-| `end_year`         | `work_experiences.end_year`     | Se pasa a `formatRange`.                                             |
-| `end_month`        | `work_experiences.end_month`    | Se pasa a `formatRange`.                                             |
-| `is_current`       | `work_experiences.is_current`   | `true` → etiqueta «actual»; no se inventa si es `false`.              |
-| `description`      | `work_experiences.description`  | Opcional; se omite si está vacío.                                    |
+| Campo payload      | Origen                              | Regla de presentación / omisión                                        |
+| ------------------ | ----------------------------------- | ---------------------------------------------------------------------- |
+| `id`               | `work_experiences.id`               | Clave interna de React; no se muestra.                                 |
+| `position`         | `work_experiences.position`         | Obligatorio; se muestra.                                               |
+| `company`          | `work_experiences.company`          | Obligatorio; se muestra.                                               |
+| `start_year`       | `work_experiences.start_year`       | Se pasa a `formatRange`; si no hay fechas, se omite el período.        |
+| `start_month`      | `work_experiences.start_month`      | Se pasa a `formatRange`; mes abreviado si existe.                      |
+| `end_year`         | `work_experiences.end_year`         | Se pasa a `formatRange`.                                               |
+| `end_month`        | `work_experiences.end_month`        | Se pasa a `formatRange`.                                               |
+| `is_current`       | `work_experiences.is_current`       | `true` → etiqueta «actual»; no se inventa si es `false`.               |
+| `description`      | `work_experiences.description`      | Opcional; se omite si está vacío.                                      |
 | `responsibilities` | `work_experiences.responsibilities` | Opcional; se muestra completo, con saltos de línea; se omite si vacío. |
-| `achievements`     | `work_experiences.achievements` | Opcional; se muestra completo, con saltos de línea; se omite si vacío. |
+| `achievements`     | `work_experiences.achievements`     | Opcional; se muestra completo, con saltos de línea; se omite si vacío. |
 
 ### Educación (`education_entries`)
 
-| Campo payload     | Origen                           | Regla de presentación / omisión                                      |
-| ----------------- | -------------------------------- | -------------------------------------------------------------------- |
-| `id`              | `education_entries.id`           | Clave interna; no se muestra.                                        |
-| `institution`     | `education_entries.institution`  | Obligatorio; se muestra.                                             |
-| `program`         | `education_entries.program`      | Obligatorio; se muestra.                                             |
-| `degree_level`    | `education_entries.degree_level` | Opcional; se omite si está vacío.                                    |
-| `start_year`      | `education_entries.start_year`   | Se pasa a `formatRange`; si no hay fechas, se omite el período.       |
-| `start_month`     | `education_entries.start_month`  | Se pasa a `formatRange`.                                             |
-| `end_year`        | `education_entries.end_year`     | Se pasa a `formatRange`.                                             |
-| `end_month`       | `education_entries.end_month`    | Se pasa a `formatRange`.                                             |
-| `is_in_progress`  | `education_entries.is_in_progress` | `true` → etiqueta «en curso»; no se inventa si es `false`.          |
-| `description`     | `education_entries.description`  | Opcional; se omite si está vacío.                                    |
+| Campo payload    | Origen                             | Regla de presentación / omisión                                 |
+| ---------------- | ---------------------------------- | --------------------------------------------------------------- |
+| `id`             | `education_entries.id`             | Clave interna; no se muestra.                                   |
+| `institution`    | `education_entries.institution`    | Obligatorio; se muestra.                                        |
+| `program`        | `education_entries.program`        | Obligatorio; se muestra.                                        |
+| `degree_level`   | `education_entries.degree_level`   | Opcional; se omite si está vacío.                               |
+| `start_year`     | `education_entries.start_year`     | Se pasa a `formatRange`; si no hay fechas, se omite el período. |
+| `start_month`    | `education_entries.start_month`    | Se pasa a `formatRange`.                                        |
+| `end_year`       | `education_entries.end_year`       | Se pasa a `formatRange`.                                        |
+| `end_month`      | `education_entries.end_month`      | Se pasa a `formatRange`.                                        |
+| `is_in_progress` | `education_entries.is_in_progress` | `true` → etiqueta «en curso»; no se inventa si es `false`.      |
+| `description`    | `education_entries.description`    | Opcional; se omite si está vacío.                               |
 
 ### Cursos y certificaciones (`certifications`)
 
-| Campo payload    | Origen                         | Regla de presentación / omisión                                      |
-| ---------------- | ------------------------------ | -------------------------------------------------------------------- |
-| `id`             | `certifications.id`            | Clave interna; no se muestra.                                        |
-| `name`           | `certifications.name`          | Obligatorio; se muestra.                                             |
-| `institution`    | `certifications.institution`   | Opcional; se omite si está vacío.                                    |
-| `date_year`      | `certifications.date_year`     | `formatYearMonth`; si no hay año, se omite la fecha.                  |
-| `date_month`     | `certifications.date_month`    | `formatYearMonth`; mes abreviado si existe.                          |
-| `duration`       | `certifications.duration`      | Opcional; se omite si está vacío.                                    |
-| `category`       | `certifications.category`      | Texto libre; se omite si está vacío.                                 |
-| `code`           | `certifications.code`          | Opcional; se muestra con etiqueta «Código»; se omite si vacío.       |
-| `validation_url` | `certifications.validation_url` | Si existe, enlace «Validar certificación»; si no, no se muestra.     |
+| Campo payload    | Origen                          | Regla de presentación / omisión                                  |
+| ---------------- | ------------------------------- | ---------------------------------------------------------------- |
+| `id`             | `certifications.id`             | Clave interna; no se muestra.                                    |
+| `name`           | `certifications.name`           | Obligatorio; se muestra.                                         |
+| `institution`    | `certifications.institution`    | Opcional; se omite si está vacío.                                |
+| `date_year`      | `certifications.date_year`      | `formatYearMonth`; si no hay año, se omite la fecha.             |
+| `date_month`     | `certifications.date_month`     | `formatYearMonth`; mes abreviado si existe.                      |
+| `duration`       | `certifications.duration`       | Opcional; se omite si está vacío.                                |
+| `category`       | `certifications.category`       | Texto libre; se omite si está vacío.                             |
+| `code`           | `certifications.code`           | Opcional; se muestra con etiqueta «Código»; se omite si vacío.   |
+| `validation_url` | `certifications.validation_url` | Si existe, enlace «Validar certificación»; si no, no se muestra. |
 
 ### Habilidades (`skills`)
 
-| Campo payload | Origen                | Regla de presentación / omisión                                      |
-| ------------- | --------------------- | -------------------------------------------------------------------- |
-| `id`          | `skills.id`           | Clave interna; no se muestra.                                        |
-| `name`        | `skills.name`         | Obligatorio; se muestra.                                             |
-| `category`    | `skills.category`     | Se traduce con `SKILL_CATEGORY_LABELS`; se muestra como etiqueta.    |
+| Campo payload | Origen            | Regla de presentación / omisión                                   |
+| ------------- | ----------------- | ----------------------------------------------------------------- |
+| `id`          | `skills.id`       | Clave interna; no se muestra.                                     |
+| `name`        | `skills.name`     | Obligatorio; se muestra.                                          |
+| `category`    | `skills.category` | Se traduce con `SKILL_CATEGORY_LABELS`; se muestra como etiqueta. |
 
 - La lista es plana y conserva el orden recibido: relevancia descendente → categoría del Maestro → nombre.
 - No se agrupa por categoría para no romper el orden por relevancia.
 
 ### Proyectos (`projects`)
 
-| Campo payload  | Origen                  | Regla de presentación / omisión                                      |
-| -------------- | ----------------------- | -------------------------------------------------------------------- |
-| `id`           | `projects.id`           | Clave interna; no se muestra.                                        |
-| `name`         | `projects.name`         | Obligatorio; se muestra.                                             |
-| `role`         | `projects.role`         | Opcional; se omite si está vacío.                                    |
-| `start_year`   | `projects.start_year`   | Se pasa a `formatRange`; si no hay fechas, se omite el período.       |
-| `start_month`  | `projects.start_month`  | Se pasa a `formatRange`.                                             |
-| `end_year`     | `projects.end_year`     | Se pasa a `formatRange`.                                             |
-| `end_month`    | `projects.end_month`    | Se pasa a `formatRange`.                                             |
-| `description`  | `projects.description`  | Opcional; se omite si está vacío.                                    |
-| `results`      | `projects.results`      | Opcional; se muestra completo, con saltos de línea; se omite si vacío. |
-| `url`          | `projects.url`          | Si existe, enlace «Ver proyecto»; si no, no se muestra.              |
+| Campo payload | Origen                 | Regla de presentación / omisión                                        |
+| ------------- | ---------------------- | ---------------------------------------------------------------------- |
+| `id`          | `projects.id`          | Clave interna; no se muestra.                                          |
+| `name`        | `projects.name`        | Obligatorio; se muestra.                                               |
+| `role`        | `projects.role`        | Opcional; se omite si está vacío.                                      |
+| `start_year`  | `projects.start_year`  | Se pasa a `formatRange`; si no hay fechas, se omite el período.        |
+| `start_month` | `projects.start_month` | Se pasa a `formatRange`.                                               |
+| `end_year`    | `projects.end_year`    | Se pasa a `formatRange`.                                               |
+| `end_month`   | `projects.end_month`   | Se pasa a `formatRange`.                                               |
+| `description` | `projects.description` | Opcional; se omite si está vacío.                                      |
+| `results`     | `projects.results`     | Opcional; se muestra completo, con saltos de línea; se omite si vacío. |
+| `url`         | `projects.url`         | Si existe, enlace «Ver proyecto»; si no, no se muestra.                |
 
 - Los proyectos no tienen un campo de vigencia; no se muestra «actual» ni se infiere un fin.
 
@@ -157,17 +157,17 @@ La página `Cv/Index` recibe cuatro props:
 
 `personal_data` se obtiene de `CvProfileContent::personalData()`:
 
-| Campo           | Presentación                                                                 |
-| --------------- | ---------------------------------------------------------------------------- |
-| `full_name`     | Encabezado visible del CV (`h2`). Si falta, se usa un `h2` estructural visualmente oculto «Currículum» para conservar la jerarquía; no se muestra un nombre inventado. |
-| `phone`         | Enlace `tel:` con el valor visible, si existe.                               |
-| `email`         | Enlace `mailto:` con el valor visible, si existe.                            |
-| `location`      | Texto visible, si existe.                                                    |
-| `linkedin_url`  | Enlace «LinkedIn», si existe.                                                |
-| `github_url`    | Enlace «GitHub», si existe.                                                  |
-| `website_url`   | Enlace «Sitio web», si existe.                                               |
-| `links`         | Lista de enlaces adicionales con su `label` como texto, si existen.          |
-| `has_data`      | `false` si no hay ningún dato personal ni enlace; la cabecera no inventa datos. |
+| Campo          | Presentación                                                                                                                                                           |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `full_name`    | Encabezado visible del CV (`h2`). Si falta, se usa un `h2` estructural visualmente oculto «Currículum» para conservar la jerarquía; no se muestra un nombre inventado. |
+| `phone`        | Enlace `tel:` con el valor visible, si existe.                                                                                                                         |
+| `email`        | Enlace `mailto:` con el valor visible, si existe.                                                                                                                      |
+| `location`     | Texto visible, si existe.                                                                                                                                              |
+| `linkedin_url` | Enlace «LinkedIn», si existe.                                                                                                                                          |
+| `github_url`   | Enlace «GitHub», si existe.                                                                                                                                            |
+| `website_url`  | Enlace «Sitio web», si existe.                                                                                                                                         |
+| `links`        | Lista de enlaces adicionales con su `label` como texto, si existen.                                                                                                    |
+| `has_data`     | `false` si no hay ningún dato personal ni enlace; la cabecera no inventa datos.                                                                                        |
 
 - Los campos vacíos no generan etiqueta, separador, guion, «N/D» ni espacio reservado.
 - Los enlaces de contacto y adicionales se abren en una pestaña nueva solo cuando son externos (`target="_blank"` y `rel="noreferrer"`); email/teléfono no.
@@ -175,29 +175,29 @@ La página `Cv/Index` recibe cuatro props:
 
 ## Datos propios y herencia
 
-| Dato                                   | Origen                           | ¿Editable en el CV? | Regla en la vista                                      |
-| -------------------------------------- | -------------------------------- | ------------------- | ------------------------------------------------------ |
-| Nombre del perfil                      | `cv_profiles.name`               | No                  | Solo etiqueta el selector; no se imprime en la hoja.   |
-| Título profesional                     | `cv_profiles.professional_title` | No                  | Propio; si está vacío, `null`; sin fallback.           |
-| Resumen                                | `cv_profiles.summary`            | No                  | Propio; si está vacío, `null`; sin fallback.           |
-| Estado activo/inactivo                 | `cv_profiles.is_active`          | No                  | Solo disponibilidad; no se envía al payload de la vista. |
-| Datos personales y de contacto         | Maestro                          | No                  | Lectura viva; sin copia ni sobrescritura.              |
-| Enlaces adicionales                    | Maestro                          | No                  | Lectura viva.                                          |
-| Contenido profesional                  | Maestro + pivotes                | No                  | Solo elementos incluidos; orden de SPEC-003.           |
-| Relevancia                             | Pivotes                          | No                  | Solo orden; no se imprime.                             |
-| Título y resumen del Maestro           | Maestro                          | No                  | Excluidos; no se usan como respaldo.                   |
+| Dato                           | Origen                           | ¿Editable en el CV? | Regla en la vista                                        |
+| ------------------------------ | -------------------------------- | ------------------- | -------------------------------------------------------- |
+| Nombre del perfil              | `cv_profiles.name`               | No                  | Solo etiqueta el selector; no se imprime en la hoja.     |
+| Título profesional             | `cv_profiles.professional_title` | No                  | Propio; si está vacío, `null`; sin fallback.             |
+| Resumen                        | `cv_profiles.summary`            | No                  | Propio; si está vacío, `null`; sin fallback.             |
+| Estado activo/inactivo         | `cv_profiles.is_active`          | No                  | Solo disponibilidad; no se envía al payload de la vista. |
+| Datos personales y de contacto | Maestro                          | No                  | Lectura viva; sin copia ni sobrescritura.                |
+| Enlaces adicionales            | Maestro                          | No                  | Lectura viva.                                            |
+| Contenido profesional          | Maestro + pivotes                | No                  | Solo elementos incluidos; orden de SPEC-003.             |
+| Relevancia                     | Pivotes                          | No                  | Solo orden; no se imprime.                               |
+| Título y resumen del Maestro   | Maestro                          | No                  | Excluidos; no se usan como respaldo.                     |
 
 ## Reglas de orden
 
 El generador **no ordena**: consume las relaciones de `CvProfile`, que ya aplican:
 
-| Clase           | Orden                                                                 | Registros sin fecha |
-| --------------- | --------------------------------------------------------------------- | ------------------- |
-| Experiencia     | Relevancia descendente; empate: `start_year` descendente, mes efectivo descendente, `id` descendente | Al final |
-| Educación       | Relevancia descendente; empate: `start_year` descendente, mes efectivo descendente, `id` descendente | Al final |
-| Certificaciones | Relevancia descendente; empate: `date_year` descendente, mes efectivo descendente, `id` descendente | Al final |
-| Habilidades     | Relevancia descendente; empate: categoría (técnica, funcional, metodológica, herramienta, tecnología), luego `name` ascendente | No aplica |
-| Proyectos       | Relevancia descendente; empate: `start_year` descendente, mes efectivo descendente, `id` descendente | Al final |
+| Clase           | Orden                                                                                                                          | Registros sin fecha |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------- |
+| Experiencia     | Relevancia descendente; empate: `start_year` descendente, mes efectivo descendente, `id` descendente                           | Al final            |
+| Educación       | Relevancia descendente; empate: `start_year` descendente, mes efectivo descendente, `id` descendente                           | Al final            |
+| Certificaciones | Relevancia descendente; empate: `date_year` descendente, mes efectivo descendente, `id` descendente                            | Al final            |
+| Habilidades     | Relevancia descendente; empate: categoría (técnica, funcional, metodológica, herramienta, tecnología), luego `name` ascendente | No aplica           |
+| Proyectos       | Relevancia descendente; empate: `start_year` descendente, mes efectivo descendente, `id` descendente                           | Al final            |
 
 - El orden es estable y reproducible; repetir la consulta produce el mismo resultado mientras no cambien los datos.
 - `relevance` es un metadato de configuración: no se envía ni se muestra (C7, FR-008).
@@ -208,15 +208,15 @@ El generador **no ordena**: consume las relaciones de `CvProfile`, que ya aplica
 
 `source_links` se calcula en el servidor:
 
-| Clave               | Valor                         | Uso                                                  |
-| ------------------- | ----------------------------- | ---------------------------------------------------- |
-| `profile`           | `/profiles/{id}/edit`         | Corregir título, resumen, selección y relevancia.    |
-| `personal_data`     | `/profile`                    | Corregir datos personales, contacto y enlaces.       |
-| `work_experiences`  | `/experiences`                | Corregir o agregar experiencias.                     |
-| `education_entries` | `/education`                  | Corregir o agregar educación.                        |
-| `certifications`    | `/certifications`             | Corregir o agregar cursos y certificaciones.         |
-| `skills`            | `/skills`                     | Corregir o agregar habilidades.                      |
-| `projects`          | `/projects`                   | Corregir o agregar proyectos.                        |
+| Clave               | Valor                 | Uso                                               |
+| ------------------- | --------------------- | ------------------------------------------------- |
+| `profile`           | `/profiles/{id}/edit` | Corregir título, resumen, selección y relevancia. |
+| `personal_data`     | `/profile`            | Corregir datos personales, contacto y enlaces.    |
+| `work_experiences`  | `/experiences`        | Corregir o agregar experiencias.                  |
+| `education_entries` | `/education`          | Corregir o agregar educación.                     |
+| `certifications`    | `/certifications`     | Corregir o agregar cursos y certificaciones.      |
+| `skills`            | `/skills`             | Corregir o agregar habilidades.                   |
+| `projects`          | `/projects`           | Corregir o agregar proyectos.                     |
 
 - Se renderizan en un bloque «Corregir en las fuentes» **fuera** del `article` del CV.
 - No introducen edición dentro de la hoja; los índices del Maestro ofrecen la edición de cada registro.
@@ -224,14 +224,14 @@ El generador **no ordena**: consume las relaciones de `CvProfile`, que ya aplica
 
 ## Estados y `has_data`
 
-| Condición                                                                 | `status`             | `profiles`            | `selected_profile_id` | `preview` | UI                                                      |
-| ------------------------------------------------------------------------- | -------------------- | --------------------- | --------------------- | --------- | ------------------------------------------------------- |
-| No hay ningún perfil activo                                               | `no_active_profiles` | `[]`                  | `null`                | `null`    | Estado vacío; enlace a `/profiles`.                     |
-| Hay activos; no hay query o `profile` está vacío                          | `selection_required` | Activos por nombre    | `null`                | `null`    | Selector sin preselección; se solicita elegir.          |
-| Hay activos; query válido, perfil activo, al menos un dato                | `ready`              | Activos por nombre    | ID                    | Objeto    | Hoja de CV; `has_data: true`.                           |
-| Hay activos; query válido, perfil activo, ningún dato                     | `ready`              | Activos por nombre    | ID                    | Objeto    | Estado vacío fuera de la hoja; `has_data: false`.       |
-| Hay activos; query inválido, inactivo o inexistente                       | `unavailable`        | Activos por nombre    | `null`                | `null`    | Aviso y selector de alternativas; sin hoja.             |
-| Falla la carga o composición                                              | `error`              | Best effort           | Best effort           | `null`    | Alerta, sin vista parcial; reintento.                   |
+| Condición                                                  | `status`             | `profiles`         | `selected_profile_id` | `preview` | UI                                                |
+| ---------------------------------------------------------- | -------------------- | ------------------ | --------------------- | --------- | ------------------------------------------------- |
+| No hay ningún perfil activo                                | `no_active_profiles` | `[]`               | `null`                | `null`    | Estado vacío; enlace a `/profiles`.               |
+| Hay activos; no hay query o `profile` está vacío           | `selection_required` | Activos por nombre | `null`                | `null`    | Selector sin preselección; se solicita elegir.    |
+| Hay activos; query válido, perfil activo, al menos un dato | `ready`              | Activos por nombre | ID                    | Objeto    | Hoja de CV; `has_data: true`.                     |
+| Hay activos; query válido, perfil activo, ningún dato      | `ready`              | Activos por nombre | ID                    | Objeto    | Estado vacío fuera de la hoja; `has_data: false`. |
+| Hay activos; query inválido, inactivo o inexistente        | `unavailable`        | Activos por nombre | `null`                | `null`    | Aviso y selector de alternativas; sin hoja.       |
+| Falla la carga o composición                               | `error`              | Best effort        | Best effort           | `null`    | Alerta, sin vista parcial; reintento.             |
 
 **Cálculo de `has_data`**:
 
@@ -318,41 +318,41 @@ El `try/catch` cubre la consulta de perfiles activos, la resolución del query y
 
 | Requisito | Elemento del modelo / regla                                                                 |
 | --------- | ------------------------------------------------------------------------------------------- |
-| FR-001    | Ruta `cv.index`, página `Cv/Index`, selector y vista en la misma página.                     |
-| FR-002    | `profiles` solo con `is_active = true`, ordenado por `name`; etiqueta con título propio.     |
-| FR-003    | Sin query → `selection_required`, `preview = null`; selector sin preselección.               |
-| FR-004    | Selección en query; cada `GET` recompone; no hay estado cliente ni caché.                    |
-| FR-005    | Query inactivo/inexistente/inválido → `unavailable`, alternativas activas.                   |
+| FR-001    | Ruta `cv.index`, página `Cv/Index`, selector y vista en la misma página.                    |
+| FR-002    | `profiles` solo con `is_active = true`, ordenado por `name`; etiqueta con título propio.    |
+| FR-003    | Sin query → `selection_required`, `preview = null`; selector sin preselección.              |
+| FR-004    | Selección en query; cada `GET` recompone; no hay estado cliente ni caché.                   |
+| FR-005    | Query inactivo/inexistente/inválido → `unavailable`, alternativas activas.                  |
 | FR-006    | Fuentes: Maestro + perfil; orden fijo de cabecera y cinco secciones.                        |
 | FR-007    | Solo relaciones incluidas; colecciones vacías no generan sección.                           |
-| FR-008    | Relaciones ordenadas de `CvProfile`; `relevance` fuera del payload y de la UI.               |
+| FR-008    | Relaciones ordenadas de `CvProfile`; `relevance` fuera del payload y de la UI.              |
 | FR-009    | `professional_title`/`summary` propios; normalización a `null`; sin fallback.               |
 | FR-010    | `personalData()`; campos vacíos omitidos; enlaces clicables.                                |
-| FR-011    | Mapeo completo de las cinco clases, incluidos responsabilidades, logros y resultados.        |
+| FR-011    | Mapeo completo de las cinco clases, incluidos responsabilidades, logros y resultados.       |
 | FR-012    | Una única `CvPreview`; sin prop de plantilla.                                               |
-| FR-013    | Payload de solo lectura; `CvPreview` sin formularios ni acciones.                            |
+| FR-013    | Payload de solo lectura; `CvPreview` sin formularios ni acciones.                           |
 | FR-014    | `source_links` a perfil, Maestro y secciones, fuera de la hoja.                             |
 | FR-015    | Composición por petición; sin tabla, archivo, caché, sesión ni historial.                   |
-| FR-016    | Lectura viva de relaciones y `personalData()`; cascadas de SPEC-003 reflejadas.              |
+| FR-016    | Lectura viva de relaciones y `personalData()`; cascadas de SPEC-003 reflejadas.             |
 | FR-017    | `no_active_profiles` + estado vacío con enlace a `/profiles`.                               |
-| FR-018    | `has_data`; vista válida con lo disponible; estado vacío si no hay nada; orientación fuera.  |
+| FR-018    | `has_data`; vista válida con lo disponible; estado vacío si no hay nada; orientación fuera. |
 | FR-019    | `status = error`, `preview = null`, `report()`, reintento.                                  |
-| FR-020    | Texto completo con `whitespace-pre-line`/`break-words`; sin truncado; scroll natural.        |
+| FR-020    | Texto completo con `whitespace-pre-line`/`break-words`; sin truncado; scroll natural.       |
 | FR-021    | h1 → h2 → h3; etiquetas; enlaces; foco; sin dependencia del color.                          |
-| FR-022    | Sin exportación, impresión, descarga, PDF, CV documentado, plantilla, ATS ni IA.             |
+| FR-022    | Sin exportación, impresión, descarga, PDF, CV documentado, plantilla, ATS ni IA.            |
 
 ## Pruebas previstas sobre el modelo
 
-| Riesgo / regla                                      | Prueba                                                                                  |
-| --------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| Solo perfiles activos y orden por nombre            | Feature: opciones activas, inactivas ausentes, orden alfabético.                        |
-| Sin selección no hay vista                          | Feature: `selection_required`, `preview = null`; Vitest: placeholder y ausencia de hoja. |
-| Composición y exclusividad                          | Feature: una de cada clase, no incluidas ausentes, sin contenido de otro perfil.        |
-| Campos FR-011                                       | Feature: payload con responsabilidades, logros, resultados, código y validación.        |
-| Orden y estabilidad                                 | Feature: relevancia, empate por Maestro y repetición; `missing('relevance')`.            |
-| Herencia y datos propios                            | Feature: Maestro con título/resumen; perfil sin ellos; sin fallback.                     |
-| Vigencia                                            | Feature: actualizar/eliminar Maestro y perfil; la siguiente respuesta refleja.           |
-| No persistencia                                     | Feature: conteos y `updated_at` sin cambios; ausencia de migraciones nuevas por revisión. |
-| Estados vacíos                                      | Feature: sin activos, perfil sin contenido, Maestro vacío; Vitest: estados.              |
-| Error                                               | Feature: doble de `CvPreviewContent` que lanza; `status = error`, `preview = null`.      |
-| Solo lectura y accesibilidad                        | Vitest: sin controles, headings, enlaces y texto largo; validación manual.              |
+| Riesgo / regla                           | Prueba                                                                                    |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Solo perfiles activos y orden por nombre | Feature: opciones activas, inactivas ausentes, orden alfabético.                          |
+| Sin selección no hay vista               | Feature: `selection_required`, `preview = null`; Vitest: placeholder y ausencia de hoja.  |
+| Composición y exclusividad               | Feature: una de cada clase, no incluidas ausentes, sin contenido de otro perfil.          |
+| Campos FR-011                            | Feature: payload con responsabilidades, logros, resultados, código y validación.          |
+| Orden y estabilidad                      | Feature: relevancia, empate por Maestro y repetición; `missing('relevance')`.             |
+| Herencia y datos propios                 | Feature: Maestro con título/resumen; perfil sin ellos; sin fallback.                      |
+| Vigencia                                 | Feature: actualizar/eliminar Maestro y perfil; la siguiente respuesta refleja.            |
+| No persistencia                          | Feature: conteos y `updated_at` sin cambios; ausencia de migraciones nuevas por revisión. |
+| Estados vacíos                           | Feature: sin activos, perfil sin contenido, Maestro vacío; Vitest: estados.               |
+| Error                                    | Feature: doble de `CvPreviewContent` que lanza; `status = error`, `preview = null`.       |
+| Solo lectura y accesibilidad             | Vitest: sin controles, headings, enlaces y texto largo; validación manual.                |

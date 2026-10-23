@@ -99,11 +99,11 @@ Cada escenario deriva de los criterios de aceptación del spec y debe pasar ante
 4. Verificar que los enlaces de contacto y adicionales son clicables y tienen texto identificable.
 5. Comprobar que aparecen las secciones con contenido: experiencia, educación, cursos y certificaciones, habilidades y proyectos.
 6. Verificar que cada elemento muestra los campos de FR-011:
-   - experiencia: cargo, empresa, fechas o «actual», descripción, responsabilidades y logros;
-   - educación: institución, programa, grado/nivel, fechas o «en curso», descripción;
-   - certificaciones: nombre, institución, fecha, duración, categoría, código y validación;
-   - habilidades: nombre y categoría;
-   - proyectos: nombre, rol, fechas, descripción, resultados y enlace.
+    - experiencia: cargo, empresa, fechas o «actual», descripción, responsabilidades y logros;
+    - educación: institución, programa, grado/nivel, fechas o «en curso», descripción;
+    - certificaciones: nombre, institución, fecha, duración, categoría, código y validación;
+    - habilidades: nombre y categoría;
+    - proyectos: nombre, rol, fechas, descripción, resultados y enlace.
 7. Comprobar que los campos opcionales vacíos no dejan etiquetas, separadores, guiones, «N/D» ni espacios reservados.
 8. Verificar que no se muestra la relevancia Alta/Media/Baja en la hoja.
 9. Verificar que no existe ningún control de edición, reordenamiento, guardado, plantilla, exportación, impresión, descarga ni PDF dentro de la hoja.
