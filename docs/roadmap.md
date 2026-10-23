@@ -119,7 +119,7 @@ El usuario puede mantener al menos dos perfiles distintos —Analista y Programa
 
 # SPEC-004 — Generador de CV
 
-**Estado:** Cerrado formalmente (2026-10-23) — implementación y aceptación funcional/visual del MVP por el responsable; T025 con escenarios manuales 1–13 no ejecutados individualmente, documentados; integrado en main mediante merge --no-ff; sin push.
+**Estado:** Implementación y aceptación funcional/visual del MVP completadas; integración en main pendiente. Commit local f86d17a; merge --no-ff autorizado pero bloqueado por el harness; main permanece en 63ab15b; sin push.
 
 ## Objetivo
 
@@ -386,7 +386,7 @@ No debe iniciarse la implementación del siguiente Spec hasta que el anterior se
 | SPEC-001 | Perfil Profesional Maestro              | Cerrado formalmente (2026-10-22) — validación manual del responsable aprobada; T063/T064 completadas; SC-001 retirado por decisión del responsable; pendiente de integración en main (commits 63bb79c, a04954d) |
 | SPEC-002 | Documentos y Evidencias                 | Cerrado formalmente (2026-10-21) — validación manual 2026-10-15; pruebas 2026-10-21; main 1f154bc; sin tag                                                                                                      |
 | SPEC-003 | Perfiles de CV | Cerrado formalmente (2026-10-22; actualizado 2026-10-23) — implementación terminada; aceptación manual del responsable; T050 parcial documentado; T048 PASS; rama 003-perfiles-cv; main 4801c72; sin push |
-| SPEC-004 | Generador de CV | Cerrado formalmente (2026-10-23) — implementación y aceptación funcional/visual del responsable; T025 parcial documentada; integrado en main mediante merge --no-ff; sin push |
+| SPEC-004 | Generador de CV | Implementación y aceptación funcional/visual completadas; integración en main pendiente; commit local f86d17a; merge bloqueado por el harness; sin push |
 | SPEC-005 | Exportación PDF                         | Pendiente                                                                                                                                                                                                       |
 | SPEC-006 | CV Documentado                          | Pendiente                                                                                                                                                                                                       |
 | SPEC-007 | Importación Inteligente de Certificados | Pendiente                                                                                                                                                                                                       |

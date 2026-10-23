@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-23
 
-**Status**: Closed — 2026-10-23; aceptación funcional y visual del MVP por el responsable; T025 con escenarios manuales 1–13 no ejecutados individualmente y documentados; integración en main mediante merge --no-ff; sin push.
+**Status**: Ready for integration — 2026-10-23; aceptación funcional y visual del MVP por el responsable; T025 con escenarios manuales 1–13 no ejecutados individualmente y documentados; commit local f86d17a; merge --no-ff a main autorizado pero bloqueado por el harness; SPEC no integrado; sin push.
 
 **Input**: User description: "Construir el Generador de CV de SPEC-004: seleccionar un perfil de CV activo y obtener una vista de currículum de solo lectura, derivada de los datos vigentes del Perfil Profesional Maestro y de la configuración del perfil —selección, relevancia y orden—, con una única plantilla profesional, sin PDF, CV documentado, edición directa ni almacenamiento."
 
@@ -279,4 +279,4 @@ No se introduce ninguna entidad persistente nueva ni se redefinen las entidades 
 - **Escenario 14**: acreditado mediante prueba automatizada.
 - **Tareas**: 26/26 tareas completadas, con evidencia en `tasks.md`.
 - **Observaciones preexistentes no corregidas**: formato de `docs/roadmap.md` y 16 errores PHPStan de SPEC-003.
-- **Cierre formal e integración**: cierre formal de la capacidad e integración en `main` mediante merge `--no-ff`, sin push. El commit local y el merge fueron autorizados y aún no se ejecutaron al momento de esta actualización.
+- **Cierre documental, commit e integración**: el cierre documental y el commit local `f86d17a` están completados. La integración en `main` mediante merge `--no-ff` está autorizada, pero fue denegada por el harness (`Permission denied: shell`); `main` permanece en `63ab15b`. El SPEC no se declara integrado ni cerrado, y no se hizo push.
