@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CertificationController;
+use App\Http\Controllers\CvGeneratorController;
 use App\Http\Controllers\CvProfileController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DocumentLinkController;
@@ -42,3 +43,5 @@ Route::get('/profiles/{cvProfile}/edit', [CvProfileController::class, 'edit'])->
 Route::put('/profiles/{cvProfile}', [CvProfileController::class, 'update'])->name('profiles.update');
 Route::post('/profiles/{cvProfile}/activate', [CvProfileController::class, 'activate'])->name('profiles.activate');
 Route::post('/profiles/{cvProfile}/deactivate', [CvProfileController::class, 'deactivate'])->name('profiles.deactivate');
+
+Route::get('/cv', [CvGeneratorController::class, 'index'])->name('cv.index');

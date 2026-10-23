@@ -13,6 +13,7 @@ const navigation = [
     { label: 'Proyectos', href: '/projects' },
     { label: 'Documentos', href: '/documents' },
     { label: 'Perfiles', href: '/profiles' },
+    { label: 'Generador de CV', href: '/cv' },
 ];
 
 export default function AppLayout({ children, title }: AppLayoutProps) {
