@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CertificationController;
 use App\Http\Controllers\CvGeneratorController;
+use App\Http\Controllers\CvPdfController;
 use App\Http\Controllers\CvProfileController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DocumentLinkController;
@@ -45,3 +46,4 @@ Route::post('/profiles/{cvProfile}/activate', [CvProfileController::class, 'acti
 Route::post('/profiles/{cvProfile}/deactivate', [CvProfileController::class, 'deactivate'])->name('profiles.deactivate');
 
 Route::get('/cv', [CvGeneratorController::class, 'index'])->name('cv.index');
+Route::get('/cv/pdf', CvPdfController::class)->name('cv.pdf');

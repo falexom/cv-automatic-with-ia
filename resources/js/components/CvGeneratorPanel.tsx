@@ -101,6 +101,18 @@ export default function CvGeneratorPanel({
                 </form>
             ) : null}
 
+            {status === 'ready' &&
+            preview?.has_data &&
+            selected_profile_id !== null ? (
+                <div className="flex justify-end">
+                    <Button asChild>
+                        <a href={`/cv/pdf?profile=${selected_profile_id}`}>
+                            Exportar PDF
+                        </a>
+                    </Button>
+                </div>
+            ) : null}
+
             {status === 'ready' && preview?.has_data ? (
                 <CvPreview preview={preview} />
             ) : null}

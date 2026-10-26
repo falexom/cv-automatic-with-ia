@@ -20,6 +20,20 @@ function cvGeneratorMaster(array $attributes = []): Profile
     return $master;
 }
 
+it('keeps normal inertia pages on the client-side fallback without ssr', function () {
+    CvProfile::factory()->create(['name' => 'Analista']);
+
+    foreach (['/cv', '/profile'] as $url) {
+        $response = $this->get($url);
+
+        $response->assertOk();
+
+        expect($response->getContent())
+            ->toContain('data-page="app"')
+            ->not->toContain('data-server-rendered');
+    }
+});
+
 it('exposes the cv route and renders the Cv/Index component', function () {
     expect(Route::has('cv.index'))->toBeTrue();
 
@@ -1052,14 +1066,14 @@ it('preserves long accented and special text completely', function () {
             ->where('preview.content.work_experiences.0.achievements', $longText));
 });
 
-it('exposes only the read-only cv route and no scope-expanding endpoints', function () {
-    expect(Route::has('cv.index'))->toBeTrue();
+it('exposes only the read-only cv routes and no scope-expanding endpoints', function () {
+    expect(Route::has('cv.index'))->toBeTrue()
+        ->and(Route::has('cv.pdf'))->toBeTrue();
 
     foreach ([
         'cv.export',
         'cv.print',
         'cv.download',
-        'cv.pdf',
         'cv.template',
         'cv.store',
         'cv.update',
@@ -1071,21 +1085,26 @@ it('exposes only the read-only cv route and no scope-expanding endpoints', funct
     }
 
     $cvRoutes = collect(Route::getRoutes()->getRoutes())
-        ->filter(fn ($route): bool => $route->uri() === 'cv');
+        ->filter(fn ($route): bool => in_array($route->uri(), ['cv', 'cv/pdf'], true))
+        ->keyBy(fn ($route): string => (string) $route->getName());
 
-    expect($cvRoutes)->toHaveCount(1);
+    expect($cvRoutes)->toHaveCount(2)
+        ->and($cvRoutes->keys()->all())->toEqualCanonicalizing(['cv.index', 'cv.pdf']);
 
-    $cvRoute = $cvRoutes->first();
+    foreach (['cv.index' => '/cv', 'cv.pdf' => '/cv/pdf'] as $routeName => $uri) {
+        $route = $cvRoutes->get($routeName);
 
-    expect($cvRoute->getName())->toBe('cv.index')
-        ->and($cvRoute->methods())->toContain('GET')
-        ->and($cvRoute->methods())->not->toContain('POST')
-        ->and($cvRoute->methods())->not->toContain('PUT')
-        ->and($cvRoute->methods())->not->toContain('PATCH')
-        ->and($cvRoute->methods())->not->toContain('DELETE');
+        expect($route)->not->toBeNull()
+            ->and($route->uri())->toBe(ltrim($uri, '/'))
+            ->and($route->methods())->toContain('GET')
+            ->and($route->methods())->not->toContain('POST')
+            ->and($route->methods())->not->toContain('PUT')
+            ->and($route->methods())->not->toContain('PATCH')
+            ->and($route->methods())->not->toContain('DELETE');
 
-    $this->post('/cv')->assertStatus(405);
-    $this->put('/cv')->assertStatus(405);
-    $this->patch('/cv')->assertStatus(405);
-    $this->delete('/cv')->assertStatus(405);
+        $this->post($uri)->assertStatus(405);
+        $this->put($uri)->assertStatus(405);
+        $this->patch($uri)->assertStatus(405);
+        $this->delete($uri)->assertStatus(405);
+    }
 });

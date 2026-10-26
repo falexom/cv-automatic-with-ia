@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CvProfile;
 use App\Support\CvPreviewContent;
+use App\Support\CvProfileResolver;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -13,6 +14,7 @@ class CvGeneratorController extends Controller
 {
     public function __construct(
         private readonly CvPreviewContent $previewContent,
+        private readonly CvProfileResolver $profileResolver,
     ) {}
 
     public function index(Request $request): Response
@@ -23,12 +25,12 @@ class CvGeneratorController extends Controller
         $preview = null;
 
         try {
-            $activeProfiles = CvProfile::query()
-                ->where('is_active', true)
-                ->orderBy('name')
-                ->get();
+            $query = [];
+            parse_str($request->getQueryString() ?? '', $query);
 
-            $profiles = $activeProfiles
+            $resolved = $this->profileResolver->resolve($query);
+
+            $profiles = $resolved['profiles']
                 ->map(fn (CvProfile $profile): array => [
                     'id' => $profile->id,
                     'name' => $profile->name,
@@ -37,34 +39,12 @@ class CvGeneratorController extends Controller
                 ->values()
                 ->all();
 
-            if ($activeProfiles->isEmpty()) {
-                $status = 'no_active_profiles';
-            } else {
-                $query = [];
-                parse_str($request->getQueryString() ?? '', $query);
+            $status = $resolved['status'];
 
-                $profileQuery = $query['profile'] ?? null;
-
-                if ($profileQuery === null || $profileQuery === '') {
-                    $status = 'selection_required';
-                } elseif (! is_string($profileQuery)
-                    || ! ctype_digit($profileQuery)
-                    || (int) $profileQuery < 1) {
-                    $status = 'unavailable';
-                } else {
-                    $profile = $activeProfiles->firstWhere(
-                        'id',
-                        (int) $profileQuery,
-                    );
-
-                    if ($profile === null) {
-                        $status = 'unavailable';
-                    } else {
-                        $selectedProfileId = $profile->id;
-                        $preview = $this->previewContent->build($profile);
-                        $status = 'ready';
-                    }
-                }
+            if ($resolved['profile'] !== null) {
+                $selectedProfileId = $resolved['profile']->id;
+                $preview = $this->previewContent->build($resolved['profile']);
+                $status = 'ready';
             }
         } catch (Throwable $exception) {
             report($exception);
