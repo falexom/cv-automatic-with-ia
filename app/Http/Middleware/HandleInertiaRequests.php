@@ -2,8 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use Closure;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Inertia\Ssr\HttpGateway;
+use Symfony\Component\HttpFoundation\Response;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -24,6 +27,16 @@ class HandleInertiaRequests extends Middleware
     public function version(Request $request): ?string
     {
         return parent::version($request);
+    }
+
+    /**
+     * Limit server-side rendering to the PDF export request.
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        app(HttpGateway::class)->disable(fn (): bool => ! $request->is('cv/pdf'));
+
+        return parent::handle($request, $next);
     }
 
     /**

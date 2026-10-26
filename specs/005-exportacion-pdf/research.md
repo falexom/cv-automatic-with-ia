@@ -3,43 +3,45 @@
 **Feature**: `005-exportacion-pdf` | **Fecha**: 2026-10-23
 **Referencias**: [spec.md](./spec.md) · [plan.md](./plan.md) · [data-model.md](./data-model.md) · [contracts/http-contracts.md](./contracts/http-contracts.md) · [SPEC-004](../004-generador-de-cv/plan.md)
 
+> **Corrección 2026-10-23 — decisión vigente D12.** El responsable aprobó sustituir Dompdf + Blade por **Browsershot + Chrome headless con SSR de `Cv/Print`**. La comparación y las decisiones D1–D5 de este documento describen la propuesta inicial y quedan **superseded**; se conservan como histórico. D6–D10 se mantienen. La decisión vigente está en [D12](#d12--browsershot--ssr-de-cvprint-seleccionada).
+
 ## Alcance y método
 
 Este documento decide el mecanismo local de renderizado, la forma de la ruta y la descarga, el nombre de archivo, la validación previa y la estrategia de pruebas. Respeta las decisiones funcionales cerradas C1–C10 de la spec y no reabre SPEC-004.
 
-**Evidencia**: se contrastó la documentación oficial de Dompdf y su ficha de Packagist, y la ficha de `smalot/pdfparser`, consultadas el 2026-10-23. **No se instaló ninguna dependencia ni se ejecutó código o pruebas en esta fase.** Las versiones son la propuesta de Plan; el lock de Composer las fijará en Implement. Las afirmaciones sobre comportamiento de Dompdf son documentales y deberán confirmarse con las pruebas de Implement/QA.
+**Evidencia**: se contrastó la documentación oficial de Dompdf y su ficha de Packagist, y la ficha de `smalot/pdfparser`, consultadas el 2026-10-23. Tras la corrección se contrastaron Browsershot 5.4.1, Puppeteer 25.16.0 y el soporte SSR de Inertia 3 instalado. **No se instaló ninguna dependencia ni se ejecutó código o pruebas en esta fase.** Las versiones son la propuesta de Plan; el lock de Composer/npm las fijará en Implement. Las afirmaciones de comportamiento son documentales y deberán confirmarse con las pruebas de Implement/QA.
 
-## Decisión resumida
+## Decisión resumida (propuesta inicial; superseded por D12)
 
-| Tema | Decisión |
-| --- | --- |
-| Renderizador | **Dompdf 3.1.x** (`dompdf/dompdf:^3.1`), PHP puro, sin binario externo. |
-| Presentación | **Vista Blade de impresión** `resources/views/cv/pdf.blade.php`, A4, una columna, CSS 2.1, DejaVu Sans embebida. |
-| Composición | `CvPreviewContent::build()` sin cambios; el PDF consume exactamente el mismo payload que la vista previa. |
-| Ruta | `GET /cv/pdf` (`cv.pdf`), controlador `CvPdfController` invocable. |
-| Selección | `CvProfileResolver` compartido por la vista previa y la exportación; sin duplicar la lógica de perfil activo/query. |
-| Nombre | `cv-{base-normalizada}.pdf` con `Str::ascii`, minúsculas, guiones, truncado a 80 y fallback `cv.pdf`. |
-| Validación | Estructural en runtime (`%PDF-`, `%%EOF`, páginas, `startxref`) y de contenido/seguridad en pruebas con `smalot/pdfparser` (dev). |
-| Paginación | Saltos naturales de CSS; sin numeración de página. |
-| Pruebas | Feature con PDF real, Unit de nombre/formato/enlaces/validador y Vitest de la acción; apertura en dos lectores y revisión visual manual. |
+| Tema         | Decisión                                                                                                                                 |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Renderizador | **Dompdf 3.1.x** (`dompdf/dompdf:^3.1`), PHP puro, sin binario externo.                                                                  |
+| Presentación | **Vista Blade de impresión** `resources/views/cv/pdf.blade.php`, A4, una columna, CSS 2.1, DejaVu Sans embebida.                         |
+| Composición  | `CvPreviewContent::build()` sin cambios; el PDF consume exactamente el mismo payload que la vista previa.                                |
+| Ruta         | `GET /cv/pdf` (`cv.pdf`), controlador `CvPdfController` invocable.                                                                       |
+| Selección    | `CvProfileResolver` compartido por la vista previa y la exportación; sin duplicar la lógica de perfil activo/query.                      |
+| Nombre       | `cv-{base-normalizada}.pdf` con `Str::ascii`, minúsculas, guiones, truncado a 80 y fallback `cv.pdf`.                                    |
+| Validación   | Estructural en runtime (`%PDF-`, `%%EOF`, páginas, `startxref`) y de contenido/seguridad en pruebas con `smalot/pdfparser` (dev).        |
+| Paginación   | Saltos naturales de CSS; sin numeración de página.                                                                                       |
+| Pruebas      | Feature con PDF real, Unit de nombre/formato/enlaces/validador y Vitest de la acción; apertura en dos lectores y revisión visual manual. |
 
 ## Comparación de alternativas
 
 Criterios: generación local/offline, ausencia de binarios y procesos externos, fidelidad suficiente para una columna A4, fuentes embebidas, enlaces, testabilidad, dependencia y portabilidad, seguridad y complejidad.
 
-| Criterio | Dompdf (PHP/HTML-CSS) | Navegador headless (Browsershot/Chrome) | Generación cliente (`@react-pdf`, jsPDF) | Otra librería PHP (mPDF/TCPDF) |
-| --- | --- | --- | --- | --- |
-| Local y sin red | Sí | Sí, pero depende del binario | Sí, en el navegador | Sí |
-| Binario/proceso externo | No | **Sí** (Chrome/Chromium, proceso, sandbox) | No | No |
-| Fidelidad visual | Buena para CSS 2.1; no Tailwind completo | Muy alta | Alta si se duplica la plantilla | Media/baja según librería |
-| Fuentes embebidas | DejaVu preinstalada y subsetting | Las del navegador/sistema | Requiere cargar fuentes | Variable |
-| Enlaces | Anotaciones a partir de `<a href>` | Muy buena | Depende de la librería | Variable |
-| Testabilidad | PDF real verificable en PHP; parser dev | Proceso lento, dependiente del entorno | Verificación en cliente, no en servidor | Similar a Dompdf |
-| Dependencia/portabilidad | Una dependencia PHP; funciona en el entorno actual | Node + Chromium + Puppeteer/Browsershot; ruta de Chrome.app no portable | Dependencia JS y duplicación de plantilla | Dependencia PHP, a menudo más pesada |
-| Seguridad | Opciones restrictivas; requiere cuidar `chroot`, remoto, PHP y JS | Superficie de proceso y sandbox del navegador | Datos y lógica en cliente; sin validación previa en servidor | Similar |
-| Complejidad | Baja/media | Alta | Alta por duplicación | Media/alta |
+| Criterio                 | Dompdf (PHP/HTML-CSS)                                             | Navegador headless (Browsershot/Chrome)                                 | Generación cliente (`@react-pdf`, jsPDF)                     | Otra librería PHP (mPDF/TCPDF)       |
+| ------------------------ | ----------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------ |
+| Local y sin red          | Sí                                                                | Sí, pero depende del binario                                            | Sí, en el navegador                                          | Sí                                   |
+| Binario/proceso externo  | No                                                                | **Sí** (Chrome/Chromium, proceso, sandbox)                              | No                                                           | No                                   |
+| Fidelidad visual         | Buena para CSS 2.1; no Tailwind completo                          | Muy alta                                                                | Alta si se duplica la plantilla                              | Media/baja según librería            |
+| Fuentes embebidas        | DejaVu preinstalada y subsetting                                  | Las del navegador/sistema                                               | Requiere cargar fuentes                                      | Variable                             |
+| Enlaces                  | Anotaciones a partir de `<a href>`                                | Muy buena                                                               | Depende de la librería                                       | Variable                             |
+| Testabilidad             | PDF real verificable en PHP; parser dev                           | Proceso lento, dependiente del entorno                                  | Verificación en cliente, no en servidor                      | Similar a Dompdf                     |
+| Dependencia/portabilidad | Una dependencia PHP; funciona en el entorno actual                | Node + Chromium + Puppeteer/Browsershot; ruta de Chrome.app no portable | Dependencia JS y duplicación de plantilla                    | Dependencia PHP, a menudo más pesada |
+| Seguridad                | Opciones restrictivas; requiere cuidar `chroot`, remoto, PHP y JS | Superficie de proceso y sandbox del navegador                           | Datos y lógica en cliente; sin validación previa en servidor | Similar                              |
+| Complejidad              | Baja/media                                                        | Alta                                                                    | Alta por duplicación                                         | Media/alta                           |
 
-### 1. Dompdf — seleccionada
+### 1. Dompdf — seleccionada en la propuesta inicial (superseded por D12)
 
 **Qué aporta**
 
@@ -60,11 +62,13 @@ Criterios: generación local/offline, ausencia de binarios y procesos externos, 
 
 **Por qué cumple**: es la opción local más simple que produce un PDF A4 de una columna, con fuentes embebidas y enlaces, sin binarios externos, sin red y con verificación en servidor.
 
-### 2. Navegador headless (Browsershot/Chrome) — descartada
+### 2. Navegador headless (Browsershot/Chrome) — seleccionada en la corrección (D12)
+
+> **Histórico**: los motivos de descarte siguientes corresponden a la propuesta inicial. La corrección D12 los revisa porque la fidelidad visual pasó a ser un requisito rechazado, no un extra.
 
 **Ventaja**: fidelidad visual alta si se reutilizara el HTML de la vista previa.
 
-**Motivos de descarte**:
+**Motivos de descarte en la propuesta inicial**:
 
 - Requiere Chrome/Chromium y un proceso externo. En el entorno hay `/Applications/Google Chrome.app`, pero no `chromium`/`google-chrome` en `PATH`; depender de una ruta de macOS no es portable.
 - Añade Browsershot/Puppeteer/Node y un ciclo de vida de proceso, timeouts, sandbox y manejo de errores difíciles de probar.
@@ -173,10 +177,10 @@ defaultMediaType       = print
 ### D9 — Validación antes de entregar
 
 - `CvPdfValidator` comprueba, en runtime, la estructura:
-  - no vacía;
-  - cabecera `%PDF-` y trailer `%%EOF` (reutiliza `PdfFile::looksLikePdf`, ya existente);
-  - presencia de `/Type /Pages` y al menos un `/Type /Page`;
-  - `startxref` en el tramo final.
+    - no vacía;
+    - cabecera `%PDF-` y trailer `%%EOF` (reutiliza `PdfFile::looksLikePdf`, ya existente);
+    - presencia de `/Type /Pages` y al menos un `/Type /Page`;
+    - `startxref` en el tramo final.
 - La legibilidad del texto, el número exacto de páginas, el tamaño A4, las fuentes y las anotaciones se verifican en pruebas con `smalot/pdfparser:^2.13` (dev) y, para la apertura real, en validación manual con dos lectores.
 - La ausencia de cifrado, JavaScript, formularios, adjuntos y acciones `Launch` se verifica en las pruebas sobre el PDF real y se garantiza por la configuración del renderizador y la plantilla. No se usan búsquedas de subcadenas en runtime para no rechazar URLs legítimas que contengan esos textos en una ruta.
 - No se usa el parser en runtime: la validación de entrega es estructural y la generación ya terminó sin excepción; el parser queda como dependencia de prueba para no añadir superficie ni coste al camino de producción.
@@ -199,6 +203,74 @@ defaultMediaType       = print
 - Manual: apertura en dos lectores, revisión visual de paginación/márgenes/tipografía, foco/teclado, funcionamiento sin red.
 - La prueba de regresión de SPEC-004 que prohibía `cv.pdf` se actualiza de forma focalizada para reconocer la nueva ruta GET, manteniendo prohibidas las rutas de escritura, impresión, descarga alternativa, plantilla, historial y reordenamiento.
 
+### D12 — Browsershot + SSR de `Cv/Print` (seleccionada)
+
+**Contexto**: la implementación Dompdf + Blade fue rechazada visualmente el 2026-10-23. El PDF era válido y correcto en contenido/orden, pero la Blade reproduce una segunda presentación CSS 2.1 con tipografía, jerarquía, espaciado, contacto y paginación distintos de `CvPreview`. La corrección aprobada exige imprimir el componente real.
+
+**Decisión**:
+
+- **Browsershot 5.4.x + Puppeteer 25.16.x + Chrome headless** convierten a PDF el HTML del componente real. Se usa `newHeadless()` con Chrome instalado, `format('A4')`, `preferCSSPageSize`, `showBackground`, `disableJavascript`, `emulateMedia('print')`, `blockUrls(['http://','https://'])` y `pdf()` en memoria.
+- **SSR de Inertia** renderiza la página interna `Cv/Print` en la misma petición: `Inertia::render(...)->rootView('cv.print')->toResponse($request)->getContent()`. `Cv/Print` solo monta `<CvPreview preview={preview} />`; no hay layout, selector, controles, `source_links` ni app chrome.
+- **HTML autocontenido**: CSS compilado inline (`Vite::content('resources/css/app.css')`), print CSS mínimo, `@font-face` Instrument Sans 400/500/600 con WOFF2 locales en data URI y sin recursos remotos. Chrome recibe un archivo temporal `file://`, no una URL de Laravel.
+- **Sin segunda petición HTTP**: el SSR recibe el page JSON por loopback y devuelve HTML. No se pide `/cv/print` a Laravel, no se comparten sesión/cookies con Chrome y no se puede producir un deadlock por una petición HTTP recursiva.
+- **Guardas**: si `SsrState::response` es `null`, si el HTML no contiene el `<article>` o si Chrome falla, el renderer lanza una excepción controlada; el controlador responde `302` + toast y no entrega PDF. **No hay fallback a Dompdf**.
+- **Endpoint SSR**: el plugin Inertia se configura con `ssr.host = 127.0.0.1` y `ssr.port = 13714`; `config/inertia.php` apunta a `http://127.0.0.1:13714`. No se expone en `0.0.0.0`.
+- **SSR acotado**: para que la mera existencia del bundle no convierta todas las páginas Inertia a SSR, `HandleInertiaRequests` desactiva el gateway salvo en `/cv/pdf` (`HttpGateway::disable(fn () => ! $request->is('cv/pdf'))`). Las páginas normales conservan CSR; solo la exportación usa SSR. Es una línea de middleware, no una ruta nueva.
+- **Limpieza**: directorio `storage/app/private/cv-pdf/{uuid}` con permisos `0700`, usado como `setCustomTempPath`; Browsershot escribe ahí el HTML temporal y el renderer lo elimina en `finally`. El PDF no se escribe en disco. Queda el riesgo residual de un `kill -9`, documentado.
+
+**Comparación de las tres alternativas**
+
+| Criterio                      | Browsershot + SSR `Cv/Print` (seleccionada)                                         | Browsershot + ruta pública `/cv/print`                                                             | Dompdf + Blade (actual, rechazada)                           |
+| ----------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Fidelidad visual              | **Máxima**: mismo componente React/Tailwind que la vista previa.                    | Alta, pero la página debe existir fuera del layout y protegerse.                                   | Limitada a CSS 2.1; segunda presentación; rechazada.         |
+| Segunda petición HTTP         | **No**: SSR en memoria.                                                             | **Sí**: Chrome pide `/cv/print` a Laravel.                                                         | No.                                                          |
+| Sesión/cookies/auth           | No se comparten con Chrome.                                                         | Hay que resolver sesión, cookies, CSRF y auth para Chrome.                                         | No aplica.                                                   |
+| Deadlock en dev               | **No**: el SSR es un proceso Node independiente, no una petición a Laravel.         | Riesgo real con servidor PHP de un solo worker: Chrome espera a Laravel y Laravel espera a Chrome. | No aplica.                                                   |
+| Ruta pública nueva            | **Ninguna**; `Cv/Print` es un componente interno.                                   | `GET /cv/print` pública o protegida; amplía la superficie y el contrato.                           | No.                                                          |
+| Impacto en páginas existentes | **Ninguno**: gateway SSR acotado a `/cv/pdf`; el resto sigue CSR.                   | Ninguno, pero la ruta nueva y su sesión son superficie adicional.                                  | Ninguno, pero mantiene una segunda presentación.             |
+| App chrome / layout           | **Excluido por diseño**: `Cv/Print` no monta `AppLayout`.                           | Hay que crear una página sin layout y mantenerla separada.                                         | La Blade no tiene layout, pero es otra presentación.         |
+| Duplicación de presentación   | **Ninguna**: `CvPreview` es la única plantilla.                                     | Ninguna si la página monta `CvPreview`, pero añade una ruta y su ciclo.                            | Alta: Blade + CSS 2.1 + helpers de formato/enlaces.          |
+| Dependencias                  | PHP Browsershot + Node/Puppeteer + Chrome + SSR.                                    | Las mismas + ruta/controlador de impresión.                                                        | Solo PHP/Dompdf.                                             |
+| Complejidad operativa         | Media/alta: build SSR, proceso Node, Chrome, fuentes locales.                       | Media/alta + autenticación de la segunda petición.                                                 | Baja, pero no cumple fidelidad.                              |
+| Pruebas                       | PDF real Chrome, HTML SSR, Chrome/SSR caídos, no persistencia; suite más lenta.     | Añade pruebas de ruta pública, sesión y deadlock.                                                  | PDF real Dompdf; no detecta la divergencia visual.           |
+| Seguridad                     | Loopback, sin ruta pública, sin JS, sin red externa, allowlist de URL, temp limpio. | Superficie de ruta y sesión; más puntos de exposición.                                             | Local y restrictiva, pero mantiene una segunda presentación. |
+| Veredicto                     | **Elegida**: cumple fidelidad y evita la segunda petición.                          | Descartada por ruta/sesión/deadlock.                                                               | Descartada por rechazo visual.                               |
+
+**Por qué se elige SSR y no `/cv/print`**:
+
+- La página de impresión no necesita ser navegable: es un detalle de implementación del PDF. Una ruta pública añadiría un contrato HTTP no solicitado, obligaría a decidir autenticación/sesión y permitiría que un usuario viera una página sin layout.
+- Chrome no debe recibir cookies ni sesión de Laravel. El SSR recibe solo el page JSON y devuelve HTML; el HTML se pasa a Chrome como `file://`. Esto reduce la superficie y evita que Chrome pueda desencadenar peticiones autenticadas.
+- Con un servidor de desarrollo PHP de un solo worker, una ruta que Chrome solicita mientras Laravel espera a Chrome puede bloquearse. El SSR elimina esa clase de fallo.
+- El SSR ya está soportado por Inertia 3 y el proyecto ya tiene `npm run build:ssr`; no se añade un framework nuevo, solo la entrada `ssr.tsx` y el bundle.
+
+**Alternativas descartadas dentro de Browsershot**:
+
+- **`Browsershot::url('/cv/print')`**: segunda petición, sesión/cookies, ruta pública y deadlock; descartada.
+- **Generar el HTML con `ReactDOMServer` en un script ad hoc fuera de Inertia**: duplica el bootstrap de páginas/props y pierde la resolución de componentes de Inertia; el SSR oficial ya lo hace.
+- **Imprimir la vista previa ya cargada en el navegador del usuario**: requiere JS cliente, no valida en servidor, no es descargable de forma determinista y expone el HTML; descartada.
+- **Dompdf con CSS adicional para “parecerse”**: no puede reproducir Tailwind/flex/espaciado del navegador; es la causa del rechazo. Descartada.
+- **wkhtmltopdf/mPDF/TCPDF**: mismo problema de segunda presentación y motores CSS antiguos; descartadas.
+- **Servicio externo de PDF**: prohibido por FR-013/Constitución XXIII.
+
+**Consecuencias**:
+
+- Se eliminan `CvPdfFormatter`, `CvPdfLink`, la Blade `cv/pdf.blade.php` y sus pruebas; el formato y los enlaces los resuelve `CvPreview`.
+- Se conserva una **allowlist de URL en el renderer** antes de SSR porque la validación de entrada admite más esquemas que `http(s)` y FR-010 sigue vigente. No es una segunda presentación; es una barrera de seguridad. `linkedin_url`, `github_url`, `website_url`, `validation_url` y `project.url` solo admiten `http(s)`; `links[].url` admite también `mailto:`/`tel:` válidos. Un valor no seguro se pasa como `null` para que `CvPreview` no emita un `href` activo.
+- Se mantienen `CvPdfFilename`, `CvPdfValidator`, `CvProfileResolver`, `CvPdfController`, la ruta `GET /cv/pdf`, los headers, el nombre y la no persistencia.
+- El HTML temporal de Browsershot contiene datos del CV; se limpia en `finally` y se documenta el riesgo residual ante terminación forzada. El PDF nunca se escribe en disco.
+
+**Evidencia consultada para D12** (2026-10-23/24; documental, sin instalar ni ejecutar):
+
+- Browsershot 5.4.1 en Packagist, requisitos PHP `^8.2` y MIT: <https://packagist.org/packages/spatie/browsershot>.
+- Browsershot, requisitos Node 22+ y Puppeteer 23+, `setNodeModulePath`, `setChromePath`, `setNodeBinary`: <https://spatie.be/docs/browsershot/v4/requirements>.
+- Browsershot, PDF: `format`, `margins`, `showBackground`, `pdf()`, `savePdf()`: <https://spatie.be/docs/browsershot/v4/usage/creating-pdfs>.
+- Browsershot, opciones arbitrarias (`preferCSSPageSize` vía `setOption`): <https://spatie.be/docs/browsershot/v4/miscellaneous-options/setting-an-arbirary-option>.
+- Puppeteer 25.16.0 en npm, `engines.node >=22.12.0`: <https://registry.npmjs.org/puppeteer/latest>.
+- Inertia Laravel 3, `SsrState`, `HttpGateway` y `inertia:start-ssr`; el proyecto ya tiene `build:ssr` y `config/inertia.php` con SSR habilitado (código instalado, revisado en esta sesión).
+- `@inertiajs/vite` genera el bootstrap `createServer`/`renderToString` y permite `ssr.host`/`ssr.port`; el bundle se genera en `bootstrap/ssr` (código instalado, revisado en esta sesión).
+
+**Conclusión**: D12 supersede D1–D5 y la parte de presentación de D11. D6–D10 se mantienen. La decisión de enfoque está aprobada; la instalación, el build SSR, la ruta de Chrome y la suite son trabajo de Implement/QA y no se declaran ejecutados.
+
 ## Alternativas de ruta y nombre consideradas
 
 - `GET /cv/export` (`cv.export`) frente a `GET /cv/pdf` (`cv.pdf`): se elige `/cv/pdf`/`cv.pdf` por claridad y por reflejar el formato; ambas son igual de simples. El cambio de nombre no altera el diseño.
@@ -216,5 +288,7 @@ defaultMediaType       = print
 
 ## Preguntas abiertas
 
-- **Ninguna decisión funcional nueva.** Las decisiones de presentación delegadas por C10 quedan resueltas en este documento y en `plan.md`.
-- **Aprobación humana pendiente**: renderizador, dependencias, ruta/nombre y actualización focalizada de la prueba de regresión. El Plan no se declara aprobado y no se inician Tasks/Implement.
+- **Ninguna decisión funcional nueva.** C1–C10, FR-001–FR-017 y SC-001–SC-008 se mantienen.
+- **Decisión de enfoque aprobada el 2026-10-23**: Browsershot + Chrome + SSR de `Cv/Print`. Queda pendiente de Implement/QA verificar en el entorno concreto la ruta de Chrome, el arranque del SSR en tests, la versión de Node y el comportamiento real de las anotaciones `tel:`/`mailto:` en Chrome. El build `bootstrap/ssr/ssr.js` ya fue verificado: Vite emite `.js`, no `.mjs`. No son decisiones de negocio ni se presentan como validadas.
+- **Riesgo a confirmar con evidencia**: que `CvPdfValidator` acepte la estructura del PDF de Chrome; si no, se ajusta con un PDF real y se documenta, sin sustituir la validación por una suposición.
+- **Aceptación**: la corrección no declara aceptación funcional ni visual, no cierra la spec y no autoriza commit, merge o push. T019 sigue pendiente y replanteada contra `CvPreview`.

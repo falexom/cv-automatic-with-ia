@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'browsershot' => [
+        'chrome_path' => env('BROWSERSHOT_CHROME_PATH'),
+        'timeout' => (int) env('BROWSERSHOT_TIMEOUT', 30),
+    ],
+
 ];

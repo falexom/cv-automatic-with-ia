@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-23
 
-**Status**: Clarified — ready for Plan (2026-10-23). Sin aprobación humana; la implementación y la validación quedan pendientes. La regla de nombre de archivo queda resuelta en C5/FR-011.
+**Status**: Correction implemented — automated QA PASS_CON_OBSERVACIONES; T019 visual pending; not visually accepted; no commit, merge or push (2026-10-25). SPEC-004 remains the single presentation source; scope C1–C10 unchanged. La regla de nombre de archivo sigue resuelta en C5/FR-011.
 
 **Input**: User description: "Exportar y descargar un PDF profesional del CV generado en SPEC-004, conservando contenido, orden, jerarquía visual, márgenes, tipografía, saltos de página, enlaces compatibles y soporte multipágina. Utilizar un nombre de archivo consistente y verificar que el PDF generado sea válido y pueda abrirse."
 
@@ -246,19 +246,51 @@ No se introduce ninguna entidad persistente nueva. El perfil activo, el Perfil M
 - **SPEC-002 y SPEC-006**: no son dependencias funcionales. No se anexan certificados, no se concatenan PDFs, no se aplica OCR y no se genera un CV documentado.
 - No se requieren cambios de esquema, migraciones, tablas, seeders ni factories.
 
+## Corrección visual (2026-10-23)
+
+- **Rechazo humano de fidelidad**: el responsable no aprobó visualmente la implementación. El PDF es técnicamente válido (estructura, contenido, enlaces, nombre y no persistencia), pero no mantiene fidelidad visual suficiente con la vista previa del CV; SPEC-005 queda reabierta en estado de corrección.
+- **Diagnóstico**: la vía Dompdf + Blade produce una segunda presentación (CSS 2.1), distinta de la vista previa real React/Tailwind; difieren tipografía, jerarquía, espaciado, bloque de contacto, saltos y paginación, y esa segunda presentación puede divergir de la vista previa.
+- **Propuesta aprobada e implementada**: el responsable aprobó imprimir con navegador headless (Browsershot/Chrome) una página de impresión que renderice el componente real `CvPreview` mediante SSR. Implementado con Browsershot 5.4.1 y Chrome headless: `Cv/Print` renderiza el `CvPreview` real, con CSS de impresión A4/18 mm e Instrument Sans local.
+- **Resultado QA (2026-10-25)**: QA independiente PASS_CON_OBSERVACIONES, sin defectos funcionales nuevos. Pendientes: T019 (validación visual y aceptación humana), borrado manual de 5 archivos legacy (`rm` denegado), `.env.example` sin editar por permiso, configuración de `BROWSERSHOT_CHROME_PATH` y gates preexistentes (`vp check` en 2 docs, PHPStan 16 errores y 1 vulnerabilidad npm baja en `@babel/core`).
+- **Alcance sin cambios**: C1–C10, FR-001–FR-017 y SC-001–SC-008 se mantienen; no se crea un SPEC nuevo ni se reabre SPEC-004. No se añaden anexos, concatenación, OCR, firma, publicación, correo ni plantillas múltiples.
+- **Estado**: corrección implementada, sin aceptación visual; T019 (validación manual y visual) sigue pendiente y la aceptación humana no se ha producido; sin commit, merge ni push.
+- **Artefactos**: este documento solo registra el estado verificado; no se modifican código, pruebas, Plan, Tasks ni otros artefactos en esta actualización. La vía Dompdf + Blade queda superseded por la corrección.
+
+## Estado de implementación (2026-10-23) — superseded por la corrección visual
+
+> Registro histórico de la implementación previa al rechazo visual. **Superseded** (2026-10-25) por la corrección implementada con Browsershot + Chrome headless + SSR. Se conserva como evidencia; no constituye aceptación funcional ni visual y sus resultados no validan la corrección.
+
+- **Tareas**: 18/19 completadas (T001–T018). T019 de validación manual pendiente; no hay aceptación funcional ni cierre de la spec.
+- **Evidencia automatizada**: `php artisan test` 231/231 (2.555 aserciones), incluida `CvPdfExportTest` (Feature) 17/17 y `CvGeneratorTest` 25/25; Unit de nombre de archivo 16/16, formateador 3/3, enlaces 18/18 y validador 9/9; frontend 53/53; `npx tsc --noEmit` sin errores; `composer lint:check` en verde.
+- **Dependencias**: `dompdf/dompdf` 3.1.6 (runtime) y `smalot/pdfparser` 2.13.1 (dev); `composer audit` limpio.
+- **QA independiente**: PASS_CON_OBSERVACIONES. Detectó D1 (los enlaces inválidos perdían el texto visible), corregido en la plantilla Blade y cubierto con pruebas; se añadió hardening de controles percent-encoded en `CvPdfLink`. QA revalidó el resultado como PASS.
+- **Limitaciones preexistentes, ajenas a SPEC-005 y no corregidas por alcance**: `npx vp check` solo falla en `docs/roadmap.md` y `specs/004-.../tasks.md`; PHPStan mantiene 16 errores preexistentes.
+- **Limitación de fidelidad**: Dompdf implementa CSS 2.1; la fidelidad es equivalente, no pixel-perfect.
+- **Estado Git**: commit de documentos SPEC-005 `2a108bc`; implementación sin commit; `main` en `df45be1`; sin merge ni push.
+- **Validación manual pendiente (T019)**: apertura en dos lectores, revisión visual de maquetación y tipografía, foco y teclado de la acción, funcionamiento sin conexión y aceptación humana. El PDF no se declara visualmente aceptado.
+
+### Corrección implementada (2026-10-25)
+
+- **Enfoque**: Browsershot 5.4.1 + Chrome headless con SSR de Inertia; `Cv/Print` renderiza el `CvPreview` real; CSS de impresión A4/18 mm e Instrument Sans local. Sustituye la vía Dompdf + Blade como mecanismo de presentación y conserva el contenido y las reglas de SPEC-004.
+- **Evidencia automatizada**: `php artisan test` 233/233 (2.578 aserciones), incluida `CvPrintHtmlTest` 2/2 (39), `CvPdfExportTest` 16/16 (394) y `CvGeneratorTest` 26/26 (804); frontend 53/53; `tsc` 0 errores; Pint OK; `composer audit` limpio.
+- **QA independiente**: PASS_CON_OBSERVACIONES, sin defectos funcionales nuevos.
+- **Pendientes y observaciones**: T019 (validación visual y aceptación humana) no ejecutada; 5 archivos legacy sin borrar por `rm` denegado; `.env.example` sin editar por permiso; `BROWSERSHOT_CHROME_PATH` debe configurarse; Chrome estándar roto y se usó Chrome for Testing; `vp check` con 2 docs preexistentes; PHPStan con 16 errores preexistentes; 1 vulnerabilidad npm baja preexistente en `@babel/core`.
+- **Estado Git**: HEAD `2a108bc`; `main` en `df45be1`; implementación sin commit; sin merge ni push.
+- **Aceptación**: no se declara aceptación funcional ni visual; el PDF no está visualmente aceptado y la aceptación humana sigue pendiente.
+
 ## Trazabilidad
 
-| Origen                                                                  | Requisitos                                        | Historias | Observación                                                                 |
-| ----------------------------------------------------------------------- | ------------------------------------------------- | --------- | --------------------------------------------------------------------------- |
-| Constitución I, II, III, XVI y XXVI; SPEC-004 FR-006–FR-011, FR-015–FR-016 | FR-002, FR-004–FR-007, FR-016                   | US1, US2  | Misma composición y perfil; PDF derivado, fiel y sin segunda lógica.        |
-| Constitución XVI y XVIII; roadmap SPEC-005                              | FR-001, FR-004, FR-007                            | US1, US2  | Acción de exportar; A4, una columna, una plantilla, jerarquía y paginación. |
-| SPEC-004 FR-005 y FR-017–FR-019; C1                                      | FR-001, FR-003                                    | US3       | Solo perfiles activos con datos; revalidación antes de exportar.            |
-| SPEC-004 FR-006–FR-011; SPEC-003 D1–D3                                   | FR-005, FR-006                                    | US1, US2  | Contenido incluido, orden, herencia, datos propios y omisiones.             |
-| SPEC-004 FR-020; encargo                                                 | FR-008                                            | US2       | Texto completo, acentos y cadenas largas sin recortes.                      |
-| SPEC-004 FR-010, FR-011 y FR-014                                       | FR-009, FR-010                                    | US1, US2  | Enlaces del CV y teléfono clicables cuando el formato lo permita; sin enlaces internos. |
-| Constitución XXI; roadmap «validar que el PDF pueda abrirse»            | FR-014, FR-015; Pruebas Requeridas                | US3       | Validez, errores, reintento y ausencia de archivos parciales.               |
-| Constitución XXIII y XXV; encargo                                       | FR-013, FR-017                                    | US3       | Generación local, sin servicios externos y alcance acotado.                 |
-| SPEC-004 FR-015 y FR-022; encargo                                        | FR-012, FR-016, FR-017                            | US1, US3  | Sin persistencia ni historial; la hoja sigue siendo de solo lectura.        |
-| C5; encargo                                                             | FR-011, SC-005                                    | US1, US3  | Nombre determinista, seguro y con fallback.                                 |
-| Criterio de éxito del MVP, paso 13                                       | SC-008                                            | US1       | PDF normal descargable y válido.                                            |
-| SPEC-002 y SPEC-006                                                      | —                                                 | —         | Sin anexos, concatenación, OCR ni CV documentado.                           |
+| Origen                                                                     | Requisitos                         | Historias | Observación                                                                             |
+| -------------------------------------------------------------------------- | ---------------------------------- | --------- | --------------------------------------------------------------------------------------- |
+| Constitución I, II, III, XVI y XXVI; SPEC-004 FR-006–FR-011, FR-015–FR-016 | FR-002, FR-004–FR-007, FR-016      | US1, US2  | Misma composición y perfil; PDF derivado, fiel y sin segunda lógica.                    |
+| Constitución XVI y XVIII; roadmap SPEC-005                                 | FR-001, FR-004, FR-007             | US1, US2  | Acción de exportar; A4, una columna, una plantilla, jerarquía y paginación.             |
+| SPEC-004 FR-005 y FR-017–FR-019; C1                                        | FR-001, FR-003                     | US3       | Solo perfiles activos con datos; revalidación antes de exportar.                        |
+| SPEC-004 FR-006–FR-011; SPEC-003 D1–D3                                     | FR-005, FR-006                     | US1, US2  | Contenido incluido, orden, herencia, datos propios y omisiones.                         |
+| SPEC-004 FR-020; encargo                                                   | FR-008                             | US2       | Texto completo, acentos y cadenas largas sin recortes.                                  |
+| SPEC-004 FR-010, FR-011 y FR-014                                           | FR-009, FR-010                     | US1, US2  | Enlaces del CV y teléfono clicables cuando el formato lo permita; sin enlaces internos. |
+| Constitución XXI; roadmap «validar que el PDF pueda abrirse»               | FR-014, FR-015; Pruebas Requeridas | US3       | Validez, errores, reintento y ausencia de archivos parciales.                           |
+| Constitución XXIII y XXV; encargo                                          | FR-013, FR-017                     | US3       | Generación local, sin servicios externos y alcance acotado.                             |
+| SPEC-004 FR-015 y FR-022; encargo                                          | FR-012, FR-016, FR-017             | US1, US3  | Sin persistencia ni historial; la hoja sigue siendo de solo lectura.                    |
+| C5; encargo                                                                | FR-011, SC-005                     | US1, US3  | Nombre determinista, seguro y con fallback.                                             |
+| Criterio de éxito del MVP, paso 13                                         | SC-008                             | US1       | PDF normal descargable y válido.                                                        |
+| SPEC-002 y SPEC-006                                                        | —                                  | —         | Sin anexos, concatenación, OCR ni CV documentado.                                       |

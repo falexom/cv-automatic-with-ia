@@ -314,6 +314,84 @@ describe('CvGeneratorPanel', () => {
         }
     });
 
+    it('offers a real PDF export download link outside the CV sheet when ready with data', () => {
+        render(
+            <CvGeneratorPanel
+                profiles={profiles}
+                status="ready"
+                selected_profile_id={1}
+                preview={preview}
+            />,
+        );
+
+        const article = screen.getByRole('article', { name: 'Ada Lovelace' });
+        const link = screen.getByRole('link', { name: 'Exportar PDF' });
+
+        expect(link.tagName).toBe('A');
+        expect(link).toHaveAttribute('href', '/cv/pdf?profile=1');
+        expect(link).not.toHaveAttribute('target');
+        expect(link).not.toHaveAttribute('download');
+        expect(link.className).toMatch(/focus-visible/);
+        expect(article.contains(link)).toBe(false);
+    });
+
+    it('hides the export action outside ready with data and a selected profile', () => {
+        const cases = [
+            {
+                profiles,
+                status: 'no_active_profiles' as const,
+                selected_profile_id: null,
+                preview: null,
+            },
+            {
+                profiles,
+                status: 'selection_required' as const,
+                selected_profile_id: null,
+                preview: null,
+            },
+            {
+                profiles,
+                status: 'unavailable' as const,
+                selected_profile_id: null,
+                preview: null,
+            },
+            {
+                profiles,
+                status: 'error' as const,
+                selected_profile_id: 1,
+                preview,
+            },
+            {
+                profiles,
+                status: 'ready' as const,
+                selected_profile_id: 1,
+                preview: { ...preview, has_data: false },
+            },
+            {
+                profiles,
+                status: 'ready' as const,
+                selected_profile_id: 1,
+                preview: null,
+            },
+            {
+                profiles,
+                status: 'ready' as const,
+                selected_profile_id: null,
+                preview,
+            },
+        ];
+
+        for (const props of cases) {
+            const { unmount } = render(<CvGeneratorPanel {...props} />);
+
+            expect(
+                screen.queryByRole('link', { name: 'Exportar PDF' }),
+            ).not.toBeInTheDocument();
+
+            unmount();
+        }
+    });
+
     it('shows an empty state with a profiles link when there are no active profiles', () => {
         render(
             <CvGeneratorPanel
