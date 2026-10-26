@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-23
 
-**Status**: Correction implemented — automated QA PASS_CON_OBSERVACIONES; T019 visual pending; not visually accepted; no commit, merge or push (2026-10-25). SPEC-004 remains the single presentation source; scope C1–C10 unchanged. La regla de nombre de archivo sigue resuelta en C5/FR-011.
+**Status**: Closed — functional and visual MVP acceptance by the responsible on 2026-10-26; T019 closed by human acceptance with documented partial manual coverage; integrated in main via merge --no-ff; no push. SPEC-004 remains the single presentation source; scope C1–C10 unchanged. La regla de nombre de archivo sigue resuelta en C5/FR-011.
 
 **Input**: User description: "Exportar y descargar un PDF profesional del CV generado en SPEC-004, conservando contenido, orden, jerarquía visual, márgenes, tipografía, saltos de página, enlaces compatibles y soporte multipágina. Utilizar un nombre de archivo consistente y verificar que el PDF generado sea válido y pueda abrirse."
 
@@ -251,10 +251,10 @@ No se introduce ninguna entidad persistente nueva. El perfil activo, el Perfil M
 - **Rechazo humano de fidelidad**: el responsable no aprobó visualmente la implementación. El PDF es técnicamente válido (estructura, contenido, enlaces, nombre y no persistencia), pero no mantiene fidelidad visual suficiente con la vista previa del CV; SPEC-005 queda reabierta en estado de corrección.
 - **Diagnóstico**: la vía Dompdf + Blade produce una segunda presentación (CSS 2.1), distinta de la vista previa real React/Tailwind; difieren tipografía, jerarquía, espaciado, bloque de contacto, saltos y paginación, y esa segunda presentación puede divergir de la vista previa.
 - **Propuesta aprobada e implementada**: el responsable aprobó imprimir con navegador headless (Browsershot/Chrome) una página de impresión que renderice el componente real `CvPreview` mediante SSR. Implementado con Browsershot 5.4.1 y Chrome headless: `Cv/Print` renderiza el `CvPreview` real, con CSS de impresión A4/18 mm e Instrument Sans local.
-- **Resultado QA (2026-10-25)**: QA independiente PASS_CON_OBSERVACIONES, sin defectos funcionales nuevos. Pendientes: T019 (validación visual y aceptación humana), borrado manual de 5 archivos legacy (`rm` denegado), `.env.example` sin editar por permiso, configuración de `BROWSERSHOT_CHROME_PATH` y gates preexistentes (`vp check` en 2 docs, PHPStan 16 errores y 1 vulnerabilidad npm baja en `@babel/core`).
+- **Resultado QA y cierre (2026-10-26)**: QA independiente PASS_CON_OBSERVACIONES, sin defectos funcionales nuevos. El responsable aceptó funcional y visualmente el MVP con la presentación actual; T019 se cierra por aceptación humana con cobertura manual parcial documentada (no se ejecutaron individualmente todos los escenarios). Los 5 archivos legacy fueron eliminados y no quedan referencias. Integrado en main mediante merge --no-ff; sin push.
 - **Alcance sin cambios**: C1–C10, FR-001–FR-017 y SC-001–SC-008 se mantienen; no se crea un SPEC nuevo ni se reabre SPEC-004. No se añaden anexos, concatenación, OCR, firma, publicación, correo ni plantillas múltiples.
-- **Estado**: corrección implementada, sin aceptación visual; T019 (validación manual y visual) sigue pendiente y la aceptación humana no se ha producido; sin commit, merge ni push.
-- **Artefactos**: este documento solo registra el estado verificado; no se modifican código, pruebas, Plan, Tasks ni otros artefactos en esta actualización. La vía Dompdf + Blade queda superseded por la corrección.
+- **Estado**: corrección cerrada; SPEC-005 cerrado funcional y visualmente. T019 cerrada por aceptación humana, no por ejecución completa. Sin push.
+- **Artefactos**: `spec.md`, `tasks.md`, `docs/roadmap.md` y `validation-evidence.md` reflejan el cierre; el Plan/Research/Data-Model/Contracts/Quickstart conservan la corrección aprobada. La vía Dompdf + Blade queda superseded.
 
 ## Estado de implementación (2026-10-23) — superseded por la corrección visual
 
@@ -276,7 +276,15 @@ No se introduce ninguna entidad persistente nueva. El perfil activo, el Perfil M
 - **QA independiente**: PASS_CON_OBSERVACIONES, sin defectos funcionales nuevos.
 - **Pendientes y observaciones**: T019 (validación visual y aceptación humana) no ejecutada; 5 archivos legacy sin borrar por `rm` denegado; `.env.example` sin editar por permiso; `BROWSERSHOT_CHROME_PATH` debe configurarse; Chrome estándar roto y se usó Chrome for Testing; `vp check` con 2 docs preexistentes; PHPStan con 16 errores preexistentes; 1 vulnerabilidad npm baja preexistente en `@babel/core`.
 - **Estado Git**: HEAD `2a108bc`; `main` en `df45be1`; implementación sin commit; sin merge ni push.
-- **Aceptación**: no se declara aceptación funcional ni visual; el PDF no está visualmente aceptado y la aceptación humana sigue pendiente.
+- **Aceptación**: no se declara aceptación funcional ni visual en el registro histórico; la aceptación se registra en el cierre del 2026-10-26.
+
+### Cierre (2026-10-26)
+
+- **Decisión humana**: el responsable autorizó el cierre funcional del MVP con la presentación actual, sin nuevas mejoras visuales, y aceptó funcional y visualmente el PDF de Browsershot + Chrome + SSR sobre `CvPreview`.
+- **T019**: cerrada por aceptación humana con cobertura manual parcial documentada; no se declaran ejecutados los escenarios no verificados individualmente. Evidencia: [validation-evidence.md](./validation-evidence.md).
+- **Limpieza**: eliminados los 5 archivos legacy (`cv/pdf.blade.php`, `CvPdfFormatter`, `CvPdfLink` y sus dos Unit); `php artisan view:clear`; sin referencias activas.
+- **Evidencia final**: 69/69 pruebas focalizadas (1.278 aserciones), 212/212 backend (2.533), 53/53 frontend, TypeScript y Pint verdes; exportaciones reales Analista y Programador con PDF A4, InstrumentSans, sin JavaScript ni cifrado.
+- **Integración**: merge `--no-ff` a `main` autorizado y ejecutado en el cierre; sin push. El hash final se registra en el informe de cierre.
 
 ## Trazabilidad
 
