@@ -277,14 +277,19 @@ describe('CvGeneratorPanel', () => {
 
         const article = screen.getByRole('article', { name: 'Ada Lovelace' });
         const block = screen.getByRole('region', {
-            name: 'Corregir en las fuentes',
+            name: 'Editar información del CV',
         });
 
         expect(article.contains(block)).toBe(false);
         expect(
             within(block).getByRole('heading', {
-                name: 'Corregir en las fuentes',
+                name: 'Editar información del CV',
             }),
+        ).toBeInTheDocument();
+        expect(
+            within(block).getByText(
+                'Modifica los datos de origen y vuelve a generar la vista previa.',
+            ),
         ).toBeInTheDocument();
 
         const expectedLinks = [
@@ -314,7 +319,7 @@ describe('CvGeneratorPanel', () => {
         }
     });
 
-    it('offers a real PDF export download link outside the CV sheet when ready with data', () => {
+    it('offers a real PDF export download link next to the controls when ready with data', () => {
         render(
             <CvGeneratorPanel
                 profiles={profiles}
@@ -325,14 +330,52 @@ describe('CvGeneratorPanel', () => {
         );
 
         const article = screen.getByRole('article', { name: 'Ada Lovelace' });
+        const form = screen
+            .getByRole('button', { name: 'Ver vista previa' })
+            .closest('form');
         const link = screen.getByRole('link', { name: 'Exportar PDF' });
 
+        expect(form).not.toBeNull();
+        expect(form).toContainElement(link);
         expect(link.tagName).toBe('A');
         expect(link).toHaveAttribute('href', '/cv/pdf?profile=1');
         expect(link).not.toHaveAttribute('target');
         expect(link).not.toHaveAttribute('download');
         expect(link.className).toMatch(/focus-visible/);
         expect(article.contains(link)).toBe(false);
+    });
+
+    it('places the preview directly below the controls and next to the edit section', () => {
+        render(
+            <CvGeneratorPanel
+                profiles={profiles}
+                status="ready"
+                selected_profile_id={1}
+                preview={preview}
+            />,
+        );
+
+        const form = screen
+            .getByRole('button', { name: 'Ver vista previa' })
+            .closest('form');
+        const article = screen.getByRole('article', { name: 'Ada Lovelace' });
+        const block = screen.getByRole('region', {
+            name: 'Editar información del CV',
+        });
+
+        if (!form) {
+            throw new Error('Expected the profile form to be rendered');
+        }
+
+        expect(
+            form.compareDocumentPosition(article) &
+                Node.DOCUMENT_POSITION_FOLLOWING,
+        ).toBeTruthy();
+        expect(article.parentElement).toBe(block.parentElement);
+        expect(
+            article.compareDocumentPosition(block) &
+                Node.DOCUMENT_POSITION_FOLLOWING,
+        ).toBeTruthy();
     });
 
     it('hides the export action outside ready with data and a selected profile', () => {

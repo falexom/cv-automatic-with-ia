@@ -1,6 +1,6 @@
 # US-001 — Mejora de la vista previa del CV
 
-**Estado:** APROBADA_PARA_DESARROLLO
+**Estado:** ACEPTADA
 
 ## Historia de usuario
 
