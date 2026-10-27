@@ -1,6 +1,7 @@
 # US-002 — Selección de evidencias del perfil activo
 
-**Estado:** APROBADA_PARA_DESARROLLO
+**Estado:** IMPLEMENTADA — ACEPTADA
+**Aceptación humana:** Confirmada el 2026-10-27 (funcional y visual de los seis criterios de aceptación).
 
 ## Historia de usuario
 

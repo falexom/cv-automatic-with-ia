@@ -1,4 +1,5 @@
 import type { CvProfileLink, CvProfilePersonalData } from '@/lib/cv-profiles';
+import type { DocumentAssociation } from '@/lib/documents';
 
 // Helpers de presentación compartidos: se reexportan para que la vista previa
 // los consuma sin duplicar su lógica.
@@ -107,9 +108,18 @@ export type CvPreviewData = {
     has_data: boolean;
 };
 
+export type CvEvidence = {
+    id: number;
+    display_name: string;
+    is_available: boolean;
+    last_verified_at: string | null;
+    associations: DocumentAssociation[];
+};
+
 export type CvGeneratorPageProps = {
     profiles: CvProfileOption[];
     status: CvGeneratorStatus;
     selected_profile_id: number | null;
     preview: CvPreviewData | null;
+    evidences?: CvEvidence[];
 };

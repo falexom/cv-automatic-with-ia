@@ -1,5 +1,6 @@
 import { Link, router } from '@inertiajs/react';
 import { AlertCircle } from 'lucide-react';
+import CvEvidenceSelection from '@/components/CvEvidenceSelection';
 import CvPreview from '@/components/CvPreview';
 import EmptyState from '@/components/EmptyState';
 import { Alert } from '@/components/ui/alert';
@@ -12,6 +13,7 @@ export default function CvGeneratorPanel({
     status,
     selected_profile_id,
     preview,
+    evidences = [],
 }: CvGeneratorPageProps) {
     return (
         <div className="space-y-4">
@@ -142,6 +144,13 @@ export default function CvGeneratorPanel({
                             }
                         />
                     )}
+
+                    {selected_profile_id !== null ? (
+                        <CvEvidenceSelection
+                            key={selected_profile_id}
+                            evidences={evidences}
+                        />
+                    ) : null}
 
                     <section
                         aria-labelledby="cv-source-links-heading"

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CvProfile;
+use App\Support\CvEvidenceSelection;
 use App\Support\CvPreviewContent;
 use App\Support\CvProfileResolver;
 use Illuminate\Http\Request;
@@ -13,6 +14,7 @@ use Throwable;
 class CvGeneratorController extends Controller
 {
     public function __construct(
+        private readonly CvEvidenceSelection $evidenceSelection,
         private readonly CvPreviewContent $previewContent,
         private readonly CvProfileResolver $profileResolver,
     ) {}
@@ -23,6 +25,7 @@ class CvGeneratorController extends Controller
         $status = 'error';
         $selectedProfileId = null;
         $preview = null;
+        $evidences = [];
 
         try {
             $query = [];
@@ -44,6 +47,7 @@ class CvGeneratorController extends Controller
             if ($resolved['profile'] !== null) {
                 $selectedProfileId = $resolved['profile']->id;
                 $preview = $this->previewContent->build($resolved['profile']);
+                $evidences = $this->evidenceSelection->eligibleFor($resolved['profile']);
                 $status = 'ready';
             }
         } catch (Throwable $exception) {
@@ -51,6 +55,7 @@ class CvGeneratorController extends Controller
 
             $status = 'error';
             $preview = null;
+            $evidences = [];
         }
 
         return Inertia::render('Cv/Index', [
@@ -58,6 +63,7 @@ class CvGeneratorController extends Controller
             'status' => $status,
             'selected_profile_id' => $selectedProfileId,
             'preview' => $preview,
+            'evidences' => $evidences,
         ]);
     }
 }

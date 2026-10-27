@@ -513,7 +513,7 @@ describe('CvGeneratorPanel', () => {
             />,
         );
 
-        expect(screen.getByTestId('empty-state')).toBeInTheDocument();
+        expect(screen.getByText('Sin datos para mostrar')).toBeInTheDocument();
         expect(screen.queryByRole('article')).not.toBeInTheDocument();
     });
 
