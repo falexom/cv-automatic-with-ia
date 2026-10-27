@@ -1,9 +1,10 @@
 # Constitución del Proyecto — CV Automático
 
 **Proyecto:** CV Automático  
-**Versión de la Constitución:** 1.0.0  
+**Versión de la Constitución:** 1.1.0  
 **Estado:** Activa  
 **Fecha de ratificación:** 2026-10-14  
+**Última enmienda:** 2026-10-27 (1.1.0)  
 **Metodología:** Spec-Driven Development con SpecKit  
 **Ámbito inicial:** Aplicación web local, monousuario
 
@@ -527,13 +528,13 @@ Un Spec se considera terminado únicamente cuando su comportamiento puede verifi
 
 ## Principio XX — Las Tareas no Sustituyen a los Specs
 
-Las tareas técnicas deben existir dentro del contexto de una especificación.
+Las tareas técnicas deben existir dentro del contexto de una especificación o de una historia incremental aprobada.
 
-No se deben crear cadenas indefinidas de tareas independientes que amplíen el sistema sin control documental.
+No se deben crear cadenas indefinidas de tareas o historias independientes que amplíen el sistema sin control documental ni aprobación.
 
 Regla:
 
-> Un Spec implementa una capacidad completa y verificable. No se abren tareas funcionales independientes fuera del Spec salvo correcciones de bugs, mantenimiento o trabajo técnico explícitamente justificado.
+> Un Spec implementa una capacidad completa y verificable. No se abren tareas funcionales independientes fuera del Spec salvo correcciones de bugs, mantenimiento, trabajo técnico explícitamente justificado, o historias de usuario incrementales con estado `APROBADA_PARA_DESARROLLO`, registradas en `specs/stories/` y desarrolladas en su propia rama bajo los mismos controles de seguridad que un Spec.
 
 ---
 
@@ -729,6 +730,10 @@ Se utilizará versionado semántico:
 - **PATCH:** aclaraciones que no modifican el comportamiento esperado.
 
 No se cambiarán silenciosamente principios fundamentales durante un Spec en ejecución.
+
+### Enmiendas registradas
+
+- **1.1.0 (2026-10-27):** Principio XX. Motivo: reconocer las historias de usuario incrementales aprobadas (FALEXOM 2.2.0) como flujo legítimo junto a Spec Kit. Impacto: el integrador local admite un modo historia con los mismos controles de rama, base Git, integración y autorización humana. Compatibilidad: los Specs existentes y sus reglas no cambian. Migraciones: ninguna.
 
 ---
 

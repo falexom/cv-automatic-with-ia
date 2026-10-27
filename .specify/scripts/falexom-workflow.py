@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Project-local Git/Spec Kit operations. No model calls, merge or push."""
+"""Project-local Git/Spec Kit and approved-story operations. No model calls, merge or push."""
 import argparse
 import json
 import os
@@ -12,6 +12,8 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[2]
 GIT = '/usr/bin/git'
 SPEC = re.compile(r'[0-9]{3,}-[a-z0-9]+(?:-[a-z0-9]+)*')
+STORY_BRANCH = re.compile(r'(?:feature|fix)/US-[0-9]{3,}-[a-z0-9]+(?:-[a-z0-9]+)*')
+STORY_FILE = re.compile(r'US-([0-9]{3,})-([a-z0-9]+(?:-[a-z0-9]+)*)[.]md')
 
 
 def fail(message):
@@ -84,26 +86,102 @@ def prepared_base(ref='HEAD'):
     return {'HEAD': head, 'MAIN': base, 'BASE_READY': True}
 
 
+def spec_context(branch):
+    """Return (pointer_matches, spec_dir_exists, feature_directory) for the branch.
+
+    The feature.json pointer and the specs/NNN-name/ directory are the only
+    signals that select traditional SPEC mode; neither is derived from stories.
+    """
+    safe_path('specs')
+    pointer = ROOT / safe_path('.specify/feature.json')
+    feature = json.loads(pointer.read_text())['feature_directory']
+    return feature == 'specs/' + branch, (ROOT / 'specs' / branch).exists(), feature
+
+
+def story_candidates(branch):
+    """Strictly identify story files matching the branch, never by number alone.
+
+    For NNN-slug branches the story slug must equal the branch slug exactly and
+    the scan returns every match so ambiguity can be rejected. For
+    feature|fix/US-NNN-slug branches the full story identifier must match
+    exactly. No fuzzy or numeric-only correspondence is accepted.
+    """
+    stories = ROOT / 'specs' / 'stories'
+    if not stories.is_dir():
+        return []
+    safe_path('specs/stories')
+    candidates = []
+    if SPEC.fullmatch(branch):
+        slug = branch.split('-', 1)[1]
+        for entry in stories.iterdir():
+            match = STORY_FILE.fullmatch(entry.name)
+            if entry.is_file() and match and match.group(2) == slug:
+                candidates.append(entry.name)
+    else:
+        wanted = branch.split('/', 1)[1] + '.md'
+        for entry in stories.iterdir():
+            if entry.is_file() and entry.name == wanted:
+                candidates.append(entry.name)
+    return candidates
+
+
+def approved_story(branch, candidates):
+    """Validate the single approved story contract committed at HEAD."""
+    if len(candidates) != 1:
+        fail('Ambiguous story context for branch ' + branch + ': exactly one approved story '
+             'must match, found ' + str(len(candidates)))
+    relative = 'specs/stories/' + candidates[0]
+    safe_path(relative)
+    result = subprocess.run([GIT, 'cat-file', '-e', 'HEAD:' + relative],
+                            cwd=ROOT, env=environment(), capture_output=True)
+    if result.returncode != 0:
+        fail('Story is not committed at HEAD: ' + relative)
+    content = git('cat-file', 'blob', 'HEAD:' + relative)
+    state = re.search(r'^\*\*Estado:\*\*\s*(\S+)\s*$', content, re.M)
+    if not state:
+        fail('Story approval state is missing: ' + relative)
+    if state.group(1) != 'APROBADA_PARA_DESARROLLO':
+        fail('Story is not approved for development: ' + state.group(1) + ' in ' + relative)
+    return relative
+
+
 def check():
     branch = repository()
-    if not SPEC.fullmatch(branch):
-        fail('Writes blocked: select the SPEC branch, never main/master or a detached HEAD')
+    spec_branch = bool(SPEC.fullmatch(branch))
+    story_branch = bool(STORY_BRANCH.fullmatch(branch))
+    if not spec_branch and not story_branch:
+        fail('Writes blocked: select the SPEC branch or the approved story branch, '
+             'never main/master or a detached HEAD')
     readiness = prepared_base()
-    f = safe_path('.specify/feature.json')
-    feature = json.loads((ROOT / f).read_text())['feature_directory']
-    if feature != 'specs/' + branch:
-        fail('Branch and .specify/feature.json do not match')
-    safe_path(feature)
-    safe_path(feature + '/spec.md')
-    if not (ROOT / feature / 'spec.md').is_file():
-        fail('Selected specification is missing')
-    for key, expected in [('SPECIFY_FEATURE', branch), ('SPECIFY_FEATURE_DIRECTORY', feature)]:
-        actual = os.environ.get(key)
-        if actual and actual != expected and actual != str(ROOT / expected):
-            fail('Conflicting environment selection: ' + key)
-    if os.environ.get('SPECIFY_INIT_DIR') and Path(os.environ['SPECIFY_INIT_DIR']).resolve() != ROOT:
-        fail('Conflicting SPECIFY_INIT_DIR')
-    return {'BRANCH_NAME': branch, 'FEATURE_DIR': str(ROOT / feature), **readiness}
+    pointer, spec_dir, feature = spec_context(branch)
+    candidates = story_candidates(branch)
+    if candidates and (pointer or spec_dir):
+        fail('Conflicting SPEC and story context for branch ' + branch + ': both a SPEC '
+             'context (feature.json or specs/ directory) and a matching story exist; '
+             'resolve manually before writing')
+    if pointer or spec_dir or not candidates:
+        # Traditional SPEC mode, byte-compatible with the previous behavior,
+        # including stale-pointer and broken-branch failure messages.
+        if feature != 'specs/' + branch:
+            fail('Branch and .specify/feature.json do not match')
+        safe_path(feature)
+        safe_path(feature + '/spec.md')
+        if not (ROOT / feature / 'spec.md').is_file():
+            fail('Selected specification is missing')
+        for key, expected in [('SPECIFY_FEATURE', branch), ('SPECIFY_FEATURE_DIRECTORY', feature)]:
+            actual = os.environ.get(key)
+            if actual and actual != expected and actual != str(ROOT / expected):
+                fail('Conflicting environment selection: ' + key)
+        if os.environ.get('SPECIFY_INIT_DIR') and Path(os.environ['SPECIFY_INIT_DIR']).resolve() != ROOT:
+            fail('Conflicting SPECIFY_INIT_DIR')
+        return {'BRANCH_NAME': branch, 'FEATURE_DIR': str(ROOT / feature), 'MODE': 'spec', **readiness}
+    # Approved incremental story mode: same base and integration gates,
+    # with the approved story contract instead of spec.md/feature.json.
+    story = approved_story(branch, candidates)
+    for key in ['SPECIFY_FEATURE', 'SPECIFY_FEATURE_DIRECTORY', 'SPECIFY_INIT_DIR']:
+        if os.environ.get(key):
+            fail('Conflicting SPEC environment selection in story context: ' + key)
+    return {'BRANCH_NAME': branch, 'STORY': story, 'MODE': 'story', **readiness}
 
 
 def clean():
