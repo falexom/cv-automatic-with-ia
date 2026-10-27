@@ -12,8 +12,11 @@ que utilice el ciclo Spec Kit. Los comandos `/speckit.specify`, `clarify`, `plan
 La selección de Orchestrator sigue siendo manual; no cambia el predeterminado.
 No iniciar otro SPEC si el objetivo es reanudar uno existente.
 
-Developer ejecuta operaciones de estructura/Git; Analyst redacta requisitos;
-Architect diseño; Project Manager tareas; QA verifica independientemente.
+Para SPEC, Developer prepara/reanuda ramas y ejecuta scripts; también implementa
+código y realiza commits de implementación. Analyst redacta requisitos y, en el
+flujo incremental aprobado, prepara la rama y el commit documental inicial bajo
+AGENTS.md. Architect redacta el diseño; Project Manager, tareas; QA verifica
+independientemente.
 Orchestrator transmite las instrucciones del comando a cada especialista,
 revisa evidencia y conserva los gates humanos de especificación y plan.
 
@@ -39,12 +42,29 @@ se versiona o no está ignorado, exige reconciliación manual. No modifica el SP
 Los scripts nativos consultan el guard antes de resolver/persistir contexto o
 generar estructura. main + feature.json histórico no es un contexto de escritura.
 
-Staging y commit de trabajo, solo Developer y rutas revisadas del encargo:
+## Staging y commits
+
+Developer realiza el staging y los commits de implementación mediante el ejecutor
+local y rutas explícitas revisadas:
 
 ```sh
 python3 .specify/scripts/falexom-workflow.py stage ruta/archivo.ext
 python3 .specify/scripts/falexom-workflow.py commit --message "Descripción del cambio" ruta/archivo.ext
 ```
+
+En una historia incremental, Analyst puede registrar únicamente el archivo
+aprobado de `specs/stories/` como commit documental inicial en su rama, después
+de la autorización humana específica y solo si el permiso efectivo lo permite.
+Revisa un índice vacío y un diff staged que contenga exactamente ese archivo;
+no incluye código ni realiza esta operación en `main`. En OpenCode, la creación
+de rama, `git add` de ese Markdown y `git commit` requieren aprobación `ask` del
+perfil; en Codex dependen del permiso y sandbox de la sesión. Si se deniegan,
+detente sin cambiar de herramienta o permisos.
+
+El ejecutor `stage`/`commit` no realiza ese primer commit: su `check` exige que
+la historia aprobada ya conste en `HEAD`. Tras el commit documental, Developer
+ejecuta `check` antes de implementar; los commits de implementación siguen usando
+el ejecutor local.
 
 No acepta directorios, rutas externas, symlinks/hardlinks, secretos, controles
 ni configuración de integración. Commit exige índice exactamente coincidente,
@@ -100,7 +120,9 @@ SPEC-002 permanece cerrado; T063/T064 y SPEC-003 no cambian.
 
 Antes de delegar código, Orchestrator exige AGENTS.md, Constitución y ejecutor;
 si faltan, solicita preparación humana sin desarrollar ni reconstruir integración.
-Developer ejecuta primero resume/check, como encargo separado de implementación.
+Para un SPEC existente, Developer ejecuta primero resume/check, como encargo
+separado de implementación. Para una historia incremental ya preparada por
+Analyst, ejecuta solo check: `resume` está limitado a ramas SPEC.
 check devuelve HEAD, MAIN y BASE_READY solo si main es antecesor de la rama y la
 integración requerida existe. Una base atrasada informa BASE_OUTDATED_FAST_FORWARD;
 una divergente, BASE_DIVERGED. Ambas bloquean antes de editar, staging o commit.
