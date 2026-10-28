@@ -1,9 +1,22 @@
-# Integración operativa FALEXOM / Spec Kit
+# Integración operativa FALEXOM v2 / Spec Kit
 
 Constitución única: `.specify/memory/constitution.md` (contenido y versión preservados).
 `AGENTS.md` es la referencia principal de gobernanza del proyecto; este documento es complementario y debe mantenerse coherente con ella. Los comandos y plantillas SPEC siguen siendo Spec Kit.
 
 ## Flujo principal Plan/Build
+
+Codex/OpenCode Plan → SpecKit (Constitution, Specify, Clarify, según corresponda)
+→ historias aprobadas → planificación de tareas → Build → verificaciones técnicas
+→ aceptación funcional y visual humana → QA/seguridad según riesgo → cierre Git.
+
+Se conservan estructura, comandos, plantillas y artefactos nativos de SpecKit para
+Constitution, Specify y Clarify. Sus escrituras requieren una fase autorizada;
+Plan sigue siendo de solo lectura. Cada funcionalidad o fix independiente exige
+una historia aprobada con criterios de aceptación, también si deriva de un SPEC.
+La descomposición técnica de tareas y verificaciones es obligatoria y proporcional
+al riesgo; puede registrarse en la conversación o en un artefacto autorizado.
+En el flujo incremental `tasks.md` es opcional: no se exigen `plan.md`, `tasks.md`
+ni Implement. Esto no suprime los requisitos del ciclo SPEC clásico si se utiliza.
 
 Plan analiza el encargo y el proyecto en modo de solo lectura; propone historias
 pequeñas con criterios de aceptación y no modifica archivos. El usuario aprueba
@@ -14,16 +27,27 @@ con solo ese Markdown, sujeto a los permisos efectivos y a la revisión exacta d
 diff staged. Antes de implementar y antes de cada fase o escritura de producto,
 Build ejecuta `check`; solo implementa cuando devuelve `MODE=story` y
 `BASE_READY=true`. Build limita el trabajo a la historia aprobada, ejecuta
-verificaciones proporcionales y requiere autorización para el commit de
+verificaciones técnicas de código y pruebas focalizadas. No ejecuta suites completas
+ni pruebas funcionales automatizadas sin autorización, salvo controles técnicos
+mínimos indispensables por riesgo o exigencias vigentes de la Constitución/contrato;
+justifica y comunica la excepción. El Principio XXI mantiene la cobertura
+automatizada suficiente de capacidades críticas. Reutiliza evidencia y distingue
+lo ejecutado, pendiente y bloqueado. La aceptación funcional y visual es exclusiva
+del usuario; después se revisan QA y seguridad según riesgo, sin agentes
+personalizados obligatorios. Si esa revisión cambia el comportamiento, se repite
+la aceptación afectada. Build requiere autorización para el commit de
 implementación/cierre después de la aceptación funcional y visual del usuario.
 La integración a `main` requiere autorización humana y controles Git vigentes.
 
-No se requiere seleccionar Orchestrator ni otro especialista para este flujo.
-Los especialistas FALEXOM siguen disponibles como apoyo opcional.
+La metodología no exige perfiles especializados, Orchestrator ni adaptadores de
+agentes. Los especialistas FALEXOM son apoyo opcional. La integración instalada
+aún contiene dependencias incompatibles con este objetivo: véase la sección de
+compatibilidad real. Esta regla no autoriza a saltarlas.
 
 Para los flujos SPEC que lo requieran se conservan Spec Kit y sus gates. Build
-conduce el flujo y puede ejecutar los pasos autorizados directamente. Los
-especialistas son apoyo opcional: Analyst puede apoyar requisitos, Architect el
+conduce el flujo y puede ejecutar directamente los pasos autorizados que la
+integración y los permisos efectivos permitan. En la metodología los
+especialistas son apoyo opcional (sin eliminar las dependencias heredadas): Analyst puede apoyar requisitos, Architect el
 diseño, Project Manager las tareas, QA la revisión independiente, Orchestrator la
 coordinación y Developer la implementación. Build conserva el control de la
 secuencia, las aprobaciones y los commits descritos en AGENTS.md. Ninguna
@@ -90,8 +114,11 @@ El paquete specify-cli 1.1.0 no se modifica. Su override soportado
 Usar `.specify/scripts/speckit-local --profile aom <argumentos de specify>`
 (o `--profile falexom`). No utilizar el workflow CLI global sin ese adaptador.
 
-El adaptador es una vía opcional para flujos SPEC, no un requisito del ciclo
-incremental Plan/Build. Acepta los cinco comandos del ciclo. Convierte
+El adaptador no es requisito del ciclo incremental Plan/Build. En el workflow CLI
+SPEC instalado sigue siendo la vía local documentada y exige un agente
+especializado por código: no es compatible con el objetivo de operar ese workflow
+solo con Plan/Build nativos. No utilizar otra vía para sortear esa dependencia.
+Acepta los cinco comandos del ciclo. Convierte
 `run --command`
 en el cuerpo canónico del Markdown local, sustituye `$ARGUMENTS` y lo envía por
 stdin al `opencode run --standalone --agent falexom-orchestrator` soportado.
@@ -124,9 +151,10 @@ por esta instalación.
 
 Los comandos son personalizaciones locales: una actualización/regeneración de
 Spec Kit puede reemplazarlas. Revisar el diff y respaldarlas antes de actualizar.
-La instalación deja cambios de integración sin commit en el repositorio; deben
-versionarse mediante revisión humana antes de preparar un SPEC desde main limpio.
-SPEC-002 permanece cerrado; T063/T064 y SPEC-003 no cambian.
+Antes de preparar un SPEC, comprobar el estado Git real y resolver mediante
+revisión y autorización humana cualquier trabajo pendiente, sin descartarlo.
+`docs/roadmap.md` es la fuente de estado y prioridades; esta gobernanza no mantiene
+estados históricos de SPEC ni autoriza por sí sola a iniciar o cerrar trabajo.
 
 ## Recuperación de ramas históricas y gate previo al desarrollo
 
@@ -147,4 +175,31 @@ resume sobre la rama ya activa puede corregir el puntero local ignorado incluso
 con trabajo funcional pendiente; conserva archivos, staging y otros campos JSON.
 No cambia de rama con trabajo sin guardar. Una rama histórica atrasada debe ser
 actualizada primero por el usuario autorizado, preservando y verificando su trabajo.
-Esta recuperación no cierra SPEC-001 ni acredita validación funcional del escenario 4.5.
+La recuperación técnica no acredita cierre ni aceptación funcional; consultar el roadmap.
+
+## Compatibilidad real y límites de la migración
+
+Esta actualización documental no migra scripts, comandos, permisos ni perfiles.
+Ante un paso incompatible, detenerlo y solicitar un encargo específico para la
+migración; no omitir guards, editar punteros, usar otro wrapper ni fabricar contexto.
+
+| Control o dependencia | Implementación vigente | Consecuencia |
+|---|---|---|
+| `prepare`, `resume`, `check` | `falexom-workflow.py`; `check-create` en `create-new-feature.sh` y `check` en `common.sh` antes de resolver contexto | Siguen activos. SPEC nuevo requiere `prepare` desde main limpio; SPEC existente requiere `resume` y `check`. |
+| Modo historia | `check` exige rama válida, main antecesor, integración en HEAD y archivo aprobado en HEAD | Admite Build incremental sin `spec.md`, `plan.md`, `tasks.md` ni Implement; no certifica criterios de aceptación ni aprobación humana real. |
+| Puntero en modo historia | `check` llama a `spec_context` y lee `.specify/feature.json` incluso antes de elegir modo historia | No lo modifica ni exige coincidencia en modo historia, pero el JSON y su clave `feature_directory` deben existir y ser legibles. No declarar independencia total del puntero. |
+| Selección SPEC/historia | Rama `NNN-slug` o `feature|fix/US-NNN-slug`; coincidencia exacta de slug o identificador y una sola historia | Señales simultáneas de SPEC e historia bloquean; no usar la rama SPEC para registrar una historia coincidente. |
+| Commit documental inicial | `stage`/`commit` llaman a `check`, que ya exige la historia aprobada en HEAD | No pueden crear el primer commit de historia. El paso Git autorizado descrito arriba sigue sujeto a permisos; no constituye una capacidad nueva del ejecutor. |
+| Orquestación en comandos | `.opencode/commands/speckit.specify.md`, `clarify`, `plan`, `tasks` e `implement` ordenan delegar a especialistas | Es una restricción documental de esos comandos aún no migrados; no se elimina con estos dos documentos ni se autoriza a ignorarla durante su ejecución. |
+| Adaptador y perfiles | `opencode-speckit` fija `--agent falexom-orchestrator`, instrucciones de coordinación y XDG aom/falexom; `speckit-local` configura el override | Dependencia ejecutable real del workflow CLI; Constitución no figura entre los cinco comandos aceptados por el adaptador. No declarar ese workflow compatible con Plan/Build nativos. |
+| Ciclo SPEC clásico | `workflows/speckit/workflow.yml` encadena Specify → Plan → Tasks → Implement con gates humanos de spec/plan | No es el ciclo incremental v2. `setup-tasks.sh` exige `plan.md`; `check-prerequisites.sh` lo exige salvo `--paths-only` y exige `tasks.md` con `--require-tasks`; Implement usa esos requisitos y su gate de checklists. |
+| Scripts de contexto SpecKit | `common.sh` sigue resolviendo el directorio SPEC mediante entorno/puntero | El modo historia del guard no convierte estos scripts en herramientas de historias. No invocarlos sobre una historia suponiendo esa compatibilidad. |
+
+El guard no exige especialistas ni planes/tareas para implementar una historia.
+Por tanto, el tramo incremental es compatible en código con Plan/Build, sujeto a
+preparación Git autorizada y permisos efectivos. El flujo completo v2, incluyendo
+especificación mediante los comandos locales y el workflow CLI sin especialistas,
+no está migrado: requiere cambios autorizados en comandos y código del adaptador.
+No se declara operativo ese tramo ni se prepara trabajo dependiente de él aquí.
+La Constitución conserva autoridad: su Principio XX reconoce historias aprobadas;
+la disciplina SPEC clásica y sus exigencias aplicables no se derogan por esta guía.
