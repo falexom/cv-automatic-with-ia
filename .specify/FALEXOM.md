@@ -1,28 +1,37 @@
 # Integración operativa FALEXOM / Spec Kit
 
 Constitución única: `.specify/memory/constitution.md` (contenido y versión preservados).
-AGENTS.md define la política local; los comandos y plantillas siguen siendo Spec Kit.
+`AGENTS.md` es la referencia principal de gobernanza del proyecto; este documento es complementario y debe mantenerse coherente con ella. Los comandos y plantillas SPEC siguen siendo Spec Kit.
 
-## Uso recomendado en OpenCode
+## Flujo principal Plan/Build
 
-Desde este repositorio, iniciar `aom` o `falexom` y seleccionar
-`falexom-orchestrator` con `/agents`. Solicitar un objetivo autorizado y pedir
-que utilice el ciclo Spec Kit. Los comandos `/speckit.specify`, `clarify`, `plan`,
-`tasks` e `implement` contienen las instrucciones locales de coordinación.
-La selección de Orchestrator sigue siendo manual; no cambia el predeterminado.
-No iniciar otro SPEC si el objetivo es reanudar uno existente.
+Plan analiza el encargo y el proyecto en modo de solo lectura; propone historias
+pequeñas con criterios de aceptación y no modifica archivos. El usuario aprueba
+expresamente una historia. Entonces Build verifica que árbol e índice estén
+limpios y autorizados, crea una rama desde la base aprobada, registra únicamente
+el contrato aprobado en `specs/stories/` y realiza el commit documental inicial
+con solo ese Markdown, sujeto a los permisos efectivos y a la revisión exacta del
+diff staged. Antes de implementar y antes de cada fase o escritura de producto,
+Build ejecuta `check`; solo implementa cuando devuelve `MODE=story` y
+`BASE_READY=true`. Build limita el trabajo a la historia aprobada, ejecuta
+verificaciones proporcionales y requiere autorización para el commit de
+implementación/cierre después de la aceptación funcional y visual del usuario.
+La integración a `main` requiere autorización humana y controles Git vigentes.
 
-Para SPEC, Developer prepara/reanuda ramas y ejecuta scripts; también implementa
-código y realiza commits de implementación. Analyst redacta requisitos y, en el
-flujo incremental aprobado, prepara la rama y el commit documental inicial bajo
-AGENTS.md. Architect redacta el diseño; Project Manager, tareas; QA verifica
-independientemente.
-Orchestrator transmite las instrucciones del comando a cada especialista,
-revisa evidencia y conserva los gates humanos de especificación y plan.
+No se requiere seleccionar Orchestrator ni otro especialista para este flujo.
+Los especialistas FALEXOM siguen disponibles como apoyo opcional.
+
+Para los flujos SPEC que lo requieran se conservan Spec Kit y sus gates. Build
+conduce el flujo y puede ejecutar los pasos autorizados directamente. Los
+especialistas son apoyo opcional: Analyst puede apoyar requisitos, Architect el
+diseño, Project Manager las tareas, QA la revisión independiente, Orchestrator la
+coordinación y Developer la implementación. Build conserva el control de la
+secuencia, las aprobaciones y los commits descritos en AGENTS.md. Ninguna
+modalidad incremental elude controles SpecKit que sean aplicables.
 
 ## Ejecutor local (shell requiere aprobación selectiva)
 
-Desde la raíz del repositorio, durante un encargo nuevo autorizado:
+En un flujo SPEC nuevo autorizado, desde la raíz del repositorio, Build utiliza:
 
 ```sh
 python3 .specify/scripts/falexom-workflow.py prepare nombre-corto "objetivo autorizado"
@@ -44,34 +53,35 @@ generar estructura. main + feature.json histórico no es un contexto de escritur
 
 ## Staging y commits
 
-Developer realiza el staging y los commits de implementación mediante el ejecutor
-local y rutas explícitas revisadas:
+En una historia incremental aprobada, Build puede realizar el commit documental
+inicial únicamente con el Markdown aprobado, después de verificar árbol e índice
+limpios/autorizados, revisar que el diff staged contenga exactamente ese archivo
+y confirmar que no está en `main`. La aprobación expresa de la historia autoriza
+ese paso solo hasta donde lo permitan los permisos efectivos. En OpenCode, rama,
+`git add` y `git commit` dependen de la aprobación `ask` del perfil; en Codex,
+del permiso y sandbox de la sesión. Si se deniegan, detenerse sin cambiar de
+herramienta o permisos.
+
+El ejecutor `stage`/`commit` no realiza ese primer commit: su `check` exige que
+la historia aprobada ya conste en `HEAD`. Tras el commit documental, Build
+ejecuta `check` antes de implementar; los commits de implementación requieren
+aceptación funcional/visual del usuario y autorización correspondiente, y usan
+el ejecutor local con rutas explícitas revisadas:
 
 ```sh
 python3 .specify/scripts/falexom-workflow.py stage ruta/archivo.ext
 python3 .specify/scripts/falexom-workflow.py commit --message "Descripción del cambio" ruta/archivo.ext
 ```
 
-En una historia incremental, Analyst puede registrar únicamente el archivo
-aprobado de `specs/stories/` como commit documental inicial en su rama, después
-de la autorización humana específica y solo si el permiso efectivo lo permite.
-Revisa un índice vacío y un diff staged que contenga exactamente ese archivo;
-no incluye código ni realiza esta operación en `main`. En OpenCode, la creación
-de rama, `git add` de ese Markdown y `git commit` requieren aprobación `ask` del
-perfil; en Codex dependen del permiso y sandbox de la sesión. Si se deniegan,
-detente sin cambiar de herramienta o permisos.
-
-El ejecutor `stage`/`commit` no realiza ese primer commit: su `check` exige que
-la historia aprobada ya conste en `HEAD`. Tras el commit documental, Developer
-ejecuta `check` antes de implementar; los commits de implementación siguen usando
-el ejecutor local.
-
 No acepta directorios, rutas externas, symlinks/hardlinks, secretos, controles
 ni configuración de integración. Commit exige índice exactamente coincidente,
 sin modificaciones posteriores de esos archivos. Hooks personalizados requieren
-commit manual tras revisión: no se desactivan. No certifica contenido ni aceptación;
-revisar diff y ejecutar las validaciones reales antes del cierre. No hay operaciones
-merge/push/reset/clean. Merge a main requiere aprobación humana y ejecución manual.
+commit manual tras revisión: no se desactivan. No certifica contenido ni
+aceptación; antes de cada commit revisar exactamente el diff staged y ejecutar
+las validaciones reales antes del cierre. Merge a main requiere aprobación humana
+expresa y ejecución manual; push nunca
+automático. No ejecutar merge, push, rebase, reset ni operaciones destructivas
+sin autorización correspondiente.
 
 ## CLI de Spec Kit compatible
 
@@ -80,7 +90,9 @@ El paquete specify-cli 1.1.0 no se modifica. Su override soportado
 Usar `.specify/scripts/speckit-local --profile aom <argumentos de specify>`
 (o `--profile falexom`). No utilizar el workflow CLI global sin ese adaptador.
 
-El adaptador acepta los cinco comandos del ciclo. Convierte `run --command`
+El adaptador es una vía opcional para flujos SPEC, no un requisito del ciclo
+incremental Plan/Build. Acepta los cinco comandos del ciclo. Convierte
+`run --command`
 en el cuerpo canónico del Markdown local, sustituye `$ARGUMENTS` y lo envía por
 stdin al `opencode run --standalone --agent falexom-orchestrator` soportado.
 Conserva JSON/modelo solicitado y XDG del perfil; elimina variables de proveedor
@@ -118,11 +130,10 @@ SPEC-002 permanece cerrado; T063/T064 y SPEC-003 no cambian.
 
 ## Recuperación de ramas históricas y gate previo al desarrollo
 
-Antes de delegar código, Orchestrator exige AGENTS.md, Constitución y ejecutor;
-si faltan, solicita preparación humana sin desarrollar ni reconstruir integración.
-Para un SPEC existente, Developer ejecuta primero resume/check, como encargo
-separado de implementación. Para una historia incremental ya preparada por
-Analyst, ejecuta solo check: `resume` está limitado a ramas SPEC.
+Antes de implementar, Build exige AGENTS.md, Constitución y ejecutor; si faltan,
+solicita preparación humana sin desarrollar ni reconstruir integración. En un
+SPEC existente ejecuta primero `resume` y `check`; en una historia incremental
+aprobada, solo `check`, pues `resume` está limitado a ramas SPEC.
 check devuelve HEAD, MAIN y BASE_READY solo si main es antecesor de la rama y la
 integración requerida existe. Una base atrasada informa BASE_OUTDATED_FAST_FORWARD;
 una divergente, BASE_DIVERGED. Ambas bloquean antes de editar, staging o commit.
