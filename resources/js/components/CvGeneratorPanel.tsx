@@ -148,6 +148,7 @@ export default function CvGeneratorPanel({
                     {selected_profile_id !== null ? (
                         <CvEvidenceSelection
                             key={selected_profile_id}
+                            profileId={selected_profile_id}
                             evidences={evidences}
                         />
                     ) : null}

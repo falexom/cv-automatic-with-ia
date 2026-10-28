@@ -34,7 +34,10 @@ class HandleInertiaRequests extends Middleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        app(HttpGateway::class)->disable(fn (): bool => ! $request->is('cv/pdf'));
+        app(HttpGateway::class)->disable(
+            fn (): bool => ! $request->is('cv/pdf')
+                && ! $request->is('cv/documentado'),
+        );
 
         return parent::handle($request, $next);
     }

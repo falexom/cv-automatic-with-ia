@@ -1,7 +1,8 @@
 # US-003 — Generación y descarga del CV documentado
 
-**Estado:** APROBADA_PARA_DESARROLLO
+**Estado:** IMPLEMENTADA — ACEPTADA
 **Aprobación humana:** Confirmada el 2026-10-27 (contrato funcional, siete criterios y decisiones de concatenación, orden y ausencia de selección).
+**Aceptación humana:** Confirmada el 27/10/2026 (funcional y visual; descarga real verificada).
 
 ## Historia de usuario
 

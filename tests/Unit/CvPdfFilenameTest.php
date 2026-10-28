@@ -27,6 +27,17 @@ it('falls back to cv.pdf when no alphanumeric base remains', function (?string $
     'dots' => '....',
 ]);
 
+it('builds a documented name with a safe fallback', function (?string $name, string $expected) {
+    expect(CvPdfFilename::documentedFromProfileName($name))->toBe($expected)
+        ->and(CvPdfFilename::documentedFromProfileName($name))->toBe($expected);
+})->with([
+    ['Analista', 'cv-analista-documentado.pdf'],
+    ['Programador / Desarrollador', 'cv-programador-desarrollador-documentado.pdf'],
+    [null, 'cv-documentado.pdf'],
+    ['   ', 'cv-documentado.pdf'],
+    ['🎯🚀', 'cv-documentado.pdf'],
+]);
+
 it('removes separators, quotes, dots and control characters', function () {
     $filename = CvPdfFilename::fromProfileName("Ana\x00lítica / \"QA\" .. \\");
 

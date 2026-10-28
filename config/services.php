@@ -40,4 +40,8 @@ return [
         'timeout' => (int) env('BROWSERSHOT_TIMEOUT', 30),
     ],
 
+    'qpdf' => [
+        'binary' => env('QPDF_BINARY', 'qpdf'),
+    ],
+
 ];

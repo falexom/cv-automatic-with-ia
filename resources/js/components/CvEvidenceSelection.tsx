@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import EmptyState from '@/components/EmptyState';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import type { CvEvidence } from '@/lib/cv-preview';
@@ -8,18 +9,21 @@ import { ASSOCIATION_TYPE_LABELS, formatDateTime } from '@/lib/documents';
 
 type CvEvidenceSelectionProps = {
     evidences: CvEvidence[];
+    profileId: number;
 };
 
 export default function CvEvidenceSelection({
     evidences,
+    profileId,
 }: CvEvidenceSelectionProps) {
     const [excludedIds, setExcludedIds] = useState<Set<number>>(
         () => new Set(),
     );
 
-    const selectedCount = evidences.filter(
-        (evidence) => !excludedIds.has(evidence.id),
-    ).length;
+    const selectedIds = evidences
+        .filter((evidence) => !excludedIds.has(evidence.id))
+        .map((evidence) => evidence.id);
+    const selectedCount = selectedIds.length;
 
     const toggle = (id: number, checked: boolean) => {
         setExcludedIds((current) => {
@@ -50,7 +54,7 @@ export default function CvEvidenceSelection({
                     </h2>
                     <p className="mt-1 text-sm text-muted-foreground">
                         Documentos asociados a los registros incluidos en el
-                        perfil. Marcá los que quieras incluir en el futuro CV
+                        perfil. Marcá los que quieras incluir en el CV
                         documentado; la selección es temporal y no se guarda.
                     </p>
                 </div>
@@ -147,6 +151,36 @@ export default function CvEvidenceSelection({
                     })}
                 </ul>
             )}
+
+            {evidences.length > 0 ? (
+                <form
+                    method="get"
+                    action="/cv/documentado"
+                    className="mt-4 flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                    <input type="hidden" name="profile" value={profileId} />
+                    {selectedIds.map((id) => (
+                        <input
+                            key={id}
+                            type="hidden"
+                            name="documents[]"
+                            value={id}
+                        />
+                    ))}
+                    <p className="text-sm text-muted-foreground">
+                        {selectedCount === 0
+                            ? 'Seleccioná al menos una evidencia para generar el CV documentado.'
+                            : 'El CV se incluirá primero y luego las evidencias marcadas.'}
+                    </p>
+                    <Button
+                        type="submit"
+                        disabled={selectedCount === 0}
+                        className="w-full sm:w-auto"
+                    >
+                        Descargar CV documentado
+                    </Button>
+                </form>
+            ) : null}
         </section>
     );
 }

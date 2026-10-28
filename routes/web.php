@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CertificationController;
+use App\Http\Controllers\CvDocumentedPdfController;
 use App\Http\Controllers\CvGeneratorController;
 use App\Http\Controllers\CvPdfController;
 use App\Http\Controllers\CvProfileController;
@@ -47,3 +48,4 @@ Route::post('/profiles/{cvProfile}/deactivate', [CvProfileController::class, 'de
 
 Route::get('/cv', [CvGeneratorController::class, 'index'])->name('cv.index');
 Route::get('/cv/pdf', CvPdfController::class)->name('cv.pdf');
+Route::get('/cv/documentado', CvDocumentedPdfController::class)->name('cv.documented');

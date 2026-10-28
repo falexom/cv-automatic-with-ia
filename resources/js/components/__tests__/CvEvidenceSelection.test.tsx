@@ -90,7 +90,7 @@ const evidences: CvEvidence[] = [
 
 describe('CvEvidenceSelection', () => {
     it('preselects every eligible evidence with its associations, availability and verification date', () => {
-        render(<CvEvidenceSelection evidences={evidences} />);
+        render(<CvEvidenceSelection profileId={1} evidences={evidences} />);
 
         expect(
             screen.getByRole('heading', { name: 'Evidencias del CV' }),
@@ -121,7 +121,7 @@ describe('CvEvidenceSelection', () => {
     });
 
     it('updates the selection count immediately when an evidence is excluded or included', () => {
-        render(<CvEvidenceSelection evidences={evidences} />);
+        render(<CvEvidenceSelection profileId={1} evidences={evidences} />);
 
         const checkbox = screen.getByRole('checkbox', {
             name: 'certificado.pdf',
@@ -138,8 +138,76 @@ describe('CvEvidenceSelection', () => {
         expect(screen.getByText('Seleccionadas: 2 de 2')).toBeInTheDocument();
     });
 
+    it('submits the profile and selected document ids through a GET form', () => {
+        render(<CvEvidenceSelection profileId={7} evidences={evidences} />);
+
+        const button = screen.getByRole('button', {
+            name: 'Descargar CV documentado',
+        });
+        const form = button.closest('form');
+
+        expect(form).not.toBeNull();
+        expect(form).toHaveAttribute('method', 'get');
+        expect(form).toHaveAttribute('action', '/cv/documentado');
+        expect(button).not.toBeDisabled();
+
+        const profile = form?.querySelector<HTMLInputElement>(
+            'input[name="profile"]',
+        );
+        const documents = Array.from(
+            form?.querySelectorAll<HTMLInputElement>(
+                'input[name="documents[]"]',
+            ) ?? [],
+        ).map((input) => input.value);
+
+        expect(profile?.value).toBe('7');
+        expect(documents).toEqual(['10', '11']);
+    });
+
+    it('disables the documented download when no evidence is selected', () => {
+        render(<CvEvidenceSelection profileId={1} evidences={evidences} />);
+
+        const button = screen.getByRole('button', {
+            name: 'Descargar CV documentado',
+        });
+
+        fireEvent.click(
+            screen.getByRole('checkbox', { name: 'Curso de Laravel' }),
+        );
+        fireEvent.click(
+            screen.getByRole('checkbox', { name: 'certificado.pdf' }),
+        );
+
+        expect(button).toBeDisabled();
+        expect(
+            screen.getByText(
+                'Seleccioná al menos una evidencia para generar el CV documentado.',
+            ),
+        ).toBeInTheDocument();
+
+        const form = button.closest('form');
+        const documents = Array.from(
+            form?.querySelectorAll<HTMLInputElement>(
+                'input[name="documents[]"]',
+            ) ?? [],
+        );
+
+        expect(documents).toHaveLength(0);
+
+        fireEvent.click(
+            screen.getByRole('checkbox', { name: 'Curso de Laravel' }),
+        );
+
+        expect(button).not.toBeDisabled();
+        expect(
+            form?.querySelectorAll<HTMLInputElement>(
+                'input[name="documents[]"]',
+            ),
+        ).toHaveLength(1);
+    });
+
     it('shows an empty state when there are no eligible documents', () => {
-        render(<CvEvidenceSelection evidences={[]} />);
+        render(<CvEvidenceSelection profileId={1} evidences={[]} />);
 
         expect(screen.getByTestId('empty-state')).toBeInTheDocument();
         expect(
@@ -151,6 +219,9 @@ describe('CvEvidenceSelection', () => {
             ),
         ).toBeInTheDocument();
         expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+        expect(
+            screen.queryByRole('button', { name: 'Descargar CV documentado' }),
+        ).not.toBeInTheDocument();
     });
 
     it('resets the selection when the profile changes', () => {
@@ -204,6 +275,15 @@ describe('CvEvidenceSelection', () => {
             screen.getByRole('checkbox', { name: 'Evidencia B' }),
         ).toBeChecked();
         expect(screen.getByText('Seleccionadas: 1 de 1')).toBeInTheDocument();
+
+        const form = screen
+            .getByRole('button', { name: 'Descargar CV documentado' })
+            .closest('form');
+
+        expect(
+            form?.querySelector<HTMLInputElement>('input[name="profile"]')
+                ?.value,
+        ).toBe('2');
     });
 
     it('only offers the evidence selection in the ready state with a selected profile', () => {
