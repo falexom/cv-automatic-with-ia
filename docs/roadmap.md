@@ -208,6 +208,8 @@ El usuario puede generar y descargar un PDF normal del CV correspondiente al per
 
 # SPEC-006 — CV Documentado
 
+**Estado:** COMPLETADA (2026-10-27) — ejecutada mediante historias incrementales aprobadas US-002 y US-003; integrada en main `b0b0578`; sin `spec.md` formal.
+
 ## Objetivo
 
 Generar una versión documentada del currículum que contenga primero el CV y, a continuación, los PDFs originales de las evidencias seleccionadas.
@@ -259,6 +261,23 @@ más reciente → más antiguo.
 ## Resultado esperado
 
 El usuario obtiene un único PDF compuesto por el CV seguido de los certificados y demás evidencias originales seleccionadas.
+
+## Cierre (2026-10-27)
+
+SPEC-006 se ejecutó mediante historias incrementales aprobadas, sin `spec.md` formal:
+
+- [US-002 — Selección de evidencias del perfil activo](../specs/stories/US-002-seleccion-evidencias-cv.md)
+- [US-003 — Generación y descarga del CV documentado](../specs/stories/US-003-cv-documentado.md)
+
+Alcance entregado:
+
+- Selección y preselección de evidencias del perfil activo.
+- Descarga de un único PDF con el CV normal seguido de las evidencias seleccionadas.
+- Concatenación de los PDFs originales mediante qpdf, con el orden aprobado: educación → certificaciones (incluidos diplomados y cursos) → experiencia; dentro de cada grupo, fecha descendente, nombre ascendente e ID.
+- Validación de elegibilidad, integridad SHA-256, protección, estructura y cantidad de páginas.
+- Conservación de los PDFs originales y de la selección temporal, sin persistir el archivo final ni historial.
+
+Aceptación funcional y visual: 27/10/2026. Integración en `main`: `b0b0578`.
 
 ---
 
@@ -388,7 +407,7 @@ No debe iniciarse la implementación del siguiente Spec hasta que el anterior se
 | SPEC-003 | Perfiles de CV | Cerrado formalmente (2026-10-22; actualizado 2026-10-23) — implementación terminada; aceptación manual del responsable; T050 parcial documentado; T048 PASS; rama 003-perfiles-cv; main 4801c72; sin push |
 | SPEC-004 | Generador de CV | Implementación y aceptación funcional/visual completadas; integración en main pendiente; commit local f86d17a; merge bloqueado por el harness; sin push |
 | SPEC-005 | Exportación PDF | Cerrado formalmente (2026-10-26) — aceptación funcional/visual del MVP por el responsable; T019 cerrada por aceptación humana con cobertura manual parcial documentada; 5 legacy eliminados; integrado en main mediante merge --no-ff; sin push |
-| SPEC-006 | CV Documentado                          | Pendiente                                                                                                                                                                                                       |
+| SPEC-006 | CV Documentado                          | COMPLETADA (2026-10-27) — US-002 y US-003 aceptadas e integradas en main `b0b0578`; sin `spec.md` formal                                                                                                      |
 | SPEC-007 | Importación Inteligente de Certificados | Pendiente                                                                                                                                                                                                       |
 
 ---
