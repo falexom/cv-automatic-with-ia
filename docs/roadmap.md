@@ -1,15 +1,18 @@
 # Roadmap — CV Automático
 
-**Proyecto:** CV Automático  
-**Estado:** Activo  
-**Documento:** Roadmap funcional de Specs posteriores al SPEC-001  
+**Proyecto:** CV Automático
+
+**Estado:** SPEC-001 a SPEC-006 completadas e integradas en `main`; cierre formal de v1.0 pendiente de alineación constitucional
+
+**Documento:** Estado del alcance funcional de CV Automático v1.0
+
 **Metodología:** Spec-Driven Development con SpecKit
 
 ---
 
 ## Propósito
 
-Este documento registra los Specs propuestos pendientes del proyecto CV Automático, su objetivo, alcance preliminar, exclusiones y dependencias.
+Este documento registra el estado del alcance funcional de CV Automático v1.0 y las decisiones sobre capacidades posteriores.
 
 Este roadmap no sustituye a los archivos formales `spec.md` que serán creados posteriormente mediante `/speckit.specify`.
 
@@ -119,7 +122,7 @@ El usuario puede mantener al menos dos perfiles distintos —Analista y Programa
 
 # SPEC-004 — Generador de CV
 
-**Estado:** Implementación y aceptación funcional/visual del MVP completadas; integración en main pendiente. Commit local f86d17a; merge --no-ff autorizado pero bloqueado por el harness; main permanece en 63ab15b; sin push.
+**Estado:** COMPLETADA e integrada en `main` mediante `df45be1`; aceptación funcional y visual registrada. Los escenarios manuales 1–13 de T025 no se ejecutaron individualmente y están documentados en su evidencia; no queda integración pendiente.
 
 ## Objetivo
 
@@ -283,77 +286,18 @@ Aceptación funcional y visual: 27/10/2026. Integración en `main`: `b0b0578`.
 
 # SPEC-007 — Importación Inteligente de Certificados
 
-## Objetivo
-
-Automatizar el registro de cursos y certificaciones a partir de PDFs cargados por el usuario, reduciendo la entrada manual de información.
-
-## Alcance preliminar
-
-- Subir un certificado PDF.
-- Detectar si el PDF contiene texto nativo.
-- Extraer texto directamente cuando sea posible.
-- Usar OCR únicamente cuando el documento sea una imagen o el texto nativo sea insuficiente.
-- Interpretar la información extraída.
-- Detectar, cuando sea posible:
-    - Nombre del curso.
-    - Institución.
-    - Fecha.
-    - Duración.
-    - Código de certificado.
-    - URL de validación.
-    - Nombre del participante.
-    - Categoría sugerida.
-- Proponer habilidades o tecnologías relacionadas cuando sea viable.
-- Presentar una pantalla de revisión antes de guardar.
-- Permitir:
-    - Confirmar.
-    - Corregir.
-    - Cancelar.
-- Registrar la certificación solo después de confirmación humana.
-- Asociar automáticamente el PDF original como evidencia.
-- Evitar duplicados cuando sea posible.
-- Registrar errores de procesamiento sin perder el archivo original.
-
-## Flujo esperado
-
-PDF  
-→ detección de texto nativo  
-→ extracción directa u OCR  
-→ interpretación estructurada  
-→ revisión humana  
-→ confirmación  
-→ registro de certificación  
-→ asociación del documento original
-
-## Fuera de alcance
-
-- Guardado silencioso sin confirmación.
-- Edición del PDF original.
-- Clasificación definitiva de relevancia por perfil mediante IA.
-- Generación automática completa de CV.
-- Postulación automática.
-- Procesamiento masivo de carpetas, salvo que se apruebe posteriormente.
-- Entrenamiento de modelos propios.
-
-## Dependencias
-
-- SPEC-001 — Perfil Profesional Maestro.
-- SPEC-002 — Documentos y Evidencias.
-
-## Resultado esperado
-
-El usuario sube un certificado PDF, revisa los datos detectados y confirma el registro sin tener que escribir manualmente toda la información.
+**Estado: CANCELADA (2026-10-29).** Por decisión del responsable, se retira definitivamente del alcance de CV Automático v1.0 y no se implementará. No quedan historias ni funcionalidades pendientes; el backlog H1–H5 queda descartado.
 
 ---
 
-# Orden Propuesto de Implementación
+# Orden Propuesto de Implementación (referencia histórica)
 
 1. SPEC-002 — Documentos y Evidencias.
 2. SPEC-003 — Perfiles de CV.
 3. SPEC-004 — Generador de CV.
 4. SPEC-005 — Exportación PDF.
 5. SPEC-006 — CV Documentado.
-6. SPEC-007 — Importación Inteligente de Certificados.
+6. SPEC-007 — Importación Inteligente de Certificados (cancelada; fuera de v1.0).
 
 ---
 
@@ -365,8 +309,7 @@ SPEC-001 — Perfil Profesional Maestro
 │ └── SPEC-004 — Generador de CV  
 │ └── SPEC-005 — Exportación PDF  
 │ └── SPEC-006 — CV Documentado  
-└── SPEC-007 — Importación Inteligente  
-└── depende también de SPEC-002
+└── SPEC-007 — Importación Inteligente (cancelada; sin dependencia activa)
 
 ---
 
@@ -398,17 +341,27 @@ No debe iniciarse la implementación del siguiente Spec hasta que el anterior se
 
 ---
 
+# Estado del alcance v1.0
+
+SPEC-001 a SPEC-006 están completadas e integradas en `main`, según el historial y los artefactos verificados. SPEC-007 está cancelada y retirada del alcance. No se declara cerrado formalmente CV Automático v1.0: la Constitución vigente todavía incluye la extracción automática de información de certificados en el MVP (Principio IV), exige revisión humana de esos datos (Principios VIII y IX) y la incorpora al criterio de éxito del MVP (sección IX). La cancelación de SPEC-007 entra en conflicto con esas reglas. Resolverlo requiere una decisión y alineación constitucional explícitas; esta actualización no modifica la Constitución.
+
+## Posibles evoluciones posteriores
+
+Las mejoras visuales del CV y la adaptación inteligente del CV a ofertas laborales quedan como ideas para evaluar en una versión posterior. No se inicia ni propone una nueva SPEC.
+
+---
+
 # Estado del Roadmap
 
-| Spec     | Capacidad                               | Estado                                                                                                                                                                                                          |
-| -------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SPEC-001 | Perfil Profesional Maestro              | Cerrado formalmente (2026-10-22) — validación manual del responsable aprobada; T063/T064 completadas; SC-001 retirado por decisión del responsable; pendiente de integración en main (commits 63bb79c, a04954d) |
-| SPEC-002 | Documentos y Evidencias                 | Cerrado formalmente (2026-10-21) — validación manual 2026-10-15; pruebas 2026-10-21; main 1f154bc; sin tag                                                                                                      |
-| SPEC-003 | Perfiles de CV | Cerrado formalmente (2026-10-22; actualizado 2026-10-23) — implementación terminada; aceptación manual del responsable; T050 parcial documentado; T048 PASS; rama 003-perfiles-cv; main 4801c72; sin push |
-| SPEC-004 | Generador de CV | Implementación y aceptación funcional/visual completadas; integración en main pendiente; commit local f86d17a; merge bloqueado por el harness; sin push |
-| SPEC-005 | Exportación PDF | Cerrado formalmente (2026-10-26) — aceptación funcional/visual del MVP por el responsable; T019 cerrada por aceptación humana con cobertura manual parcial documentada; 5 legacy eliminados; integrado en main mediante merge --no-ff; sin push |
-| SPEC-006 | CV Documentado                          | COMPLETADA (2026-10-27) — US-002 y US-003 aceptadas e integradas en main `b0b0578`; sin `spec.md` formal                                                                                                      |
-| SPEC-007 | Importación Inteligente de Certificados | Pendiente                                                                                                                                                                                                       |
+| Spec | Capacidad | Estado verificado en `main` |
+|---|---|---|
+| SPEC-001 | Perfil Profesional Maestro | COMPLETADA e integrada (`323eeb1`); aceptación manual y cierre registrados (`bffb1e2`). T063/T064 completadas; SC-001 retirado por decisión del responsable. |
+| SPEC-002 | Documentos y Evidencias | COMPLETADA e integrada (`1f154bc`); validación manual y pruebas automatizadas registradas. |
+| SPEC-003 | Perfiles de CV | COMPLETADA e integrada; implementación presente (`2c0658f`) y cierre registrado (`63ab15b`). T050 conserva cobertura manual parcial documentada; aceptación del responsable registrada. |
+| SPEC-004 | Generador de CV | COMPLETADA e integrada (`df45be1`); aceptación funcional y visual registrada. T025 conserva escenarios manuales no ejecutados individualmente, documentados en su evidencia. |
+| SPEC-005 | Exportación PDF | COMPLETADA e integrada (`d4e8a1b`); aceptación funcional y visual registrada, con cobertura manual parcial documentada para T019. |
+| SPEC-006 | CV Documentado | COMPLETADA e integrada mediante US-002 y US-003 (`b0b0578`); cierre registrado (`006d3ed`). |
+| SPEC-007 | Importación Inteligente de Certificados | CANCELADA; fuera del alcance de v1.0, sin trabajo pendiente. |
 
 ---
 
