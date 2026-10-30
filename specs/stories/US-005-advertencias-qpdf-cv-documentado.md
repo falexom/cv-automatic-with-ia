@@ -2,11 +2,13 @@
 
 **Tipo:** FIX
 
-**Estado:** APROBADA_PARA_DESARROLLO
+**Estado:** IMPLEMENTADA — ACEPTADA
 
 **Aprobación humana:** Confirmada por el responsable el 30/10/2026; seis criterios de aceptación aprobados sin modificaciones de alcance.
 
-**Implementación:** No iniciada.
+**Aceptación humana:** Confirmada el 30/10/2026 (funcional y visual; exportación del CV documentado con el certificado de Telefónica validada).
+
+**Implementación:** Completada.
 
 ## Historia de usuario
 
