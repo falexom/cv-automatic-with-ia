@@ -2,9 +2,9 @@
 
 **Tipo:** FIX
 
-**Estado:** PENDIENTE_DE_APROBACIÓN
+**Estado:** APROBADA_PARA_DESARROLLO
 
-**Aprobación humana:** Pendiente de aprobación del responsable.
+**Aprobación humana:** Confirmada por el responsable el 30/10/2026; seis criterios de aceptación aprobados sin modificaciones de alcance.
 
 **Implementación:** No iniciada.
 
