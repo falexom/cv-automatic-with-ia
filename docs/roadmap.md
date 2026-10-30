@@ -213,6 +213,8 @@ El usuario puede generar y descargar un PDF normal del CV correspondiente al per
 
 **Estado:** COMPLETADA (2026-10-27) — ejecutada mediante historias incrementales aprobadas US-002 y US-003; integrada en main `b0b0578`; sin `spec.md` formal.
 
+**Defecto conocido (no validado):** el CV documentado con el certificado de Telefónica falla porque qpdf devuelve código 3 por advertencias de estructura al concatenar. El diagnóstico confirmó que es independiente de US-004; requiere un fix separado y no se corrige en esta historia.
+
 ## Objetivo
 
 Generar una versión documentada del currículum que contenga primero el CV y, a continuación, los PDFs originales de las evidencias seleccionadas.
@@ -344,6 +346,12 @@ No debe iniciarse la implementación del siguiente Spec hasta que el anterior se
 # Estado del alcance v1.0
 
 SPEC-001 a SPEC-006 están completadas e integradas en `main`, según el historial y los artefactos verificados. SPEC-007 está cancelada y retirada del alcance. No se declara cerrado formalmente CV Automático v1.0: la Constitución vigente todavía incluye la extracción automática de información de certificados en el MVP (Principio IV), exige revisión humana de esos datos (Principios VIII y IX) y la incorpora al criterio de éxito del MVP (sección IX). La cancelación de SPEC-007 entra en conflicto con esas reglas. Resolverlo requiere una decisión y alineación constitucional explícitas; esta actualización no modifica la Constitución.
+
+### Historia incremental US-004 — Fotografía profesional en el CV
+
+**Estado:** ACEPTADA (30/10/2026); integrada en `main` mediante `6cfc620`.
+
+Añade una fotografía única al Perfil Maestro con encuadre 1:1, almacenamiento local privado e inclusión automática en la vista previa, el PDF normal y el CV documentado. La aceptación funcional y visual fue confirmada por el responsable. El escenario de CV documentado con el certificado de Telefónica no se declara validado; ver el defecto conocido en SPEC-006.
 
 ## Posibles evoluciones posteriores
 
