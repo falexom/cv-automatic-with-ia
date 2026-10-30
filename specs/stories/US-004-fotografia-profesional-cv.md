@@ -1,10 +1,14 @@
 # US-004 — Fotografía profesional en el CV
 
-**Estado:** PENDIENTE_ACEPTACION
+**Estado:** IMPLEMENTADA — ACEPTADA
 
 **Aprobación humana:** Confirmada por el responsable en esta conversación; decisiones definitivas ratificadas el 2026-10-30.
 
-**Implementación:** Completada; pendiente de aceptación funcional y visual.
+**Aceptación humana:** Confirmada el 30/10/2026 (funcional y visual; fotografía validada).
+
+**Implementación:** Completada.
+
+**Alcance de la aceptación:** la aceptación cubre la fotografía profesional de US-004. No incluye el escenario de CV documentado con el certificado de Telefónica, afectado por un defecto preexistente e independiente de SPEC-006/US-003; ese escenario no se declara validado y requiere un fix separado.
 
 ## Historia de usuario
 
