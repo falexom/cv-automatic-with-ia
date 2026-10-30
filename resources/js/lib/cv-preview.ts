@@ -87,7 +87,16 @@ export type CvPreviewSections = {
 
 export type CvPreviewLink = CvProfileLink;
 
-export type CvPreviewPersonalData = CvProfilePersonalData;
+export type CvPhotoData = {
+    data_uri: string;
+    focus_x: number;
+    focus_y: number;
+    zoom: number;
+};
+
+export type CvPreviewPersonalData = CvProfilePersonalData & {
+    photo: CvPhotoData | null;
+};
 
 export type CvPreviewSourceLinks = {
     profile: string;

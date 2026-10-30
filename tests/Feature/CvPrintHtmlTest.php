@@ -5,6 +5,9 @@ use App\Models\Profile;
 use App\Models\WorkExperience;
 use App\Support\CvPdfRenderer;
 use App\Support\CvPreviewContent;
+use App\Support\ProfilePhoto;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Ssr\HttpGateway;
 
 beforeAll(fn () => cvPdfStartSsr());
@@ -80,6 +83,45 @@ it('renders the real CvPreview as a self-contained print document', function () 
         ->not->toContain('<form')
         ->not->toContain('url(http')
         ->not->toContain('fonts.bunny.net');
+});
+
+it('embeds the current photo and crop in the self-contained print document', function () {
+    Storage::fake('local');
+
+    $master = Profile::current();
+    $stored = app(ProfilePhoto::class)->store(
+        UploadedFile::fake()->image('foto.jpg', 400, 300),
+    );
+
+    $master->update([
+        'full_name' => 'Ada Lovelace',
+        'photo_path' => $stored['path'],
+        'photo_mime' => $stored['mime'],
+        'photo_focus_x' => 40,
+        'photo_focus_y' => 60,
+        'photo_zoom' => 150,
+    ]);
+
+    $profile = CvProfile::factory()->create([
+        'professional_title' => 'Analista de Sistemas',
+        'summary' => 'Resumen propio.',
+    ]);
+
+    $preview = app(CvPreviewContent::class)->build($profile);
+    $html = app(CvPdfRenderer::class)->html($preview);
+
+    expect($preview['personal_data']['photo'])
+        ->not->toBeNull()
+        ->and($html)
+        ->toContain('<img')
+        ->toContain('alt="Fotografía profesional"')
+        ->toContain('data:image/jpeg;base64,')
+        ->toContain('h-[30mm]')
+        ->toContain('w-[30mm]')
+        ->toContain('object-position:40% 60%')
+        ->toContain('transform:scale(1.5)')
+        ->toContain('transform-origin:40% 60%')
+        ->not->toContain('profile-photos/');
 });
 
 it('fails in a controlled way when Inertia SSR is not available', function () {

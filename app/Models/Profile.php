@@ -15,6 +15,25 @@ class Profile extends Model
     protected $guarded = [];
 
     /**
+     * Internal photo paths never leave the server.
+     *
+     * @var list<string>
+     */
+    protected $hidden = ['photo_path', 'photo_mime'];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'photo_focus_x' => 'integer',
+            'photo_focus_y' => 'integer',
+            'photo_zoom' => 'integer',
+        ];
+    }
+
+    /**
      * The single master profile (FR-001). Created on first access.
      */
     public static function current(): self

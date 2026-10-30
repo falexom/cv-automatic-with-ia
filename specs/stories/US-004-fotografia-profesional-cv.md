@@ -1,10 +1,10 @@
 # US-004 — Fotografía profesional en el CV
 
-**Estado:** APROBADA_PARA_DESARROLLO
+**Estado:** PENDIENTE_ACEPTACION
 
 **Aprobación humana:** Confirmada por el responsable en esta conversación; decisiones definitivas ratificadas el 2026-10-30.
 
-**Implementación:** Pendiente.
+**Implementación:** Completada; pendiente de aceptación funcional y visual.
 
 ## Historia de usuario
 

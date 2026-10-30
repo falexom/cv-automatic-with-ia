@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateProfileRequest;
 use App\Models\Profile;
+use App\Support\ProfilePhoto;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -26,6 +27,7 @@ class ProfileController extends Controller
                 'github_url' => $profile->github_url,
                 'website_url' => $profile->website_url,
                 'summary' => $profile->summary,
+                'photo' => ProfilePhoto::payload($profile),
             ],
             'links' => $profile->links()
                 ->orderBy('id')

@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Models\Certification;
 use App\Models\CvProfile;
 use App\Models\EducationEntry;
+use App\Models\Profile;
 use App\Models\Project;
 use App\Models\Skill;
 use App\Models\WorkExperience;
@@ -27,6 +28,7 @@ class CvPreviewContent
         ]);
 
         $personalData = CvProfileContent::personalData();
+        $personalData['photo'] = ProfilePhoto::payload(Profile::current());
 
         $content = [
             'work_experiences' => $profile->workExperiences

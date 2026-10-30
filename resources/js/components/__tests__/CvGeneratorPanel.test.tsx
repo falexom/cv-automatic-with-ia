@@ -32,6 +32,7 @@ const preview: CvPreviewData = {
         website_url: null,
         links: [],
         has_data: true,
+        photo: null,
     },
     professional_title: 'Analista de Sistemas',
     summary: null,

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import CvPhotoFrame from '@/components/CvPhotoFrame';
 import {
     formatRange,
     formatYearMonth,
@@ -112,37 +113,48 @@ export default function CvPreview({ preview }: CvPreviewProps) {
     const fullName = personalData.full_name?.trim()
         ? personalData.full_name
         : null;
+    const photo = personalData.photo ?? null;
 
     return (
         <article
             aria-labelledby="cv-preview-title"
             className="mx-auto w-full max-w-3xl rounded-xl border bg-background p-6 shadow-sm sm:p-10"
         >
-            <header className="space-y-3 border-b pb-6">
-                <h2
-                    id="cv-preview-title"
+            <header className="border-b pb-6">
+                <div
                     className={
-                        fullName
-                            ? 'text-2xl font-semibold tracking-tight break-words'
-                            : 'sr-only'
+                        photo ? 'flex items-start gap-5' : 'min-w-0 space-y-3'
                     }
                 >
-                    {fullName ?? 'Currículum'}
-                </h2>
+                    {photo ? <CvPhotoFrame photo={photo} /> : null}
 
-                <ContactLinks personalData={personalData} />
+                    <div className="min-w-0 flex-1 space-y-3">
+                        <h2
+                            id="cv-preview-title"
+                            className={
+                                fullName
+                                    ? 'text-2xl font-semibold tracking-tight break-words'
+                                    : 'sr-only'
+                            }
+                        >
+                            {fullName ?? 'Currículum'}
+                        </h2>
 
-                {professional_title ? (
-                    <p className="text-lg font-medium break-words">
-                        {professional_title}
-                    </p>
-                ) : null}
+                        <ContactLinks personalData={personalData} />
 
-                {summary ? (
-                    <p className="text-sm break-words whitespace-pre-line text-muted-foreground">
-                        {summary}
-                    </p>
-                ) : null}
+                        {professional_title ? (
+                            <p className="text-lg font-medium break-words">
+                                {professional_title}
+                            </p>
+                        ) : null}
+
+                        {summary ? (
+                            <p className="text-sm break-words whitespace-pre-line text-muted-foreground">
+                                {summary}
+                            </p>
+                        ) : null}
+                    </div>
+                </div>
             </header>
 
             <div className="space-y-6">

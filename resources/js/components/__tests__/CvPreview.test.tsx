@@ -21,6 +21,7 @@ function makePreview(overrides: Partial<CvPreviewData> = {}): CvPreviewData {
                 },
             ],
             has_data: true,
+            photo: null,
         },
         professional_title: 'Analista de Sistemas',
         summary: 'Resumen propio con acentos: estadística.',
@@ -149,6 +150,49 @@ describe('CvPreview', () => {
         expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
         expect(
             screen.queryByText(/plantilla|exportar|imprimir|descargar|PDF/i),
+        ).not.toBeInTheDocument();
+    });
+
+    it('renders the saved photo in a 30 by 30 mm frame with the stored crop', () => {
+        const base = makePreview();
+
+        render(
+            <CvPreview
+                preview={makePreview({
+                    personal_data: {
+                        ...base.personal_data,
+                        photo: {
+                            data_uri: 'data:image/jpeg;base64,Zm90bw==',
+                            focus_x: 40,
+                            focus_y: 60,
+                            zoom: 150,
+                        },
+                    },
+                })}
+            />,
+        );
+
+        const image = screen.getByRole('img', {
+            name: 'Fotografía profesional',
+        });
+        const frame = screen.getByTestId('cv-photo-frame');
+
+        expect(frame).toContainElement(image);
+        expect(frame).toHaveClass('h-[30mm]', 'w-[30mm]');
+        expect(image).toHaveStyle({
+            objectPosition: '40% 60%',
+            transform: 'scale(1.5)',
+            transformOrigin: '40% 60%',
+        });
+        expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    });
+
+    it('does not reserve photo space when the master profile has no photo', () => {
+        render(<CvPreview preview={makePreview()} />);
+
+        expect(screen.queryByTestId('cv-photo-frame')).not.toBeInTheDocument();
+        expect(
+            screen.queryByRole('img', { name: 'Fotografía profesional' }),
         ).not.toBeInTheDocument();
     });
 

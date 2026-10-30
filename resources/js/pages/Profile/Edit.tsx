@@ -1,10 +1,12 @@
 import { Head, useForm } from '@inertiajs/react';
 import { Plus, Trash2 } from 'lucide-react';
+import ProfilePhotoManager from '@/components/ProfilePhotoManager';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout';
+import type { CvPhotoData } from '@/lib/cv-preview';
 
 type ProfileProp = {
     id: number;
@@ -17,6 +19,7 @@ type ProfileProp = {
     github_url: string | null;
     website_url: string | null;
     summary: string | null;
+    photo: CvPhotoData | null;
 };
 
 type ProfileLinkProp = {
@@ -98,254 +101,274 @@ export default function Edit({
     return (
         <AppLayout title="Perfil Profesional">
             <Head title="Perfil" />
-            <form onSubmit={submit} className="space-y-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Datos personales</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid gap-4 sm:grid-cols-2">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="full_name">Nombre completo *</Label>
-                            <Input
-                                id="full_name"
-                                value={data.full_name}
-                                onChange={(event) =>
-                                    setData('full_name', event.target.value)
-                                }
-                                aria-invalid={Boolean(errors.full_name)}
-                            />
-                            {errors.full_name ? (
-                                <p className="text-sm text-destructive">
-                                    {errors.full_name}
-                                </p>
-                            ) : null}
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="professional_title">
-                                Título profesional
-                            </Label>
-                            <Input
-                                id="professional_title"
-                                value={data.professional_title}
-                                onChange={(event) =>
-                                    setData(
-                                        'professional_title',
-                                        event.target.value,
-                                    )
-                                }
-                            />
-                            {errors.professional_title ? (
-                                <p className="text-sm text-destructive">
-                                    {errors.professional_title}
-                                </p>
-                            ) : null}
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="phone">Teléfono</Label>
-                            <Input
-                                id="phone"
-                                value={data.phone}
-                                onChange={(event) =>
-                                    setData('phone', event.target.value)
-                                }
-                            />
-                            {errors.phone ? (
-                                <p className="text-sm text-destructive">
-                                    {errors.phone}
-                                </p>
-                            ) : null}
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="email">Correo electrónico</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                value={data.email}
-                                onChange={(event) =>
-                                    setData('email', event.target.value)
-                                }
-                                aria-invalid={Boolean(errors.email)}
-                            />
-                            {errors.email ? (
-                                <p className="text-sm text-destructive">
-                                    {errors.email}
-                                </p>
-                            ) : null}
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="location">Ubicación</Label>
-                            <Input
-                                id="location"
-                                value={data.location}
-                                onChange={(event) =>
-                                    setData('location', event.target.value)
-                                }
-                            />
-                            {errors.location ? (
-                                <p className="text-sm text-destructive">
-                                    {errors.location}
-                                </p>
-                            ) : null}
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="linkedin_url">LinkedIn</Label>
-                            <Input
-                                id="linkedin_url"
-                                value={data.linkedin_url}
-                                onChange={(event) =>
-                                    setData('linkedin_url', event.target.value)
-                                }
-                                aria-invalid={Boolean(errors.linkedin_url)}
-                            />
-                            {errors.linkedin_url ? (
-                                <p className="text-sm text-destructive">
-                                    {errors.linkedin_url}
-                                </p>
-                            ) : null}
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="github_url">GitHub</Label>
-                            <Input
-                                id="github_url"
-                                value={data.github_url}
-                                onChange={(event) =>
-                                    setData('github_url', event.target.value)
-                                }
-                                aria-invalid={Boolean(errors.github_url)}
-                            />
-                            {errors.github_url ? (
-                                <p className="text-sm text-destructive">
-                                    {errors.github_url}
-                                </p>
-                            ) : null}
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="website_url">Sitio web</Label>
-                            <Input
-                                id="website_url"
-                                value={data.website_url}
-                                onChange={(event) =>
-                                    setData('website_url', event.target.value)
-                                }
-                                aria-invalid={Boolean(errors.website_url)}
-                            />
-                            {errors.website_url ? (
-                                <p className="text-sm text-destructive">
-                                    {errors.website_url}
-                                </p>
-                            ) : null}
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Resumen profesional</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <textarea
-                            id="summary"
-                            className={textareaClassName}
-                            value={data.summary}
-                            onChange={(event) =>
-                                setData('summary', event.target.value)
-                            }
-                            placeholder="Texto base reutilizable para tus currículums."
-                        />
-                        {errors.summary ? (
-                            <p className="mt-1 text-sm text-destructive">
-                                {errors.summary}
-                            </p>
-                        ) : null}
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Enlaces adicionales</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                        {data.links.length === 0 ? (
-                            <p className="text-sm text-muted-foreground">
-                                Sin enlaces adicionales. Podés agregar tu
-                                portafolio, blog u otros perfiles.
-                            </p>
-                        ) : null}
-                        {data.links.map((link, index) => (
-                            <div
-                                key={index}
-                                className="flex flex-col gap-2 sm:flex-row sm:items-start"
-                            >
-                                <div className="flex-1 space-y-1.5">
-                                    <Input
-                                        aria-label={`Etiqueta del enlace ${index + 1}`}
-                                        placeholder="Etiqueta (p. ej., Portafolio)"
-                                        value={link.label}
-                                        onChange={(event) =>
-                                            updateLink(
-                                                index,
-                                                'label',
-                                                event.target.value,
-                                            )
-                                        }
-                                    />
-                                    {fieldErrors[`links.${index}.label`] ? (
-                                        <p className="text-sm text-destructive">
-                                            {
-                                                fieldErrors[
-                                                    `links.${index}.label`
-                                                ]
-                                            }
-                                        </p>
-                                    ) : null}
-                                </div>
-                                <div className="flex-[2] space-y-1.5">
-                                    <Input
-                                        aria-label={`Dirección del enlace ${index + 1}`}
-                                        placeholder="https://..."
-                                        value={link.url}
-                                        onChange={(event) =>
-                                            updateLink(
-                                                index,
-                                                'url',
-                                                event.target.value,
-                                            )
-                                        }
-                                    />
-                                    {fieldErrors[`links.${index}.url`] ? (
-                                        <p className="text-sm text-destructive">
-                                            {fieldErrors[`links.${index}.url`]}
-                                        </p>
-                                    ) : null}
-                                </div>
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    aria-label={`Quitar enlace ${index + 1}`}
-                                    onClick={() => removeLink(index)}
-                                >
-                                    <Trash2 />
-                                </Button>
+            <div className="space-y-6">
+                <ProfilePhotoManager photo={profile.photo} />
+                <form onSubmit={submit} className="space-y-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Datos personales</CardTitle>
+                        </CardHeader>
+                        <CardContent className="grid gap-4 sm:grid-cols-2">
+                            <div className="space-y-1.5">
+                                <Label htmlFor="full_name">
+                                    Nombre completo *
+                                </Label>
+                                <Input
+                                    id="full_name"
+                                    value={data.full_name}
+                                    onChange={(event) =>
+                                        setData('full_name', event.target.value)
+                                    }
+                                    aria-invalid={Boolean(errors.full_name)}
+                                />
+                                {errors.full_name ? (
+                                    <p className="text-sm text-destructive">
+                                        {errors.full_name}
+                                    </p>
+                                ) : null}
                             </div>
-                        ))}
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={addLink}
-                        >
-                            <Plus /> Agregar enlace
-                        </Button>
-                    </CardContent>
-                </Card>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="professional_title">
+                                    Título profesional
+                                </Label>
+                                <Input
+                                    id="professional_title"
+                                    value={data.professional_title}
+                                    onChange={(event) =>
+                                        setData(
+                                            'professional_title',
+                                            event.target.value,
+                                        )
+                                    }
+                                />
+                                {errors.professional_title ? (
+                                    <p className="text-sm text-destructive">
+                                        {errors.professional_title}
+                                    </p>
+                                ) : null}
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="phone">Teléfono</Label>
+                                <Input
+                                    id="phone"
+                                    value={data.phone}
+                                    onChange={(event) =>
+                                        setData('phone', event.target.value)
+                                    }
+                                />
+                                {errors.phone ? (
+                                    <p className="text-sm text-destructive">
+                                        {errors.phone}
+                                    </p>
+                                ) : null}
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="email">
+                                    Correo electrónico
+                                </Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    value={data.email}
+                                    onChange={(event) =>
+                                        setData('email', event.target.value)
+                                    }
+                                    aria-invalid={Boolean(errors.email)}
+                                />
+                                {errors.email ? (
+                                    <p className="text-sm text-destructive">
+                                        {errors.email}
+                                    </p>
+                                ) : null}
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="location">Ubicación</Label>
+                                <Input
+                                    id="location"
+                                    value={data.location}
+                                    onChange={(event) =>
+                                        setData('location', event.target.value)
+                                    }
+                                />
+                                {errors.location ? (
+                                    <p className="text-sm text-destructive">
+                                        {errors.location}
+                                    </p>
+                                ) : null}
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="linkedin_url">LinkedIn</Label>
+                                <Input
+                                    id="linkedin_url"
+                                    value={data.linkedin_url}
+                                    onChange={(event) =>
+                                        setData(
+                                            'linkedin_url',
+                                            event.target.value,
+                                        )
+                                    }
+                                    aria-invalid={Boolean(errors.linkedin_url)}
+                                />
+                                {errors.linkedin_url ? (
+                                    <p className="text-sm text-destructive">
+                                        {errors.linkedin_url}
+                                    </p>
+                                ) : null}
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="github_url">GitHub</Label>
+                                <Input
+                                    id="github_url"
+                                    value={data.github_url}
+                                    onChange={(event) =>
+                                        setData(
+                                            'github_url',
+                                            event.target.value,
+                                        )
+                                    }
+                                    aria-invalid={Boolean(errors.github_url)}
+                                />
+                                {errors.github_url ? (
+                                    <p className="text-sm text-destructive">
+                                        {errors.github_url}
+                                    </p>
+                                ) : null}
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="website_url">Sitio web</Label>
+                                <Input
+                                    id="website_url"
+                                    value={data.website_url}
+                                    onChange={(event) =>
+                                        setData(
+                                            'website_url',
+                                            event.target.value,
+                                        )
+                                    }
+                                    aria-invalid={Boolean(errors.website_url)}
+                                />
+                                {errors.website_url ? (
+                                    <p className="text-sm text-destructive">
+                                        {errors.website_url}
+                                    </p>
+                                ) : null}
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                <div className="flex justify-end">
-                    <Button type="submit" disabled={processing}>
-                        Guardar perfil
-                    </Button>
-                </div>
-            </form>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Resumen profesional</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <textarea
+                                id="summary"
+                                className={textareaClassName}
+                                value={data.summary}
+                                onChange={(event) =>
+                                    setData('summary', event.target.value)
+                                }
+                                placeholder="Texto base reutilizable para tus currículums."
+                            />
+                            {errors.summary ? (
+                                <p className="mt-1 text-sm text-destructive">
+                                    {errors.summary}
+                                </p>
+                            ) : null}
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Enlaces adicionales</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                            {data.links.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">
+                                    Sin enlaces adicionales. Podés agregar tu
+                                    portafolio, blog u otros perfiles.
+                                </p>
+                            ) : null}
+                            {data.links.map((link, index) => (
+                                <div
+                                    key={index}
+                                    className="flex flex-col gap-2 sm:flex-row sm:items-start"
+                                >
+                                    <div className="flex-1 space-y-1.5">
+                                        <Input
+                                            aria-label={`Etiqueta del enlace ${index + 1}`}
+                                            placeholder="Etiqueta (p. ej., Portafolio)"
+                                            value={link.label}
+                                            onChange={(event) =>
+                                                updateLink(
+                                                    index,
+                                                    'label',
+                                                    event.target.value,
+                                                )
+                                            }
+                                        />
+                                        {fieldErrors[`links.${index}.label`] ? (
+                                            <p className="text-sm text-destructive">
+                                                {
+                                                    fieldErrors[
+                                                        `links.${index}.label`
+                                                    ]
+                                                }
+                                            </p>
+                                        ) : null}
+                                    </div>
+                                    <div className="flex-[2] space-y-1.5">
+                                        <Input
+                                            aria-label={`Dirección del enlace ${index + 1}`}
+                                            placeholder="https://..."
+                                            value={link.url}
+                                            onChange={(event) =>
+                                                updateLink(
+                                                    index,
+                                                    'url',
+                                                    event.target.value,
+                                                )
+                                            }
+                                        />
+                                        {fieldErrors[`links.${index}.url`] ? (
+                                            <p className="text-sm text-destructive">
+                                                {
+                                                    fieldErrors[
+                                                        `links.${index}.url`
+                                                    ]
+                                                }
+                                            </p>
+                                        ) : null}
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        aria-label={`Quitar enlace ${index + 1}`}
+                                        onClick={() => removeLink(index)}
+                                    >
+                                        <Trash2 />
+                                    </Button>
+                                </div>
+                            ))}
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={addLink}
+                            >
+                                <Plus /> Agregar enlace
+                            </Button>
+                        </CardContent>
+                    </Card>
+
+                    <div className="flex justify-end">
+                        <Button type="submit" disabled={processing}>
+                            Guardar perfil
+                        </Button>
+                    </div>
+                </form>
+            </div>
         </AppLayout>
     );
 }
