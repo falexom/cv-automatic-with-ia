@@ -161,8 +161,6 @@ _persist_feature_json() {
 }
 
 get_feature_paths() {
-    # FALEXOM local guard: run before environment overrides can persist feature.json.
-    python3 "$(dirname "${BASH_SOURCE[0]}")/../falexom-workflow.py" check >/dev/null || return 1
     # Read-only callers (e.g. check-prerequisites.sh --paths-only) pass
     # --no-persist so pure path resolution never writes .specify/feature.json,
     # which would dirty the working tree or overwrite a pinned value (issue #3025).

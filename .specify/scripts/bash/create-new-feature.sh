@@ -424,8 +424,6 @@ FEATURE_DIR="$SPECS_DIR/$BRANCH_NAME"
 SPEC_FILE="$FEATURE_DIR/spec.md"
 
 if [ "$DRY_RUN" != true ]; then
-    # FALEXOM: branch creation is explicit in prepare; native generation cannot write on main.
-    python3 "$SCRIPT_DIR/../falexom-workflow.py" check-create "$BRANCH_NAME" >/dev/null
     if [ -d "$FEATURE_DIR" ] && [ "$ALLOW_EXISTING" != true ]; then
         if [ "$USE_TIMESTAMP" = true ]; then
             >&2 echo "Error: Feature directory '$FEATURE_DIR' already exists. Rerun to get a new timestamp or use a different --short-name."
