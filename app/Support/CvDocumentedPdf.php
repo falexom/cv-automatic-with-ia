@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Models\CvProfile;
 use App\Models\Document;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -13,6 +14,8 @@ use Throwable;
 
 class CvDocumentedPdf
 {
+    private const QPDF_WARNING_EXIT_CODE = 3;
+
     public function __construct(
         private readonly CvEvidenceSelection $evidenceSelection,
         private readonly CvEvidenceOrder $evidenceOrder,
@@ -109,8 +112,17 @@ class CvDocumentedPdf
             $arguments[] = $disk->path($output);
 
             $merge = $this->runQpdf($arguments);
+            $mergeExitCode = $merge->getExitCode();
 
-            if (! $merge->isSuccessful()) {
+            if ($mergeExitCode !== 0 && $mergeExitCode !== self::QPDF_WARNING_EXIT_CODE) {
+                throw new CvDocumentedPdfException(
+                    'No se pudo concatenar el CV con las evidencias seleccionadas. Volvé a intentar.',
+                    0,
+                    new RuntimeException($merge->getErrorOutput()),
+                );
+            }
+
+            if (! $disk->exists($output)) {
                 throw new CvDocumentedPdfException(
                     'No se pudo concatenar el CV con las evidencias seleccionadas. Volvé a intentar.',
                     0,
@@ -141,6 +153,13 @@ class CvDocumentedPdf
             if (! is_string($pdf) || ! $this->validator->isValid($pdf)) {
                 throw new CvDocumentedPdfException(
                     'No se pudo validar el PDF generado. Volvé a intentar.',
+                );
+            }
+
+            if ($mergeExitCode === self::QPDF_WARNING_EXIT_CODE) {
+                Log::warning(
+                    'qpdf completó la concatenación del CV documentado con advertencias recuperables.',
+                    ['stderr' => trim($merge->getErrorOutput())],
                 );
             }
 

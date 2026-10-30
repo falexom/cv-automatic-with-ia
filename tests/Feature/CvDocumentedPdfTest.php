@@ -86,6 +86,115 @@ function documentedPdfPageCount(string $pdf): int
     return count((new Parser)->parseContent($pdf)->getPages());
 }
 
+function documentedWarningPdf(int $pages = 1): string
+{
+    $path = sys_get_temp_dir().'/cv-warning-'.uniqid('', true).'.pdf';
+    $arguments = ['qpdf', '--empty', '--pages'];
+
+    for ($index = 0; $index < $pages; $index++) {
+        $arguments[] = base_path('tests/Fixtures/minimal.pdf');
+        $arguments[] = '1-z';
+    }
+
+    $arguments[] = '--';
+    $arguments[] = $path;
+
+    try {
+        $process = new Process($arguments);
+        $process->run();
+
+        if (! is_file($path)) {
+            throw new RuntimeException($process->getErrorOutput());
+        }
+
+        return (string) file_get_contents($path);
+    } finally {
+        @unlink($path);
+    }
+}
+
+function documentedWarningQpdfScript(string $mode): string
+{
+    $validPath = Storage::disk('local')->path('fake-qpdf-valid.pdf');
+    file_put_contents($validPath, documentedWarningPdf(2));
+
+    $script = <<<'PHP'
+#!/usr/bin/env php
+<?php
+$args = array_slice($argv, 1);
+$command = $args[0] ?? '';
+$mode = __MODE__;
+$valid = __VALID__;
+
+if ($command === '--version') {
+    echo "qpdf version fake\n";
+    exit(0);
+}
+
+if ($command === '--is-encrypted') {
+    exit(2);
+}
+
+if ($command === '--show-npages') {
+    $path = $args[1] ?? '';
+    echo str_ends_with($path, 'documentado.pdf')
+        ? ($mode === 'wrong-pages' ? 3 : 2)
+        : 1;
+    echo "\n";
+    exit(0);
+}
+
+if ($command === '--check') {
+    exit($mode === 'check-fail' ? 2 : 0);
+}
+
+if ($command === '--empty') {
+    if ($mode === 'missing-output') {
+        fwrite(STDERR, "WARNING: simulated recoverable qpdf warning\n");
+        exit(3);
+    }
+
+    $output = end($args);
+
+    if ($mode === 'empty-output') {
+        file_put_contents($output, '');
+    } else {
+        copy($valid, $output);
+    }
+
+    fwrite(STDERR, "WARNING: simulated recoverable qpdf warning\n");
+    exit(3);
+}
+
+exit(2);
+PHP;
+
+    $script = str_replace(
+        ['__MODE__', '__VALID__'],
+        [var_export($mode, true), var_export($validPath, true)],
+        $script,
+    );
+
+    $path = Storage::disk('local')->path('fake-qpdf-'.$mode.'.php');
+    file_put_contents($path, $script);
+    chmod($path, 0755);
+
+    return $path;
+}
+
+function documentedWarningRenderer(string $pdf): CvPdfRenderer
+{
+    return new class($pdf) extends CvPdfRenderer
+    {
+        public function __construct(private readonly string $pdf) {}
+
+        public function render(array $preview): string
+        {
+            return $this->pdf;
+        }
+    };
+}
+
 function documentedPdfEncrypted(string $pdf): string
 {
     $directory = sys_get_temp_dir().'/cv-documented-'.uniqid('', true);
@@ -610,6 +719,61 @@ SH;
     expect($response->getContent())->not->toStartWith('%PDF-')
         ->and(Storage::disk('local')->allFiles('cv-documented'))->toBe([]);
 });
+
+it('accepts recoverable qpdf warnings when the merged pdf is valid', function () {
+    $profile = documentedPdfProfile();
+    $education = EducationEntry::factory()->create();
+    $profile->educationEntries()->attach($education);
+
+    $singlePage = documentedWarningPdf();
+    $document = documentedPdfDocument('Anexo con advertencia', $singlePage);
+    $document->educationEntries()->attach($education);
+
+    $storedPath = Storage::disk('local')->path($document->path());
+    $checksum = hash_file('sha256', $storedPath);
+
+    $this->app->bind(
+        CvPdfRenderer::class,
+        fn () => documentedWarningRenderer($singlePage),
+    );
+    config(['services.qpdf.binary' => documentedWarningQpdfScript('success')]);
+
+    $response = $this->get(documentedPdfUrl($profile, [$document->id]));
+
+    $response->assertOk()
+        ->assertHeader('Content-Type', 'application/pdf');
+
+    $pdf = (string) $response->getContent();
+
+    expect($pdf)->toStartWith('%PDF-')
+        ->and(documentedPdfPageCount($pdf))->toBe(2)
+        ->and(hash_file('sha256', $storedPath))->toBe($checksum)
+        ->and(Storage::disk('local')->allFiles('cv-documented'))->toBe([]);
+});
+
+it('rejects qpdf warnings when the merged output or final validation is invalid', function (string $mode) {
+    $profile = documentedPdfProfile();
+    $education = EducationEntry::factory()->create();
+    $profile->educationEntries()->attach($education);
+
+    $singlePage = documentedWarningPdf();
+    $document = documentedPdfDocument('Anexo con advertencia', $singlePage);
+    $document->educationEntries()->attach($education);
+
+    $this->app->bind(
+        CvPdfRenderer::class,
+        fn () => documentedWarningRenderer($singlePage),
+    );
+    config(['services.qpdf.binary' => documentedWarningQpdfScript($mode)]);
+
+    $response = $this->get(documentedPdfUrl($profile, [$document->id]));
+
+    $response->assertRedirect("/cv?profile={$profile->id}")
+        ->assertSessionHas('toast.type', 'error');
+
+    expect($response->getContent())->not->toStartWith('%PDF-')
+        ->and(Storage::disk('local')->allFiles('cv-documented'))->toBe([]);
+})->with(['missing-output', 'empty-output', 'wrong-pages', 'check-fail']);
 
 it('rejects a generated pdf that fails structural validation', function () {
     $profile = documentedPdfProfile();
