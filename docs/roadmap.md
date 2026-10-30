@@ -213,7 +213,7 @@ El usuario puede generar y descargar un PDF normal del CV correspondiente al per
 
 **Estado:** COMPLETADA (2026-10-27) — ejecutada mediante historias incrementales aprobadas US-002 y US-003; integrada en main `b0b0578`; sin `spec.md` formal.
 
-**Defecto conocido (no validado):** el CV documentado con el certificado de Telefónica falla porque qpdf devuelve código 3 por advertencias de estructura al concatenar. El diagnóstico confirmó que es independiente de US-004; requiere un fix separado y no se corrige en esta historia.
+**Defecto resuelto:** el CV documentado con el certificado de Telefónica fallaba porque qpdf devolvía código 3 por advertencias de estructura al concatenar. US-005 corrigió el manejo de advertencias recuperables y validó la exportación; integrado en main mediante `4fb5397`.
 
 ## Objetivo
 
@@ -351,7 +351,13 @@ SPEC-001 a SPEC-006 están completadas e integradas en `main`, según el histori
 
 **Estado:** ACEPTADA (30/10/2026); integrada en `main` mediante `6cfc620`.
 
-Añade una fotografía única al Perfil Maestro con encuadre 1:1, almacenamiento local privado e inclusión automática en la vista previa, el PDF normal y el CV documentado. La aceptación funcional y visual fue confirmada por el responsable. El escenario de CV documentado con el certificado de Telefónica no se declara validado; ver el defecto conocido en SPEC-006.
+Añade una fotografía única al Perfil Maestro con encuadre 1:1, almacenamiento local privado e inclusión automática en la vista previa, el PDF normal y el CV documentado. La aceptación funcional y visual fue confirmada por el responsable. El escenario de CV documentado con el certificado de Telefónica quedó corregido y aceptado posteriormente mediante US-005.
+
+### Historia incremental US-005 — Corrección de advertencias qpdf en CV documentado
+
+**Estado:** ACEPTADA (30/10/2026); integrada en `main` mediante `4fb5397`.
+
+Corrige el tratamiento del código 3 de qpdf: acepta advertencias recuperables solo tras verificar la salida, la cantidad de páginas y la estructura, mantiene los errores reales y conserva intactos los anexos originales. La exportación con el certificado de Telefónica fue validada por el responsable.
 
 ## Posibles evoluciones posteriores
 
