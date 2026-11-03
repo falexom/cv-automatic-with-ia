@@ -107,17 +107,30 @@ export default function CvGeneratorPanel({
                             {status === 'ready' &&
                             preview?.has_data &&
                             selected_profile_id !== null ? (
-                                <Button
-                                    asChild
-                                    variant="outline"
-                                    className="w-full sm:w-auto"
-                                >
-                                    <a
-                                        href={`/cv/pdf?profile=${selected_profile_id}`}
+                                <>
+                                    <Button
+                                        asChild
+                                        variant="outline"
+                                        className="w-full sm:w-auto"
                                     >
-                                        Exportar PDF
-                                    </a>
-                                </Button>
+                                        <a
+                                            href={`/cv/pdf?profile=${selected_profile_id}`}
+                                        >
+                                            Exportar PDF
+                                        </a>
+                                    </Button>
+                                    <Button
+                                        asChild
+                                        variant="outline"
+                                        className="w-full sm:w-auto"
+                                    >
+                                        <a
+                                            href={`/cv/markdown?profile=${selected_profile_id}`}
+                                        >
+                                            Exportar Markdown
+                                        </a>
+                                    </Button>
+                                </>
                             ) : null}
                         </div>
                     </form>

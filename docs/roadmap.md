@@ -367,6 +367,18 @@ Entrega el rediseño full bleed 30/70 del CV compartido por la vista previa y el
 
 Relación: [US-006](../specs/stories/US-006-rediseno-visual-cv-dos-columnas.md) concreta la aclaración visual de [SPEC-005](../specs/005-exportacion-pdf/spec.md) sobre la composición de la plantilla compartida de [SPEC-004](../specs/004-generador-de-cv/spec.md). No se reabre el alcance funcional de SPEC-004/SPEC-005.
 
+### Historia incremental US-007 — Exportación de CV en Markdown
+
+**Estado:** IMPLEMENTADA_ACEPTADA (2026-11-03).
+
+**Objetivo:** descargar el contenido profesional del perfil de CV activo seleccionado como Markdown UTF-8 legible por personas y herramientas de IA, sin extraer texto desde el PDF.
+
+**Relación:** mejora incremental posterior de [SPEC-005](../specs/005-exportacion-pdf/spec.md); conserva su cierre y criterios históricos. **Dependencias principales:** Perfil Maestro (SPEC-001), perfiles derivados (SPEC-003) y composición del generador (SPEC-004).
+
+**Alcance:** acción de descarga desde el generador, contenido semántico vigente, selección/relevancia/orden existentes, encabezados y listas, fechas y enlaces conservados y nombre predecible `.md`; sin IA, imágenes, anexos, persistencia de CV ni cambios funcionales en PDF. La descripción de educación y los cinco criterios fueron aprobados por el responsable humano el 2026-11-03.
+
+Contrato aprobado: [US-007 — Exportación de CV en formato Markdown](../specs/stories/US-007-exportacion-cv-markdown.md). Implementada y aceptada funcionalmente el 2026-11-03.
+
 ## Posibles evoluciones posteriores
 
 Las mejoras visuales del CV quedaron cubiertas por US-006. La adaptación inteligente del CV a ofertas laborales continúa como idea para evaluar en una versión posterior. No se inicia ni propone una nueva SPEC.
