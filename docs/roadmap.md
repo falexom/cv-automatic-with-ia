@@ -359,9 +359,39 @@ Añade una fotografía única al Perfil Maestro con encuadre 1:1, almacenamiento
 
 Corrige el tratamiento del código 3 de qpdf: acepta advertencias recuperables solo tras verificar la salida, la cantidad de páginas y la estructura, mantiene los errores reales y conserva intactos los anexos originales. La exportación con el certificado de Telefónica fue validada por el responsable.
 
+### Historia incremental US-006 — Rediseño visual del CV en dos columnas
+
+**Estado:** COMPLETADA Y ACEPTADA (2026-11-03) — aceptación funcional y visual del responsable; integrada localmente en `main` mediante `5d9857a`; sin push.
+
+Entrega el rediseño full bleed 30/70 del CV compartido por la vista previa y el PDF: A4 digital sin márgenes exteriores, cabecera navy, fotografía opcional, chips de habilidades, educación compacta, jerarquía editorial de experiencia y proyectos, paginación multipágina y numeración segura. Reutiliza React, SSR y Browsershot y mantiene la compatibilidad con el CV documentado y sus anexos.
+
+Relación: [US-006](../specs/stories/US-006-rediseno-visual-cv-dos-columnas.md) concreta la aclaración visual de [SPEC-005](../specs/005-exportacion-pdf/spec.md) sobre la composición de la plantilla compartida de [SPEC-004](../specs/004-generador-de-cv/spec.md). No se reabre el alcance funcional de SPEC-004/SPEC-005.
+
 ## Posibles evoluciones posteriores
 
-Las mejoras visuales del CV y la adaptación inteligente del CV a ofertas laborales quedan como ideas para evaluar en una versión posterior. No se inicia ni propone una nueva SPEC.
+Las mejoras visuales del CV quedaron cubiertas por US-006. La adaptación inteligente del CV a ofertas laborales continúa como idea para evaluar en una versión posterior. No se inicia ni propone una nueva SPEC.
+
+Las siguientes oportunidades se registran como propuestas de análisis. No son requisitos aprobados, no amplían el MVP y no tienen SPEC ni ID asignado.
+
+### Metadatos estructurados de proyectos — PROPUESTA / PENDIENTE DE ANÁLISIS
+
+**Problema:** `Stack`, `Estado` y `Repositorio` pueden estar incluidos en campos de texto libre de los proyectos; el modelo actual no tiene campos estructurados específicos para todos esos metadatos.
+
+**Objetivo futuro:** evaluar una evolución del modelo de proyectos que permita almacenar y presentar metadatos profesionales de forma estructurada, reutilizable y coherente con los distintos perfiles del CV.
+
+**Consideraciones:** reutilizar habilidades y relaciones existentes cuando corresponda; evitar duplicación; conservar compatibilidad con los proyectos registrados; no eliminar contenido histórico; evaluar la presentación de `Stack`, `Estado` y `Repositorio` en el CV. No se diseñan migraciones ni se define una solución técnica.
+
+**Referencias:** [US-006](../specs/stories/US-006-rediseno-visual-cv-dos-columnas.md) y [SPEC-005](../specs/005-exportacion-pdf/spec.md) registran la limitación actual.
+
+### Optimización de compatibilidad ATS — PROPUESTA / PENDIENTE DE ANÁLISIS
+
+**Problema:** la composición visual de dos columnas conserva texto seleccionable y encabezados identificables, pero algunos sistemas de extracción pueden intercalar contenido de ambas columnas y alterar el orden lógico de lectura.
+
+**Objetivo futuro:** evaluar mejoras de extracción textual y compatibilidad con sistemas ATS sin sacrificar innecesariamente la presentación profesional aprobada.
+
+**Consideraciones:** orden de lectura del PDF; extracción de información profesional; encabezados reconocibles; datos de contacto; compatibilidad con diferentes analizadores ATS; posibilidad de una estrategia alternativa de exportación solo si un análisis posterior demuestra que es necesaria. No se implementa scoring ATS ni se promete compatibilidad universal.
+
+**Referencias:** [US-006](../specs/stories/US-006-rediseno-visual-cv-dos-columnas.md) y [SPEC-005](../specs/005-exportacion-pdf/spec.md) documentan el límite de extracción.
 
 ---
 
