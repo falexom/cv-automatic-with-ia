@@ -151,7 +151,17 @@
             page-break-inside: avoid;
         }
 
+        article .cv-project-desc p {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
         article .cv-project--long {
+            break-inside: auto;
+            page-break-inside: auto;
+        }
+
+        article .cv-project--long .cv-project-desc p {
             break-inside: auto;
             page-break-inside: auto;
         }

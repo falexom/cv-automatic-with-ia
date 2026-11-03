@@ -2,7 +2,9 @@
 
 **Tipo:** MEJORA VISUAL
 
-**Estado:** PENDIENTE_ACEPTACION — implementación full bleed integrada el 30/10/2026; pendiente revisión humana de la previsualización y del PDF.
+**Estado:** IMPLEMENTADA_ACEPTADA — aceptación funcional y visual humana del 2026-11-03; integración local en main el 2026-11-03.
+
+**Integración:** INTEGRADA en main (local, sin push) — 2026-11-03.
 
 **Relación contractual:** aclaración aprobada de SPEC-005 C3, FR-004, FR-007, FR-016 y SC-003.
 
@@ -26,7 +28,7 @@ La plantilla anterior organiza todas las secciones en una sola columna y reduce 
 - Ubicar a la izquierda la fotografía opcional, el contacto, la educación y las skills/tecnologías.
 - Ubicar a la derecha el nombre, el título profesional, el resumen, la experiencia profesional, los proyectos y los cursos/certificaciones completos.
 - Presentar la educación únicamente con los campos estructurados: programa/carrera, institución, periodo y grado académico. No consumir `education_entries[].description` en el CV. La descripción libre permanece íntegra en el Perfil Maestro y en la pantalla de edición; no se elimina ni se modifica.
-- Mantener unidos el encabezado de cada proyecto y su primer bloque de contenido mediante reglas CSS reutilizables. Los párrafos posteriores pueden continuar en la página siguiente.
+- Mantener unidos el encabezado de cada proyecto y su primer bloque de contenido mediante reglas CSS reutilizables. Los párrafos cortos se conservan completos cuando sea técnicamente posible; los párrafos posteriores o largos pueden continuar en la página siguiente.
 - Mantener Instrument Sans y los colores `#182B49`, `#242B35`, `#667085` y `#F4F6F8`, los chips de habilidades y la jerarquía tipográfica aprobada.
 - Conservar la disposición de dos columnas en todas las páginas. No repetir artificialmente el contenido lateral ni añadir contenido de relleno; se acepta una barra izquierda vacía cuando su contenido se haya agotado.
 - Reservar áreas seguras de página mediante filas repetidas de tabla: 14 mm superiores y 12 mm inferiores. La numeración se coloca en la zona inferior segura.
@@ -54,12 +56,12 @@ La plantilla anterior organiza todas las secciones en una sola columna y reduce 
 6. **Información y enlaces:** ningún campo o elemento seleccionado se pierde, trunca o duplica, con la excepción de presentación aprobada de `education_entries[].description`, que no se muestra en el CV y permanece íntegra en el Perfil Maestro. El texto del PDF es seleccionable, las secciones tienen encabezados reconocibles y los enlaces existentes conservan su etiqueta y destino seguro cuando el formato lo permita. La extracción conserva los encabezados y el orden visual de la primera página; en páginas de continuación puede intercalar fragmentos de las dos columnas sin impedir identificar las secciones.
 7. **Paginación con barra lateral más extensa:** con educación/skills que excedan la altura de la columna principal, todo el contenido lateral continúa en las páginas necesarias, una sola vez y dentro de sus límites. El fondo lateral se mantiene continuo en todas las páginas. La columna principal puede terminar antes y quedar vacía en la continuación; no se repite su contenido ni se crea una página totalmente vacía o una página extra sin contenido.
 8. **Paginación con columna principal más extensa:** con experiencias/proyectos que excedan la altura de la barra, la derecha continúa en las páginas siguientes conservando su ancho y sin cortes, solapamientos, pérdidas ni duplicaciones. La izquierda puede quedar vacía tras agotarse su contenido y no se repite artificialmente.
-9. **Paginación y estabilidad:** los títulos de sección no quedan huérfanos. Una entrada corta se conserva junta cuando cabe; una entrada larga puede continuar entre páginas sin perder texto ni enlaces. El encabezado de un proyecto y su primer bloque de contenido se mantienen juntos; los párrafos posteriores pueden continuar. No hay desbordamientos, cortes visuales problemáticos, páginas totalmente en blanco ni páginas adicionales originadas por saltos forzados. La numeración queda dentro de la zona segura inferior. Repetir con los mismos datos mantiene texto y cantidad de páginas.
+9. **Paginación y estabilidad:** los títulos de sección no quedan huérfanos. Una entrada corta se conserva junta cuando cabe; una entrada larga puede continuar entre páginas sin perder texto ni enlaces. El encabezado de un proyecto y su primer bloque de contenido se mantienen juntos; los párrafos cortos se conservan completos cuando es técnicamente posible y los párrafos posteriores o largos pueden continuar. No hay desbordamientos, cortes visuales problemáticos, páginas totalmente en blanco ni páginas adicionales originadas por saltos forzados. La numeración queda dentro de la zona segura inferior. Repetir con los mismos datos mantiene texto y cantidad de páginas.
 10. **Continuidad preview/PDF:** la fotografía, proporciones, distribución, jerarquía, colores, cabecera y barra lateral son reconocibles en ambas superficies. En pantallas estrechas, la vista previa conserva el diseño de dos columnas mediante escala o desplazamiento, sin convertirlo en una plantilla distinta.
 11. **CV documentado:** el bloque inicial del CV documentado hereda la nueva plantilla al reutilizar el renderer; los anexos PDF originales conservan contenido, orden e integridad.
 12. **Aprobación visual:** la aceptación final requiere revisión del responsable de la vista previa y del PDF, con un CV de una página y los dos casos multipágina de las secciones 7 y 8. Las comprobaciones técnicas no sustituyen esa aprobación.
 
-## Verificación focalizada prevista
+## Verificación focalizada
 
 - Un caso multipágina con barra lateral más extensa que el contenido principal.
 - Un caso multipágina con contenido principal más extenso que la barra lateral.
@@ -67,10 +69,31 @@ La plantilla anterior organiza todas las secciones en una sola columna y reduce 
 - Revisión del caso con fotografía y sin fotografía, incluyendo preview, PDF normal y bloque inicial del CV documentado.
 - Comprobación de full bleed: cabecera a sangre solo en la primera página, barra lateral continua, ausencia de franjas exteriores y numeración dentro de la zona segura.
 - Comprobación de educación: programa, institución, periodo y grado visibles; `description` ausente del CV y conservada en el Perfil Maestro.
-- Comprobación de proyectos: encabezado y primer bloque juntos; párrafos posteriores continuables.
-- Comprobación de extracción: encabezados y orden visual de la primera página; en páginas de continuación puede intercalar fragmentos de las dos columnas. Los marcadores `Stack`/`Estado`/`Repositorio` permanecen en el texto libre porque no hay campos estructurados.
+- Comprobación de proyectos: encabezado y primer bloque juntos; párrafos cortos completos; párrafos posteriores o largos continuables.
+- Comprobación de extracción: encabezados y orden visual de la primera página; en páginas de continuación puede intercalar fragmentos de las dos columnas.
+- Comprobación de metadatos de proyectos: verificado que `projects` no tiene campos estructurados de `Stack`, `Estado` o `Repositorio`; el texto libre se conserva sin heurísticas. La relación `skill_project` no forma parte del payload de vista previa y no se usó para evitar duplicar el Stack textual. No se creó ninguna migración ni se modificó el modelo de datos.
 
-No se crea `tasks.md`: esta lista acotada define las verificaciones previas a Build y la aceptación humana.
+### Verificación ejecutada (2026-11-03)
+
+- `CvPrintHtmlTest` y `CvPdfExportTest`: 21/21 pruebas, 553 aserciones.
+- `CvDocumentedPdfTest`: 21/21 pruebas, 165 aserciones.
+- PDF del CV real: 6 páginas con fotografía y 6 sin fotografía; full bleed, numeración `1 / 6` a `6 / 6`, sin páginas vacías y sin franjas exteriores en los bordes comprobados.
+- Fragmentación observada: Citasalud comienza en la página 3 con su encabezado y primer párrafo; la página 4 comienza con el siguiente párrafo completo. Se mantiene el total de 6 páginas.
+- CV documentado real: 7 páginas (6 de CV + 1 anexo); las primeras seis páginas tienen texto idéntico al CV; el anexo conserva su texto, enlaces y SHA-256; no hay páginas vacías.
+- No se repitieron pruebas frontend ni TypeScript porque esta corrección no modificó código frontend. No se ejecutaron suites completas ni E2E.
+
+No se crea `tasks.md`: esta lista acotada define las verificaciones y la aceptación humana.
+
+## Cierre y aceptación (2026-11-03)
+
+- **Aceptación funcional humana:** APROBADA.
+- **Aceptación visual humana:** APROBADA.
+- **Estado de implementación:** IMPLEMENTADA_ACEPTADA.
+- **Integración:** INTEGRADA en main (local, sin push) el 2026-11-03, aplicando exclusivamente los commits de US-006.
+- **Validación humana:** full bleed A4, 30/70, cabecera y fotografía, CV con y sin fotografía, previsualización desde el portal, exportación PDF, CV documentado con múltiples evidencias seleccionadas y anexos incorporados correctamente. El PDF de una sola constancia fue un escenario de prueba limitado, no un fallo del sistema.
+- **Validaciones técnicas:** las registradas en la sección anterior; no se ejecutaron suites completas ni E2E.
+- **Limitaciones no bloqueantes:** metadatos `Stack`/`Estado`/`Repositorio` en texto libre; espacio libre en la página que recibe un bloque inicial de proyecto y en la última página; posible intercalado de columnas en la extracción textual de páginas de continuación; `break-inside` es una sugerencia de Chromium.
+- **Trazabilidad:** SPEC-005 C3, FR-004, FR-007 y SC-003; full bleed 30/70, márgenes exteriores de 0 mm, educación estructurada, fragmentación de proyectos y numeración segura.
 
 ## Dependencias y trazabilidad
 
@@ -80,4 +103,4 @@ No se crea `tasks.md`: esta lista acotada define las verificaciones previas a Bu
 - US-004 — Fotografía profesional en el CV: reutiliza sus criterios aprobados de fotografía y ausencia de espacio vacío; el marco de 36 mm corresponde a la cabecera full bleed aprobada en esta historia.
 - US-003 — CV documentado: solo se valida que su CV inicial herede el nuevo renderer y que los anexos permanezcan intactos.
 
-La dirección visual y el contrato funcional fueron aprobados expresamente por el responsable el 30/10/2026. La historia quedó en `APROBADA_PARA_DESARROLLO` para implementar y ahora queda en `PENDIENTE_ACEPTACION`: la enmienda contractual de SPEC-005 está aprobada, pero la aceptación final de la implementación full bleed sigue pendiente de revisión humana de la previsualización y del PDF.
+La dirección visual y el contrato funcional fueron aprobados expresamente por el responsable el 30/10/2026. La aceptación funcional y visual final fue registrada el 2026-11-03; la historia queda `IMPLEMENTADA_ACEPTADA` e `INTEGRADA` en main (local, sin push).
