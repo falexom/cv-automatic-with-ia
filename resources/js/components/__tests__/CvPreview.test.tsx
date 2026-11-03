@@ -153,7 +153,128 @@ describe('CvPreview', () => {
         ).not.toBeInTheDocument();
     });
 
-    it('renders the saved photo in a 30 by 30 mm frame with the stored crop', () => {
+    it('separates the main column from the complementary sidebar', () => {
+        render(<CvPreview preview={makePreview()} />);
+
+        const main = screen.getByTestId('cv-main');
+        const sidebar = screen.getByTestId('cv-sidebar');
+
+        expect(
+            screen.getByRole('heading', {
+                level: 2,
+                name: 'Ada Lovelace',
+            }),
+        ).toBeInTheDocument();
+        expect(
+            within(main).getByRole('heading', { level: 3, name: 'Resumen' }),
+        ).toBeInTheDocument();
+        expect(
+            within(main).getByRole('heading', {
+                level: 3,
+                name: 'Experiencia laboral',
+            }),
+        ).toBeInTheDocument();
+        expect(
+            within(main).getByRole('heading', { level: 3, name: 'Proyectos' }),
+        ).toBeInTheDocument();
+        expect(
+            within(main).getByRole('heading', {
+                level: 3,
+                name: 'Cursos y certificaciones',
+            }),
+        ).toBeInTheDocument();
+
+        expect(
+            within(sidebar).getByRole('heading', {
+                level: 3,
+                name: 'Contacto',
+            }),
+        ).toBeInTheDocument();
+        expect(
+            within(sidebar).getByRole('heading', {
+                level: 3,
+                name: 'Educación',
+            }),
+        ).toBeInTheDocument();
+        expect(
+            within(sidebar).getByRole('heading', {
+                level: 3,
+                name: 'Habilidades',
+            }),
+        ).toBeInTheDocument();
+
+        const article = screen.getByRole('article', {
+            name: 'Ada Lovelace',
+        });
+
+        expect(article).toContainElement(
+            screen.getByText('Analista de Sistemas'),
+        );
+        expect(main).toContainElement(
+            screen.getByText('Resumen propio con acentos: estadística.'),
+        );
+        expect(sidebar).toContainElement(
+            screen.getByText('Buenos Aires, Argentina'),
+        );
+        expect(article).toContainElement(main);
+        expect(article).toContainElement(sidebar);
+    });
+
+    it('uses the full-bleed table with 30/70 columns and safe header and footer rows', () => {
+        const { container } = render(<CvPreview preview={makePreview()} />);
+
+        expect(container.querySelector('table.cv-layout')).not.toBeNull();
+        expect(
+            container.querySelector('caption.cv-header-caption'),
+        ).not.toBeNull();
+        expect(container.querySelector('col.cv-col-main')).not.toBeNull();
+        expect(container.querySelector('col.cv-col-side')).not.toBeNull();
+        expect(container.querySelector('thead')).not.toBeNull();
+        expect(container.querySelector('tfoot')).not.toBeNull();
+        expect(container.querySelector('.cv-print-sidebar-bg')).not.toBeNull();
+        expect(screen.getByTestId('cv-main')).toHaveClass('cv-main');
+        expect(screen.getByTestId('cv-sidebar')).toHaveClass('cv-sidebar');
+    });
+
+    it('presents education only with structured fields and omits its free-text description', () => {
+        const base = makePreview();
+        const description =
+            'Descripción administrativa que no debe mostrarse en el CV.';
+
+        render(
+            <CvPreview
+                preview={makePreview({
+                    content: {
+                        ...base.content,
+                        education_entries: [
+                            {
+                                ...base.content.education_entries[0],
+                                description,
+                            },
+                        ],
+                    },
+                })}
+            />,
+        );
+
+        expect(screen.getByText('Sistemas')).toBeInTheDocument();
+        expect(screen.getByText('Universidad')).toBeInTheDocument();
+        expect(screen.getByText('Licenciatura')).toBeInTheDocument();
+        expect(screen.getByText('feb 2015 – dic 2020')).toBeInTheDocument();
+        expect(screen.queryByText(description)).not.toBeInTheDocument();
+    });
+
+    it('renders skills without decorative progress graphics', () => {
+        const { container } = render(<CvPreview preview={makePreview()} />);
+
+        expect(
+            container.querySelector('progress, [role="progressbar"]'),
+        ).toBeNull();
+        expect(screen.getByText('PHP')).toBeInTheDocument();
+        expect(screen.getByText('Tecnologías')).toBeInTheDocument();
+    });
+
+    it('renders the saved photo in a 36 by 36 mm frame with the stored crop', () => {
         const base = makePreview();
 
         render(
@@ -178,7 +299,7 @@ describe('CvPreview', () => {
         const frame = screen.getByTestId('cv-photo-frame');
 
         expect(frame).toContainElement(image);
-        expect(frame).toHaveClass('h-[30mm]', 'w-[30mm]');
+        expect(frame).toHaveClass('h-[36mm]', 'w-[36mm]');
         expect(image).toHaveStyle({
             objectPosition: '40% 60%',
             transform: 'scale(1.5)',
@@ -246,7 +367,7 @@ describe('CvPreview', () => {
         const responsibilities = screen.getByText(
             /Relevamiento de requerimientos/,
         );
-        expect(responsibilities).toHaveClass('whitespace-pre-line');
+        expect(responsibilities.tagName).toBe('LI');
         expect(
             screen.getByText(/Reducción de tiempos de proceso/),
         ).toBeInTheDocument();
@@ -255,8 +376,8 @@ describe('CvPreview', () => {
         expect(screen.getByText(/Universidad/)).toBeInTheDocument();
         expect(screen.getByText('Licenciatura')).toBeInTheDocument();
         expect(
-            screen.getByText('Formación en análisis y diseño de sistemas.'),
-        ).toBeInTheDocument();
+            screen.queryByText('Formación en análisis y diseño de sistemas.'),
+        ).not.toBeInTheDocument();
 
         expect(screen.getByText(/Curso de Laravel/)).toBeInTheDocument();
         expect(screen.getByText(/Academy/)).toBeInTheDocument();
@@ -265,7 +386,7 @@ describe('CvPreview', () => {
         expect(screen.getByText('Código: LAR-2023-001')).toBeInTheDocument();
 
         const validation = screen.getByRole('link', {
-            name: 'Validar certificación',
+            name: 'Validar',
         });
         expect(validation).toHaveAttribute(
             'href',
@@ -466,7 +587,7 @@ describe('CvPreview', () => {
 
         expect(screen.queryByText(/Código:/)).not.toBeInTheDocument();
         expect(
-            screen.queryByRole('link', { name: 'Validar certificación' }),
+            screen.queryByRole('link', { name: 'Validar' }),
         ).not.toBeInTheDocument();
         expect(
             screen.queryByRole('link', { name: 'Ver proyecto' }),
@@ -497,17 +618,25 @@ describe('CvPreview', () => {
             />,
         );
 
-        const summary = screen.getByText(longText);
+        const summary = within(
+            screen.getByRole('region', { name: 'Resumen' }),
+        ).getByText(longText);
 
         expect(summary).toBeInTheDocument();
         expect(summary).toHaveClass('whitespace-pre-line');
         expect(summary).toHaveClass('break-words');
         expect(summary.className).not.toMatch(/truncate|line-clamp/);
 
-        const responsibilities = screen.getByText(`${longText} ${longText}`);
+        const experience = screen.getByRole('region', {
+            name: 'Experiencia laboral',
+        });
+        const responsibilities = within(experience).getAllByText(longText);
 
-        expect(responsibilities).toBeInTheDocument();
-        expect(responsibilities.className).not.toMatch(/truncate|line-clamp/);
+        expect(responsibilities).toHaveLength(2);
+        expect(responsibilities[0].tagName).toBe('LI');
+        expect(responsibilities[0].className).not.toMatch(
+            /truncate|line-clamp/,
+        );
 
         const linkedin = screen.getByRole('link', { name: 'LinkedIn' });
 

@@ -198,9 +198,9 @@ describe('CvGeneratorPanel', () => {
             '1',
         );
         expect(screen.getByText('Título A')).toBeInTheDocument();
-        expect(screen.getByText(/Experiencia A/)).toBeInTheDocument();
+        expect(screen.getAllByText(/Experiencia A/).length).toBeGreaterThan(0);
         expect(screen.queryByText('Título B')).not.toBeInTheDocument();
-        expect(screen.queryByText(/Experiencia B/)).not.toBeInTheDocument();
+        expect(screen.queryAllByText(/Experiencia B/)).toHaveLength(0);
 
         rerender(
             <CvGeneratorPanel
@@ -215,9 +215,9 @@ describe('CvGeneratorPanel', () => {
             '2',
         );
         expect(screen.getByText('Título B')).toBeInTheDocument();
-        expect(screen.getByText(/Experiencia B/)).toBeInTheDocument();
+        expect(screen.getAllByText(/Experiencia B/).length).toBeGreaterThan(0);
         expect(screen.queryByText('Título A')).not.toBeInTheDocument();
-        expect(screen.queryByText(/Experiencia A/)).not.toBeInTheDocument();
+        expect(screen.queryAllByText(/Experiencia A/)).toHaveLength(0);
 
         rerender(
             <CvGeneratorPanel
@@ -233,7 +233,7 @@ describe('CvGeneratorPanel', () => {
         );
         expect(screen.getByText('Título A')).toBeInTheDocument();
         expect(screen.queryByText('Título B')).not.toBeInTheDocument();
-        expect(screen.queryByText(/Experiencia B/)).not.toBeInTheDocument();
+        expect(screen.queryAllByText(/Experiencia B/)).toHaveLength(0);
     });
 
     it('clears the selector and preview when the selection becomes unavailable', () => {
@@ -372,7 +372,8 @@ describe('CvGeneratorPanel', () => {
             form.compareDocumentPosition(article) &
                 Node.DOCUMENT_POSITION_FOLLOWING,
         ).toBeTruthy();
-        expect(article.parentElement).toBe(block.parentElement);
+        expect(article.parentElement).toHaveClass('cv-preview-frame');
+        expect(block.parentElement).toContainElement(article);
         expect(
             article.compareDocumentPosition(block) &
                 Node.DOCUMENT_POSITION_FOLLOWING,

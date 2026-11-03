@@ -48,7 +48,7 @@
 
         @page {
             size: A4;
-            margin: 18mm;
+            margin: 0;
         }
 
         :root {
@@ -80,19 +80,26 @@
             print-color-adjust: exact;
         }
 
+        .cv-preview-frame {
+            width: 100% !important;
+            overflow: visible !important;
+        }
+
         article {
             width: 100% !important;
             max-width: none !important;
+            min-width: 0 !important;
             margin: 0 !important;
             padding: 0 !important;
             border: 0 !important;
             border-radius: 0 !important;
             background: transparent !important;
             box-shadow: none !important;
+            overflow: visible !important;
         }
 
         article a[href] {
-            color: inherit !important;
+            color: var(--cv-navy) !important;
             text-decoration: underline;
             text-underline-offset: 2px;
         }
@@ -100,7 +107,10 @@
         article h2,
         article h3,
         article h4,
-        article section > div > div > p:first-child {
+        article .cv-section-title,
+        article .cv-side-title,
+        article .cv-entry-role,
+        article .cv-project-title {
             break-after: avoid;
             page-break-after: avoid;
         }
@@ -119,12 +129,38 @@
             overflow-wrap: anywhere;
         }
 
-        article section {
+        article section,
+        article .cv-layout,
+        article .cv-main,
+        article .cv-sidebar {
             break-inside: auto;
         }
 
-        article section > div > div {
+        article .cv-entry {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        article .cv-entry--long {
             break-inside: auto;
+            page-break-inside: auto;
+        }
+
+        article .cv-project-intro {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        article .cv-project--long {
+            break-inside: auto;
+            page-break-inside: auto;
+        }
+
+        article .cv-edu,
+        article .cv-chip,
+        article .cv-cert-row {
+            break-inside: avoid;
+            page-break-inside: avoid;
         }
     </style>
 </head>

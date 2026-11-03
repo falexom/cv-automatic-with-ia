@@ -64,8 +64,14 @@ class CvPdfRenderer
                 ->showBackground()
                 ->disableJavascript()
                 ->emulateMedia('print')
-                ->hideBrowserHeaderAndFooter()
+                ->showBrowserHeaderAndFooter()
+                ->headerHtml('<div></div>')
+                ->footerHtml($this->footerHtml())
                 ->blockUrls(['http://', 'https://'])
+                // Keep the headless export on a disposable profile and use
+                // Chrome's mock keychain instead of macOS Keychain access.
+                ->addChromiumArguments(['use-mock-keychain'])
+                ->userDataDir($directory.'/chrome-profile')
                 ->timeout((int) config('services.browsershot.timeout', 30))
                 ->setNodeModulePath(base_path('node_modules'))
                 ->setCustomTempPath($directory);
@@ -78,6 +84,34 @@ class CvPdfRenderer
         } finally {
             $this->removeDirectory($directory);
         }
+    }
+
+    private function footerHtml(): string
+    {
+        $fontPath = resource_path('fonts/instrument-sans/instrument-sans-400.woff2');
+        $fontFace = '';
+
+        if (is_file($fontPath)) {
+            $fontData = base64_encode((string) file_get_contents($fontPath));
+            $fontFace = <<<CSS
+<style>
+@font-face {
+    font-family: "Instrument Sans";
+    font-style: normal;
+    font-weight: 400;
+    src: url(data:font/woff2;base64,{$fontData}) format("woff2");
+}
+</style>
+CSS;
+        }
+
+        return $fontFace.<<<'HTML'
+<div style="width:100%; padding:0 14mm 5mm; font-family:'Instrument Sans', Arial, sans-serif; font-size:7pt !important; color:#667085; text-align:right; letter-spacing:.14em; text-transform:uppercase;">
+    <div style="padding-top:2mm; border-top:0.2mm solid #D8DEE6;">
+        <span class="pageNumber"></span> / <span class="totalPages"></span>
+    </div>
+</div>
+HTML;
     }
 
     private function chromePath(): ?string

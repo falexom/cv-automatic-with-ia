@@ -197,7 +197,8 @@ it('produces a readable A4 portrait pdf with embedded fonts and real text', func
         ->and($pdf)->toMatch('~/FontFile[23]?~')
         ->and($text)->toContain('Ada Lovelace')
         ->and($text)->toContain('Analista de Sistemas')
-        ->and($text)->toContain('Resumen propio con ñandú y estadística.');
+        ->and($text)->toContain('Resumen propio con ñandú y estadística.')
+        ->and($text)->toMatch('/\b1\s*\/\s*1\b/');
 });
 
 it('exports exactly the included content in the preview order without metadata or fallback', function () {
@@ -308,27 +309,27 @@ it('exports exactly the included content in the preview order without metadata o
         ->and($text)->toContain('Buenos Aires, Argentina')
         ->and($text)->toContain('Título propio Alfa')
         ->and($text)->toContain('Resumen propio Alfa.')
-        ->and($text)->toContain('Experiencia laboral')
+        ->and($text)->toContain('EXPERIENCIA LABORAL')
         ->and($text)->toContain('Analista funcional incluida')
         ->and($text)->toContain('Acme Incluida')
         ->and($text)->toContain('Descripción incluida.')
         ->and($text)->toContain('Responsabilidad uno.')
         ->and($text)->toContain('Responsabilidad dos.')
         ->and($text)->toContain('Logro incluido.')
-        ->and($text)->toContain('Educación')
+        ->and($text)->toContain('EDUCACIÓN')
         ->and($text)->toContain('Sistemas incluidos')
         ->and($text)->toContain('Universidad Incluida')
-        ->and($text)->toContain('Licenciatura incluida')
-        ->and($text)->toContain('Formación incluida.')
-        ->and($text)->toContain('Cursos y certificaciones')
+        ->and($text)->toContain('LICENCIATURA INCLUIDA')
+        ->and($text)->not->toContain('Formación incluida.')
+        ->and($text)->toContain('CURSOS Y CERTIFICACIONES')
         ->and($text)->toContain('Certificación incluida')
         ->and($text)->toContain('Academia incluida')
         ->and($text)->toContain('Categoría incluida')
         ->and($text)->toContain('CODIGO-INCLUIDO')
-        ->and($text)->toContain('Habilidades')
+        ->and($text)->toContain('HABILIDADES')
         ->and($text)->toContain('Habilidad incluida')
-        ->and($text)->toContain('Tecnologías')
-        ->and($text)->toContain('Proyectos')
+        ->and($text)->toContain('TECNOLOGÍAS')
+        ->and($text)->toContain('PROYECTOS')
         ->and($text)->toContain('Proyecto incluido')
         ->and($text)->toContain('Rol incluido')
         ->and($text)->toContain('Descripción del proyecto incluido.')
@@ -354,20 +355,23 @@ it('exports exactly the included content in the preview order without metadata o
         ->and($text)->not->toContain('baja')
         ->and($text)->not->toContain('media');
 
+    expect($education->fresh()->description)->toBe('Formación incluida.');
+
     $tokens = [
         'Ada Lovelace',
         'Título propio Alfa',
         'Resumen propio Alfa.',
-        'Experiencia laboral',
+        'EXPERIENCIA LABORAL',
         'Analista funcional incluida',
-        'Educación',
-        'Sistemas incluidos',
-        'Cursos y certificaciones',
-        'Certificación incluida',
-        'Habilidades',
-        'Habilidad incluida',
-        'Proyectos',
+        'PROYECTOS',
         'Proyecto incluido',
+        'CURSOS Y CERTIFICACIONES',
+        'Certificación incluida',
+        'CONTACTO',
+        'EDUCACIÓN',
+        'Sistemas incluidos',
+        'HABILIDADES',
+        'Habilidad incluida',
     ];
 
     $previous = -1;
@@ -749,10 +753,10 @@ it('keeps safe visible links and external annotations without internal correctio
         ->and($text)->toContain('Contacto directo')
         ->and($text)->toContain('Llamadas')
         ->and($text)->toContain('Enlace inseguro')
-        ->and($text)->toContain('Validar certificación')
+        ->and($text)->toContain('VALIDAR')
         ->and($text)->toContain('Proyecto seguro')
         ->and($text)->toContain('Proyecto inseguro')
-        ->and(substr_count($text, 'Ver proyecto'))->toBe(1)
+        ->and(substr_count($text, 'VER PROYECTO'))->toBe(1)
         ->and($text)->not->toContain($longUrl)
         ->and($annotations)->toContain('tel:+54 11 5555 1234')
         ->and($annotations)->toContain('mailto:ada@example.com')
@@ -830,8 +834,8 @@ it('does not activate unsafe urls and keeps only additional link labels', functi
         ->and($text)->not->toContain('LinkedIn')
         ->and($text)->not->toContain('GitHub')
         ->and($text)->not->toContain('Sitio web')
-        ->and($text)->not->toContain('Validar certificación')
-        ->and($text)->not->toContain('Ver proyecto')
+        ->and($text)->not->toContain('VALIDAR')
+        ->and($text)->not->toContain('VER PROYECTO')
         ->and($text)->not->toContain('javascript:')
         ->and($text)->not->toContain('data:text/html')
         ->and($text)->not->toContain('file:///etc/passwd')
@@ -905,4 +909,102 @@ it('paginates long CVs without losing or duplicating content', function () {
 
     expect(count($secondDocument->getPages()))->toBe(count($document->getPages()))
         ->and(cvPdfText($second))->toBe($text);
+});
+
+it('paginates a sidebar longer than the main column without repetition or blank pages', function () {
+    cvPdfMaster([
+        'full_name' => 'Ada Lovelace',
+        'email' => 'ada@example.com',
+    ]);
+
+    $profile = CvProfile::factory()->create([
+        'name' => 'Perfil con barra extensa',
+        'professional_title' => 'Analista de Sistemas',
+        'summary' => 'Resumen breve de la columna principal.',
+    ]);
+
+    $tokens = [];
+
+    for ($index = 1; $index <= 20; $index++) {
+        $token = 'Educación extensa '.str_pad((string) $index, 2, '0', STR_PAD_LEFT);
+        $tokens[] = $token;
+
+        $education = EducationEntry::factory()->create([
+            'institution' => 'Universidad '.$index,
+            'program' => $token,
+            'degree_level' => 'Licenciatura',
+            'description' => 'Formación complementaria de la barra lateral.',
+        ]);
+
+        $profile->educationEntries()->attach($education, ['relevance' => 'alta']);
+    }
+
+    for ($index = 1; $index <= 50; $index++) {
+        $token = 'Habilidad extensa '.str_pad((string) $index, 2, '0', STR_PAD_LEFT);
+        $tokens[] = $token;
+
+        $skill = Skill::factory()->create([
+            'name' => $token,
+            'category' => 'tecnologia',
+        ]);
+
+        $profile->skills()->attach($skill, ['relevance' => 'alta']);
+    }
+
+    $pdf = $this->get("/cv/pdf?profile={$profile->id}")->assertOk()->getContent();
+    $document = cvPdfDocument($pdf);
+    $text = cvPdfText($pdf);
+    $compact = (string) preg_replace('/\s+/u', '', $text);
+
+    expect(count($document->getPages()))->toBeGreaterThan(1)
+        ->and($text)->toContain('Resumen breve de la columna principal.')
+        ->and($text)->toContain('EDUCACIÓN')
+        ->and($text)->toContain('HABILIDADES');
+
+    foreach ($document->getPages() as $page) {
+        expect(trim($page->getText()))->not->toBe('');
+    }
+
+    foreach ($tokens as $token) {
+        expect(substr_count($compact, str_replace(' ', '', $token)))->toBe(1);
+    }
+});
+
+it('continues a single long professional entry without losing its content', function () {
+    cvPdfMaster(['full_name' => 'Ada Lovelace']);
+
+    $profile = CvProfile::factory()->create([
+        'name' => 'Perfil con entrada larga',
+        'professional_title' => 'Analista de Sistemas',
+        'summary' => 'Resumen de prueba.',
+    ]);
+
+    $endToken = 'FIN-DE-LA-ENTRADA-LARGA';
+    $longDescription = str_repeat(
+        'Descripción extensa con acentos, eñes y signos. ',
+        260,
+    ).$endToken;
+
+    $experience = WorkExperience::factory()->create([
+        'position' => 'Entrada profesional muy extensa',
+        'company' => 'Empresa extensa',
+        'description' => $longDescription,
+    ]);
+
+    $profile->workExperiences()->attach($experience, ['relevance' => 'alta']);
+
+    $pdf = $this->get("/cv/pdf?profile={$profile->id}")->assertOk()->getContent();
+    $document = cvPdfDocument($pdf);
+    $text = cvPdfText($pdf);
+    $compact = (string) preg_replace('/\s+/u', '', $text);
+
+    expect(count($document->getPages()))->toBeGreaterThan(1)
+        ->and($text)->toContain('Entrada profesional muy extensa')
+        ->and(substr_count($compact, $endToken))->toBe(1)
+        ->and(trim($document->getPages()[0]->getText()))
+        ->toContain('Entrada profesional muy extensa');
+
+    foreach ($document->getPages() as $page) {
+        expect(trim($page->getText()))->not->toBe('');
+    }
 });
