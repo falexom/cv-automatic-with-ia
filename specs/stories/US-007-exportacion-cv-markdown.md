@@ -1,8 +1,9 @@
 # US-007 — Exportación de CV en formato Markdown
 
 **Identificador:** US-007
-**Estado:** APROBADA_PARA_DESARROLLO
+**Estado:** IMPLEMENTADA_ACEPTADA
 **Aprobación humana:** concedida el 2026-11-03
+**Aprobación funcional y visual humana:** 2026-11-03 — exportación Markdown validada satisfactoriamente.
 **SPEC relacionada:** [SPEC-005 — Exportación PDF](../005-exportacion-pdf/spec.md), como mejora incremental posterior a su cierre.
 
 ## Historia de usuario

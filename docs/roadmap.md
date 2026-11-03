@@ -369,7 +369,7 @@ Relación: [US-006](../specs/stories/US-006-rediseno-visual-cv-dos-columnas.md) 
 
 ### Historia incremental US-007 — Exportación de CV en Markdown
 
-**Estado:** APROBADA_PARA_DESARROLLO (2026-11-03).
+**Estado:** IMPLEMENTADA_ACEPTADA (2026-11-03).
 
 **Objetivo:** descargar el contenido profesional del perfil de CV activo seleccionado como Markdown UTF-8 legible por personas y herramientas de IA, sin extraer texto desde el PDF.
 
@@ -377,7 +377,7 @@ Relación: [US-006](../specs/stories/US-006-rediseno-visual-cv-dos-columnas.md) 
 
 **Alcance:** acción de descarga desde el generador, contenido semántico vigente, selección/relevancia/orden existentes, encabezados y listas, fechas y enlaces conservados y nombre predecible `.md`; sin IA, imágenes, anexos, persistencia de CV ni cambios funcionales en PDF. La descripción de educación y los cinco criterios fueron aprobados por el responsable humano el 2026-11-03.
 
-Contrato aprobado: [US-007 — Exportación de CV en formato Markdown](../specs/stories/US-007-exportacion-cv-markdown.md). Pendiente de implementación y aceptación.
+Contrato aprobado: [US-007 — Exportación de CV en formato Markdown](../specs/stories/US-007-exportacion-cv-markdown.md). Implementada y aceptada funcionalmente el 2026-11-03.
 
 ## Posibles evoluciones posteriores
 

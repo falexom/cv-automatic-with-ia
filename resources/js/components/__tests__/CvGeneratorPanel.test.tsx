@@ -346,6 +346,30 @@ describe('CvGeneratorPanel', () => {
         expect(article.contains(link)).toBe(false);
     });
 
+    it('offers a markdown export download link next to the PDF action when ready with data', () => {
+        render(
+            <CvGeneratorPanel
+                profiles={profiles}
+                status="ready"
+                selected_profile_id={1}
+                preview={preview}
+            />,
+        );
+
+        const form = screen
+            .getByRole('button', { name: 'Ver vista previa' })
+            .closest('form');
+        const link = screen.getByRole('link', { name: 'Exportar Markdown' });
+
+        expect(form).not.toBeNull();
+        expect(form).toContainElement(link);
+        expect(link.tagName).toBe('A');
+        expect(link).toHaveAttribute('href', '/cv/markdown?profile=1');
+        expect(link).not.toHaveAttribute('target');
+        expect(link).not.toHaveAttribute('download');
+        expect(link.className).toMatch(/focus-visible/);
+    });
+
     it('places the preview directly below the controls and next to the edit section', () => {
         render(
             <CvGeneratorPanel
@@ -431,6 +455,9 @@ describe('CvGeneratorPanel', () => {
 
             expect(
                 screen.queryByRole('link', { name: 'Exportar PDF' }),
+            ).not.toBeInTheDocument();
+            expect(
+                screen.queryByRole('link', { name: 'Exportar Markdown' }),
             ).not.toBeInTheDocument();
 
             unmount();

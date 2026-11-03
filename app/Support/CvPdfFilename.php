@@ -20,6 +20,13 @@ final class CvPdfFilename
         return $base === '' ? 'cv-documentado.pdf' : "cv-{$base}-documentado.pdf";
     }
 
+    public static function markdownFromProfileName(?string $name): string
+    {
+        $base = self::base($name);
+
+        return $base === '' ? 'cv.md' : "cv-{$base}.md";
+    }
+
     private static function base(?string $name): string
     {
         $ascii = Str::lower(Str::ascii((string) $name));
