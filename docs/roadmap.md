@@ -381,7 +381,7 @@ Contrato aprobado: [US-007 — Exportación de CV en formato Markdown](../specs/
 
 ## Posibles evoluciones posteriores
 
-Las mejoras visuales del CV quedaron cubiertas por US-006. La adaptación inteligente del CV a ofertas laborales continúa como idea para evaluar en una versión posterior. No se inicia ni propone una nueva SPEC.
+Las mejoras visuales del CV quedaron cubiertas por US-006. La adaptación de CV a ofertas laborales se propone en [SPEC-008](../specs/008-adaptacion-cv-ofertas/spec.md) con una única historia [US-008](../specs/stories/US-008-adaptacion-cv-ofertas.md), aprobada para desarrollo el 2026-11-06. La validación técnica es el primer paso interno de esa historia; no existe una historia técnica separada.
 
 Las siguientes oportunidades se registran como propuestas de análisis. No son requisitos aprobados, no amplían el MVP y no tienen SPEC ni ID asignado.
 
@@ -418,6 +418,7 @@ Las siguientes oportunidades se registran como propuestas de análisis. No son r
 | SPEC-005 | Exportación PDF | COMPLETADA e integrada (`d4e8a1b`); aceptación funcional y visual registrada, con cobertura manual parcial documentada para T019. |
 | SPEC-006 | CV Documentado | COMPLETADA e integrada mediante US-002 y US-003 (`b0b0578`); cierre registrado (`006d3ed`). |
 | SPEC-007 | Importación Inteligente de Certificados | CANCELADA; fuera del alcance de v1.0, sin trabajo pendiente. |
+| SPEC-008 | Adaptación de CV a una oferta laboral | APROBADA (2026-11-06); contrato único en US-008, en desarrollo. |
 
 ---
 
