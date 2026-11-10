@@ -1,13 +1,13 @@
 # US-008 — Adaptar CV a una oferta laboral
 
 **Identificador:** US-008  
-**Estado:** Base implementada y con funcionamiento general confirmado por el usuario; ampliación R1 APROBADA_PARA_DESARROLLO (2026-11-10). Sin aceptación exhaustiva ni cierre.  
+**Estado:** Base implementada y con funcionamiento general confirmado por el usuario; ampliación R1 PENDIENTE_ACEPTACION (2026-11-10) — implementación técnica completada; aceptación funcional y visual pendiente.  
 **SPEC relacionada:** [SPEC-008 — Adaptación de CV a una oferta laboral](../008-adaptacion-cv-ofertas/spec.md)  
 **Fuente contractual:** este archivo contiene el único contrato funcional de SPEC-008. La SPEC mantiene contexto y dependencias, sin duplicar estos criterios.
 
 ## Contrato inicial conservado (aprobado el 2026-11-06)
 
-Las secciones iniciales conservan el alcance implementado, incluidas sus exclusiones de persistencia. La revisión R1 al final está aprobada para desarrollo y sustituye expresamente las reglas que indica. No hay dos contratos activos: la base con las sustituciones R1 es el contrato vigente para esta implementación; la aceptación funcional y visual sigue pendiente.
+Las secciones iniciales conservan el alcance implementado, incluidas sus exclusiones de persistencia. La revisión R1 al final está implementada técnicamente y sustituye expresamente las reglas que indica. No hay dos contratos activos: la base con las sustituciones R1 es el contrato vigente; la aceptación funcional y visual sigue pendiente.
 
 ## Historia de usuario
 
@@ -178,9 +178,9 @@ La validación técnica inicial y los flujos de `reuse`, `duplicate`, `create`, 
 6. Verificar que cancelar no guarda cambios y que una referencia obsoleta produce un error sin persistencia parcial.
 
 
-## Revisión R1 — Consulta y gestión de la adaptación (APROBADA_PARA_DESARROLLO)
+## Revisión R1 — Consulta y gestión de la adaptación (PENDIENTE_ACEPTACION)
 
-**Fecha:** 2026-11-10. **Aprobación:** concedida por el responsable el 2026-11-10; habilita la implementación en la rama `008-adaptacion-cv-ofertas`. No autoriza integración, push ni cierre. Sigue siendo US-008, relacionada con SPEC-008; base inalterada `d8d56f6`. La implementación posterior corresponde a OpenCode Build nativo.
+**Fecha:** 2026-11-10. **Aprobación:** concedida por el responsable el 2026-11-10; implementación técnica completada en la rama `008-adaptacion-cv-ofertas`. **Estado:** PENDIENTE_ACEPTACION. No autoriza integración, push ni cierre. Sigue siendo US-008, relacionada con SPEC-008; base inalterada `d8d56f6`. La implementación posterior corresponde a OpenCode Build nativo.
 
 ### Diagnóstico y evidencia del avance
 
@@ -240,7 +240,7 @@ Una única transacción abarca perfil/asociaciones nuevos, evaluación y observa
 - Cantidades: cubiertos = `supported`, parciales = `partial`, pendientes de cobertura = `gap` + `needs_confirmation`. Cada requisito cuenta una vez; total = suma de los tres. Desglosar los pendientes por brecha y por confirmar. El número de observaciones pendientes es distinto y se etiqueta aparte. No usar porcentajes. Resaltar excluyentes tanto en listado como en el detalle, solo con soporte en la oferta.
 - Brechas, declaraciones, notas y recomendaciones quedan fuera de resumen/título profesional, selecciones, CV, PDF normal/documentado y Markdown. Ningún cambio de gestión modifica Maestro, asociaciones o cobertura. Incorporar nuevos datos profesionales sigue las pantallas existentes; requiere otro análisis confirmado para una nueva evaluación.
 
-### Criterios R1 verificables (aprobados para desarrollo; aceptación pendiente)
+### Criterios R1 verificables (implementados; aceptación pendiente)
 
 1. **R1-CA-01 — Consulta durable:** confirmar, abandonar y volver desde Perfiles permite leer puesto, empresa conocida o ausencia explícita, fecha original, requisitos/cobertura, brechas, recomendaciones, preguntas y respuestas exactas. Cerrar/reabrir la aplicación conserva esos datos. Antes de confirmar o al cancelar no se crean registros.
 2. **R1-CA-02 — Tres operaciones:** dos confirmaciones `reuse` para ofertas diferentes sobre el mismo perfil conservan ambas evaluaciones sin modificarlo. `duplicate` crea perfil y evaluación nuevos sin copiar evaluaciones ni alterar el origen. `create` crea perfil y evaluación nuevos. Con múltiples evaluaciones se puede abrir cada una por su identificador, fecha y contexto.
@@ -252,7 +252,7 @@ Una única transacción abarca perfil/asociaciones nuevos, evaluación y observa
 8. **R1-CA-08 — Atomicidad y reintentos:** referencia obsoleta, contexto alterado, estado inválido o fallo de persistencia no deja perfil/evaluación/observaciones parciales. Reenviar la misma confirmación no duplica datos; confirmar un análisis distinto sí añade evaluación. Laravel ejecuta y valida todas las escrituras.
 9. **R1-CA-09 — Minimización:** almacenamiento y avisos reflejan únicamente el contexto aprobado, sin oferta completa, prompt, catálogo del Maestro ni salida técnica bruta; consultar y cambiar estados no envía datos a Codex. El fragmento de excluyente solo contiene el soporte necesario.
 
-### Pasos técnicos previstos
+### Pasos técnicos
 
 1. Aprobación registrada; comprobar rama, base y limpieza Git. Conservar `d8d56f6` como avance inicial.
 2. Extender el esquema estructurado y validadores existentes para puesto/empresa y soporte de excluyentes; conservar cobertura y separar respuestas humanas del contrato de salida IA. Transportar el contexto de análisis y respuestas hasta confirmación con integridad de backend, sin sesiones de oferta durables.
@@ -261,3 +261,12 @@ Una única transacción abarca perfil/asociaciones nuevos, evaluación y observa
 5. Verificación focalizada de esquema/tipos y pruebas críticas de atomicidad, pertenencia, idempotencia, relación 1:N, procedencia humana y separación de exportaciones. No ejecutar suites completas ni automatizaciones funcionales adicionales sin autorización. Aceptación funcional/visual del usuario sobre R1 y escenarios iniciales afectados; después QA/seguridad según riesgo y cierre Git solo con autorización expresa.
 
 **Fuera de R1:** postulación/seguimiento laboral, pipeline, recordatorios, cartas, importación automática, historial de versiones o estados, reevaluación automática, nuevos datos profesionales desde respuestas, retención de oferta completa, reconstrucción de análisis anteriores y operaciones destructivas sobre evaluaciones.
+
+### Estado de implementación R1
+
+**Estado:** PENDIENTE_ACEPTACION (2026-11-10).
+
+- Implementado: extensión del contrato IA con puesto, empresa y excluyentes; contexto de confirmación cifrado por backend; tablas aditivas `cv_adaptations` y `cv_adaptation_observations`; persistencia transaccional e idempotente para `reuse`, `duplicate` y `create`; consulta desde Perfiles; gestión acotada de observaciones (pendiente/resuelto/descartado y nota); respuestas humanas con declaración explícita de ausencia; conteos de cobertura y aviso histórico.
+- Verificaciones: 27 pruebas focalizadas de backend, 25 de frontend, comprobación de tipos TypeScript, Pint, `vp check` focalizado, build cliente/SSR y migraciones locales. `phpstan` conserva 16 errores previos en archivos no modificados por esta historia.
+- Limitación: el contrato IA extendido se verificó con pruebas y esquema, pero no se volvió a ejecutar una llamada real a Codex en esta ronda. La aceptación manual debe incluir un análisis real y la revisión visual de la consulta/gestión.
+- Pendiente: aceptación funcional y visual del responsable. No se declara aceptación ni se cierra SPEC-008. Los cambios de implementación quedan sin commit en la rama.

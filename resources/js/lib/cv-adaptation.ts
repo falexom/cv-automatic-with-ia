@@ -32,6 +32,8 @@ export type CvAdaptationRequirement = {
     text: string;
     importance: 'required' | 'preferred' | 'unspecified';
     coverage: 'supported' | 'partial' | 'gap' | 'needs_confirmation';
+    exclusive: boolean;
+    exclusive_support: string | null;
 };
 
 export type CvAdaptationGap = {
@@ -56,6 +58,8 @@ export type CvAdaptationProposal = {
     schema_version: 1;
     operation: CvAdaptationOperation;
     source_profile_ref: string | null;
+    job_title: string;
+    company: string | null;
     rationale: string[];
     profile_details: CvAdaptationProfileDetails | null;
     requirements: CvAdaptationRequirement[];
@@ -149,6 +153,10 @@ export type CvAdaptationDataNotice = {
     reasoning_effort_label: string;
     sent: string[];
     excluded: string[];
+    retention: {
+        stored: string[];
+        excluded: string[];
+    };
 };
 
 export type CvAdaptationSummary = {
@@ -170,10 +178,100 @@ export type CvAdaptationAnalysisResponse = {
     proposal: CvAdaptationProposal;
     catalog: CvAdaptationCatalog;
     ref_nonce: string;
+    confirmation_token: string;
 };
 
 export type CvAdaptationApplyResponse = {
     redirect: string;
+};
+
+export type CvAdaptationQuestionStatus =
+    | 'answered'
+    | 'unanswered'
+    | 'discarded';
+
+export type CvAdaptationQuestionReview = {
+    index: number;
+    status: CvAdaptationQuestionStatus;
+    answer: string | null;
+    user_confirmed_absent: boolean;
+};
+
+export type CvAdaptationQuestionRecord = CvAdaptationQuestion & {
+    status: CvAdaptationQuestionStatus;
+    answer: string | null;
+    answer_source: 'user_statement' | null;
+    user_confirmed_absent: boolean;
+};
+
+export type CvAdaptationObservationType = 'gap' | 'recommendation' | 'question';
+
+export type CvAdaptationObservationStatus =
+    | 'pending'
+    | 'resolved'
+    | 'discarded';
+
+export type CvAdaptationObservation = {
+    id: number;
+    type: CvAdaptationObservationType;
+    reference: string;
+    status: CvAdaptationObservationStatus;
+    note: string | null;
+};
+
+export type CvAdaptationEvaluationContext = {
+    schema_version: 1;
+    job_title: string;
+    company: string | null;
+    operation: CvAdaptationOperation;
+    rationale: string[];
+    requirements: CvAdaptationRequirement[];
+    gaps: CvAdaptationGap[];
+    development_recommendations: CvAdaptationRecommendation[];
+    clarifying_questions: CvAdaptationQuestionRecord[];
+};
+
+export type CvAdaptationEvaluationCounts = {
+    supported: number;
+    partial: number;
+    gap: number;
+    needs_confirmation: number;
+    pending_coverage: number;
+    total: number;
+    pending_observations: number;
+};
+
+export type CvAdaptationEvaluationSummary = {
+    id: number;
+    operation: CvAdaptationOperation;
+    job_title: string;
+    company: string | null;
+    analyzed_at: string;
+    confirmed_at: string;
+};
+
+export type CvAdaptationEvaluation = CvAdaptationEvaluationSummary & {
+    context: CvAdaptationEvaluationContext;
+    counts: CvAdaptationEvaluationCounts;
+    observations: CvAdaptationObservation[];
+};
+
+export type CvAdaptationProfile = {
+    id: number;
+    name: string;
+    professional_title: string | null;
+    summary: string | null;
+    is_active: boolean;
+};
+
+export type CvAdaptationIndexProps = {
+    profile: CvAdaptationProfile;
+    adaptations: CvAdaptationEvaluationSummary[];
+};
+
+export type CvAdaptationShowProps = {
+    profile: CvAdaptationProfile;
+    adaptation: CvAdaptationEvaluation;
 };
 
 export const OPERATION_LABELS: Record<CvAdaptationOperation, string> = {
@@ -183,10 +281,10 @@ export const OPERATION_LABELS: Record<CvAdaptationOperation, string> = {
 };
 
 export const OPERATION_DESCRIPTIONS: Record<CvAdaptationOperation, string> = {
-    reuse: 'Se usará un perfil activo exactamente como está. No se guardará ni modificará.',
+    reuse: 'Se usará un perfil activo exactamente como está. No se guardará ni modificará el perfil; se guardará una evaluación histórica vinculada.',
     duplicate:
-        'Se creará un perfil nuevo a partir de un perfil existente. El perfil de origen no se modificará.',
-    create: 'Se creará un perfil nuevo con los registros del Perfil Maestro seleccionados.',
+        'Se creará un perfil nuevo a partir de un perfil existente. El perfil de origen no se modificará y se guardará una evaluación histórica vinculada al nuevo.',
+    create: 'Se creará un perfil nuevo con los registros del Perfil Maestro seleccionados y se guardará una evaluación histórica vinculada.',
 };
 
 export const IMPORTANCE_LABELS: Record<
@@ -222,8 +320,35 @@ export const EVIDENCE_STATE_LABELS: Record<
     CvAdaptationRecommendation['evidence_state'],
     string
 > = {
-    not_recorded: 'No registrado',
+    not_recorded: 'Sin información registrada',
     needs_confirmation: 'Requiere confirmación',
+};
+
+export const QUESTION_STATUS_LABELS: Record<
+    CvAdaptationQuestionStatus,
+    string
+> = {
+    answered: 'Respondida',
+    unanswered: 'Sin respuesta',
+    discarded: 'Descartada',
+};
+
+export const OBSERVATION_TYPE_LABELS: Record<
+    CvAdaptationObservationType,
+    string
+> = {
+    gap: 'Brecha',
+    recommendation: 'Recomendación',
+    question: 'Pregunta',
+};
+
+export const OBSERVATION_STATUS_LABELS: Record<
+    CvAdaptationObservationStatus,
+    string
+> = {
+    pending: 'Pendiente',
+    resolved: 'Resuelto',
+    discarded: 'Descartado',
 };
 
 export const CONTENT_FIELD_LABELS: Record<CvAdaptationContentField, string> = {

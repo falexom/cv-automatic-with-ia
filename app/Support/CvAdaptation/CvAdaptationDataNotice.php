@@ -36,6 +36,22 @@ final class CvAdaptationDataNotice
                 'URL de proyectos y enlaces que no correspondan a los campos autorizados.',
                 'Identificadores de base de datos.',
             ],
+            'retention' => [
+                'stored' => [
+                    'Puesto identificado o «Puesto no identificado» y empresa conocida.',
+                    'Fecha y hora del análisis, y fecha y hora de confirmación.',
+                    'Requisitos, importancia, cobertura y marca de excluyente con su fragmento de soporte.',
+                    'Brechas, motivos y estado de evidencia original.',
+                    'Recomendaciones de desarrollo y justificación de la operación.',
+                    'Preguntas, respuestas literales, su procedencia y la confirmación explícita de ausencia.',
+                    'Operación confirmada y vínculo con el perfil destino.',
+                ],
+                'excluded' => [
+                    'La oferta completa, el prompt y la salida técnica completa de Codex.',
+                    'El catálogo del Perfil Maestro, el CV, el PDF y los documentos.',
+                    'Un historial de cambios de estado de las observaciones.',
+                ],
+            ],
         ];
     }
 }

@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Pencil, Plus, UserRound } from 'lucide-react';
+import { History, Pencil, Plus, UserRound } from 'lucide-react';
 import { useState } from 'react';
 import EmptyState from '@/components/EmptyState';
 import { Badge } from '@/components/ui/badge';
@@ -103,6 +103,13 @@ export default function Index({
                                     <Button variant="ghost" asChild>
                                         <Link href={`/profiles/${profile.id}`}>
                                             Ver
+                                        </Link>
+                                    </Button>
+                                    <Button variant="ghost" asChild>
+                                        <Link
+                                            href={`/profiles/${profile.id}/adaptations`}
+                                        >
+                                            <History /> Ver adaptación
                                         </Link>
                                     </Button>
                                     <Button variant="ghost" asChild>

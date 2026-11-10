@@ -10,6 +10,7 @@ use App\Http\Controllers\CvProfileController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DocumentLinkController;
 use App\Http\Controllers\EducationController;
+use App\Http\Controllers\ProfileAdaptationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfilePhotoController;
 use App\Http\Controllers\ProjectController;
@@ -50,6 +51,9 @@ Route::get('/profiles/{cvProfile}/edit', [CvProfileController::class, 'edit'])->
 Route::put('/profiles/{cvProfile}', [CvProfileController::class, 'update'])->name('profiles.update');
 Route::post('/profiles/{cvProfile}/activate', [CvProfileController::class, 'activate'])->name('profiles.activate');
 Route::post('/profiles/{cvProfile}/deactivate', [CvProfileController::class, 'deactivate'])->name('profiles.deactivate');
+Route::get('/profiles/{cvProfile}/adaptations', [ProfileAdaptationController::class, 'index'])->name('profiles.adaptations.index');
+Route::get('/profiles/{cvProfile}/adaptations/{cvAdaptation}', [ProfileAdaptationController::class, 'show'])->name('profiles.adaptations.show');
+Route::patch('/profiles/{cvProfile}/adaptations/{cvAdaptation}/observations/{cvAdaptationObservation}', [ProfileAdaptationController::class, 'updateObservation'])->name('profiles.adaptations.observations.update');
 
 Route::get('/cv', [CvGeneratorController::class, 'index'])->name('cv.index');
 Route::get('/cv/adapt', [CvAdaptationController::class, 'create'])->name('cv.adapt.create');

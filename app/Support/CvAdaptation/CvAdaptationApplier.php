@@ -3,60 +3,67 @@
 namespace App\Support\CvAdaptation;
 
 use App\Http\Requests\StoreCvProfileRequest;
+use App\Models\CvAdaptation;
 use App\Models\CvProfile;
 use App\Support\CvProfileContent;
 use App\Support\NameNormalizer;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Throwable;
 
 final class CvAdaptationApplier
 {
     public function __construct(
         private readonly CvAdaptationCatalog $catalog,
-        private readonly CvAdaptationReferences $references,
+        private readonly CvAdaptationConfirmationToken $confirmationToken,
     ) {}
 
     /**
      * @param  array<string, mixed>  $payload
-     * @return array{redirect: string, created: bool}
+     * @return array{redirect: string, created: bool, idempotent: bool}
      */
     public function apply(array $payload): array
     {
-        $operation = $payload['operation'] ?? null;
+        $token = $this->confirmationToken->parse((string) ($payload['confirmation_token'] ?? ''));
 
-        if (! is_string($operation) || ! in_array($operation, ['reuse', 'duplicate', 'create'], true)) {
-            throw new CvAdaptationException(
-                'invalid_operation',
-                'La operación solicitada no es válida. Volvé a analizar la oferta.',
-                422,
-            );
+        $this->assertTokenMatchesPayload($token, $payload);
+
+        $existing = CvAdaptation::query()
+            ->where('confirmation_id', $token['confirmation_id'])
+            ->first();
+
+        if ($existing !== null) {
+            return [
+                'redirect' => route('cv.index', ['profile' => $existing->cv_profile_id]),
+                'created' => false,
+                'idempotent' => true,
+            ];
         }
 
-        $nonce = $payload['ref_nonce'] ?? null;
-
-        if (! is_string($nonce) || ! $this->references->isValidNonce($nonce)) {
-            throw new CvAdaptationException(
-                'stale_reference',
-                'La propuesta ya no es válida. Volvé a analizar la oferta.',
-                422,
-            );
-        }
-
+        $operation = $token['operation'];
+        $nonce = $token['ref_nonce'];
         $built = $this->catalog->build($nonce);
         $lookup = $built['lookup'];
+        $evaluation = $this->evaluationData($token, $payload);
 
         if ($operation === 'reuse') {
-            $source = $this->sourceProfile($payload, $lookup, requireActive: true);
+            $source = $this->sourceProfile($token['source_profile_ref'], $lookup, requireActive: true);
+
+            DB::transaction(function () use ($source, $evaluation): void {
+                $this->persistEvaluation($source['id'], $evaluation);
+            });
 
             return [
                 'redirect' => route('cv.index', ['profile' => $source['id']]),
                 'created' => false,
+                'idempotent' => false,
             ];
         }
 
         if ($operation === 'duplicate') {
-            $this->sourceProfile($payload, $lookup, requireActive: false);
-        } elseif (($payload['source_profile_ref'] ?? null) !== null) {
+            $this->sourceProfile($token['source_profile_ref'], $lookup, requireActive: false);
+        } elseif ($token['source_profile_ref'] !== null) {
             throw new CvAdaptationException(
                 'invalid_operation',
                 'La operación de creación no puede tener un perfil de origen.',
@@ -99,27 +106,234 @@ final class CvAdaptationApplier
 
         $this->assertProfileData($profileData);
 
-        $profile = DB::transaction(function () use ($profileData): CvProfile {
+        $profile = DB::transaction(function () use ($profileData, $evaluation): CvProfile {
             $this->ensureUniqueName($profileData['name']);
 
-            return CvProfileContent::create($profileData);
+            $profile = CvProfileContent::create($profileData);
+            $this->persistEvaluation($profile->id, $evaluation);
+
+            return $profile;
         });
 
         return [
             'redirect' => route('cv.index', ['profile' => $profile->id]),
             'created' => true,
+            'idempotent' => false,
         ];
     }
 
     /**
+     * @param  array<string, mixed>  $token
      * @param  array<string, mixed>  $payload
+     */
+    private function assertTokenMatchesPayload(array $token, array $payload): void
+    {
+        if (
+            ($payload['operation'] ?? null) !== $token['operation']
+            || ($payload['ref_nonce'] ?? null) !== $token['ref_nonce']
+            || ($payload['source_profile_ref'] ?? null) !== $token['source_profile_ref']
+        ) {
+            throw new CvAdaptationException(
+                'invalid_confirmation',
+                'La confirmación no coincide con la propuesta. Volvé a analizar la oferta.',
+                422,
+            );
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $token
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    private function evaluationData(array $token, array $payload): array
+    {
+        $jobTitle = trim((string) ($payload['job_title'] ?? ''));
+
+        if ($jobTitle === '') {
+            $jobTitle = 'Puesto no identificado';
+        }
+
+        $questions = $this->resolveQuestions(
+            $token['clarifying_questions'],
+            $payload['questions'] ?? [],
+        );
+
+        $context = [
+            'schema_version' => 1,
+            'job_title' => $jobTitle,
+            'company' => $this->normalizeNullable($payload['company'] ?? null),
+            'operation' => $token['operation'],
+            'rationale' => $token['rationale'],
+            'requirements' => $token['requirements'],
+            'gaps' => $token['gaps'],
+            'development_recommendations' => $token['development_recommendations'],
+            'clarifying_questions' => $questions,
+        ];
+
+        try {
+            $analyzedAt = CarbonImmutable::parse($token['analyzed_at']);
+        } catch (Throwable) {
+            throw new CvAdaptationException(
+                'invalid_confirmation',
+                'La confirmación ya no es válida. Volvé a analizar la oferta.',
+                422,
+            );
+        }
+
+        return [
+            'confirmation_id' => $token['confirmation_id'],
+            'operation' => $token['operation'],
+            'job_title' => $jobTitle,
+            'company' => $context['company'],
+            'analyzed_at' => $analyzedAt,
+            'context' => $context,
+            'observations' => $this->observations($context),
+        ];
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $questions
+     * @param  array<int, array<string, mixed>>  $reviews
+     * @return array<int, array<string, mixed>>
+     */
+    private function resolveQuestions(array $questions, array $reviews): array
+    {
+        $reviewsByIndex = [];
+
+        foreach ($reviews as $review) {
+            $index = $review['index'] ?? null;
+
+            if (
+                ! is_int($index)
+                || $index < 0
+                || $index >= count($questions)
+                || isset($reviewsByIndex[$index])
+            ) {
+                throw $this->invalidQuestions();
+            }
+
+            $status = $review['status'] ?? null;
+            $answer = $review['answer'] ?? null;
+            $confirmedAbsent = (bool) ($review['user_confirmed_absent'] ?? false);
+
+            if (
+                ! in_array($status, ['answered', 'unanswered', 'discarded'], true)
+                || ($answer !== null && ! is_string($answer))
+            ) {
+                throw $this->invalidQuestions();
+            }
+
+            $answered = $status === 'answered'
+                && is_string($answer)
+                && trim($answer) !== '';
+
+            if (
+                ($status === 'answered' && ! $answered)
+                || ($status !== 'answered' && is_string($answer) && trim($answer) !== '')
+                || ($confirmedAbsent && ! $answered)
+            ) {
+                throw $this->invalidQuestions();
+            }
+
+            $reviewsByIndex[$index] = [
+                'status' => $status,
+                'answer' => $answered ? $answer : null,
+                'answer_source' => $answered ? 'user_statement' : null,
+                'user_confirmed_absent' => $answered && $confirmedAbsent,
+            ];
+        }
+
+        $resolved = [];
+
+        foreach ($questions as $index => $question) {
+            $review = $reviewsByIndex[$index] ?? [
+                'status' => 'unanswered',
+                'answer' => null,
+                'answer_source' => null,
+                'user_confirmed_absent' => false,
+            ];
+
+            $resolved[] = [
+                'requirement_ref' => $question['requirement_ref'],
+                'question' => $question['question'],
+                ...$review,
+            ];
+        }
+
+        return $resolved;
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     * @return array<int, array<string, mixed>>
+     */
+    private function observations(array $context): array
+    {
+        $observations = [];
+
+        foreach ($context['gaps'] as $gap) {
+            $observations[] = [
+                'type' => 'gap',
+                'reference' => 'gap:'.$gap['requirement_ref'],
+                'status' => 'pending',
+                'note' => null,
+            ];
+        }
+
+        foreach (array_keys($context['development_recommendations']) as $index) {
+            $observations[] = [
+                'type' => 'recommendation',
+                'reference' => 'recommendation:'.$index,
+                'status' => 'pending',
+                'note' => null,
+            ];
+        }
+
+        foreach ($context['clarifying_questions'] as $index => $question) {
+            if ($question['status'] === 'discarded') {
+                continue;
+            }
+
+            $observations[] = [
+                'type' => 'question',
+                'reference' => 'question:'.$index,
+                'status' => 'pending',
+                'note' => null,
+            ];
+        }
+
+        return $observations;
+    }
+
+    /**
+     * @param  array<string, mixed>  $evaluation
+     */
+    private function persistEvaluation(int $profileId, array $evaluation): CvAdaptation
+    {
+        $adaptation = CvAdaptation::create([
+            'cv_profile_id' => $profileId,
+            'confirmation_id' => $evaluation['confirmation_id'],
+            'operation' => $evaluation['operation'],
+            'job_title' => $evaluation['job_title'],
+            'company' => $evaluation['company'],
+            'context' => $evaluation['context'],
+            'analyzed_at' => $evaluation['analyzed_at'],
+            'confirmed_at' => now(),
+        ]);
+
+        $adaptation->observations()->createMany($evaluation['observations']);
+
+        return $adaptation;
+    }
+
+    /**
      * @param  array<string, array<string, array<string, mixed>>>  $lookup
      * @return array<string, mixed>
      */
-    private function sourceProfile(array $payload, array $lookup, bool $requireActive): array
+    private function sourceProfile(?string $ref, array $lookup, bool $requireActive): array
     {
-        $ref = $payload['source_profile_ref'] ?? null;
-        $source = is_string($ref)
+        $source = $ref !== null
             ? ($lookup[CvAdaptationReferences::PROFILE][$ref] ?? null)
             : null;
 
@@ -242,5 +456,14 @@ final class CvAdaptationApplier
         }
 
         return $value;
+    }
+
+    private function invalidQuestions(): CvAdaptationException
+    {
+        return new CvAdaptationException(
+            'invalid_questions',
+            'Las respuestas de las preguntas no son válidas. Revisalas antes de confirmar.',
+            422,
+        );
     }
 }

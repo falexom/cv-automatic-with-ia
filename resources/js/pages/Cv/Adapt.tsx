@@ -74,6 +74,7 @@ export default function Adapt({ data_notice, summary }: CvAdaptationPageProps) {
                 <CvAdaptationReview
                     key={analysis.ref_nonce}
                     analysis={analysis}
+                    dataNotice={data_notice}
                     onCancel={cancelReview}
                 />
             ) : (

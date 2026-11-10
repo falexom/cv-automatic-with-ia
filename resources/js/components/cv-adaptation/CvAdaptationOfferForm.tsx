@@ -237,7 +237,9 @@ export default function CvAdaptationOfferForm({
                                 <p className="text-xs text-muted-foreground">
                                     Sin esta confirmación no se envía
                                     información. El análisis no persiste la
-                                    oferta, el prompt ni la propuesta.
+                                    oferta ni el prompt. Al confirmar, se
+                                    guardará una evaluación histórica revisada;
+                                    no se guarda la oferta completa.
                                 </p>
                             </div>
                         </div>

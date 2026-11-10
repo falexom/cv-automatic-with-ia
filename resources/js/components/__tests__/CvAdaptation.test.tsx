@@ -10,12 +10,14 @@ import {
     vi,
     type MockInstance,
 } from 'vitest';
+import CvAdaptationObservationForm from '@/components/cv-adaptation/CvAdaptationObservationForm';
 import CvAdaptationOfferForm from '@/components/cv-adaptation/CvAdaptationOfferForm';
 import CvAdaptationReview from '@/components/cv-adaptation/CvAdaptationReview';
 import type {
     CvAdaptationAnalysisResponse,
     CvAdaptationCatalog,
     CvAdaptationDataNotice,
+    CvAdaptationObservation,
     CvAdaptationProposal,
     CvAdaptationSummary,
 } from '@/lib/cv-adaptation';
@@ -41,6 +43,10 @@ const notice: CvAdaptationDataNotice = {
         'Nombre personal, teléfono, correo y ubicación.',
         'Fotografía, archivos y documentos.',
     ],
+    retention: {
+        stored: ['Puesto y empresa.', 'Requisitos y cobertura.'],
+        excluded: ['Oferta completa.', 'Prompt y salida técnica.'],
+    },
 };
 
 const summary: CvAdaptationSummary = {
@@ -152,6 +158,8 @@ const proposal: CvAdaptationProposal = {
     schema_version: 1,
     operation: 'duplicate',
     source_profile_ref: refs.profile,
+    job_title: 'Analista de Sistemas',
+    company: 'Acme',
     rationale: ['La oferta pide Laravel y el perfil lo registra.'],
     profile_details: {
         name: 'Analista adaptado',
@@ -164,12 +172,16 @@ const proposal: CvAdaptationProposal = {
             text: 'Experiencia con Laravel',
             importance: 'required',
             coverage: 'supported',
+            exclusive: false,
+            exclusive_support: null,
         },
         {
             ref: 'req_02',
             text: 'Experiencia con AWS',
             importance: 'required',
             coverage: 'gap',
+            exclusive: true,
+            exclusive_support: 'Se requiere AWS excluyente.',
         },
     ],
     gaps: [
@@ -206,6 +218,7 @@ const analysis: CvAdaptationAnalysisResponse = {
     proposal,
     catalog,
     ref_nonce: '0123456789abcdef0123456789abcdef',
+    confirmation_token: 'token-de-confirmacion',
 };
 
 let visitSpy: MockInstance;
@@ -313,7 +326,13 @@ describe('CvAdaptationOfferForm', () => {
 
 describe('CvAdaptationReview', () => {
     it('shows development recommendations apart and never as selected content', () => {
-        render(<CvAdaptationReview analysis={analysis} onCancel={() => {}} />);
+        render(
+            <CvAdaptationReview
+                analysis={analysis}
+                dataNotice={notice}
+                onCancel={() => {}}
+            />,
+        );
 
         expect(
             screen.getByText(/Recomendaciones de desarrollo/),
@@ -328,7 +347,13 @@ describe('CvAdaptationReview', () => {
     });
 
     it('allows discarding an optional question without blocking the review', () => {
-        render(<CvAdaptationReview analysis={analysis} onCancel={() => {}} />);
+        render(
+            <CvAdaptationReview
+                analysis={analysis}
+                dataNotice={notice}
+                onCancel={() => {}}
+            />,
+        );
 
         expect(
             screen.getByText('¿Tenés experiencia con AWS?'),
@@ -345,25 +370,44 @@ describe('CvAdaptationReview', () => {
             screen.getByText('No quedan preguntas por revisar.'),
         ).toBeInTheDocument();
         expect(
-            screen.getByRole('button', { name: 'Crear perfil duplicado' }),
+            screen.getByRole('button', {
+                name: 'Crear perfil y guardar evaluación',
+            }),
         ).toBeInTheDocument();
     });
 
-    it('submits only the reviewed profile data and selections', async () => {
+    it('submits reviewed profile data, evaluation metadata and answers', async () => {
         vi.mocked(postJson).mockResolvedValue({
             redirect: '/cv?profile=9',
         });
 
-        render(<CvAdaptationReview analysis={analysis} onCancel={() => {}} />);
+        render(
+            <CvAdaptationReview
+                analysis={analysis}
+                dataNotice={notice}
+                onCancel={() => {}}
+            />,
+        );
+
+        const apply = screen.getByRole('button', {
+            name: 'Crear perfil y guardar evaluación',
+        });
+
+        expect(apply).toBeDisabled();
 
         fireEvent.change(
             screen.getByLabelText(/Respuesta a: ¿Tenés experiencia con AWS\?/),
-            { target: { value: 'Respuesta local que no debe enviarse.' } },
+            { target: { value: 'No tengo esa certificación.' } },
         );
 
         fireEvent.click(
-            screen.getByRole('button', { name: 'Crear perfil duplicado' }),
+            screen.getByRole('checkbox', {
+                name: /Entiendo y acepto que se guarde/,
+            }),
         );
+
+        expect(apply).toBeEnabled();
+        fireEvent.click(apply);
 
         await waitFor(() =>
             expect(vi.mocked(postJson)).toHaveBeenCalledTimes(1),
@@ -377,12 +421,24 @@ describe('CvAdaptationReview', () => {
         expect(payload).toMatchObject({
             operation: 'duplicate',
             ref_nonce: analysis.ref_nonce,
+            confirmation_token: analysis.confirmation_token,
+            retention_accepted: true,
+            job_title: 'Analista de Sistemas',
+            company: 'Acme',
             source_profile_ref: refs.profile,
             profile_details: {
                 name: 'Analista adaptado',
                 professional_title: 'Analista de Sistemas',
                 summary: 'Resumen revisable.',
             },
+            questions: [
+                {
+                    index: 0,
+                    status: 'answered',
+                    answer: 'No tengo esa certificación.',
+                    user_confirmed_absent: false,
+                },
+            ],
         });
         expect(payload.selected_content).toMatchObject({
             work_experiences: [{ ref: refs.experience, relevance: 'alta' }],
@@ -395,6 +451,61 @@ describe('CvAdaptationReview', () => {
         await waitFor(() =>
             expect(visitSpy).toHaveBeenCalledWith('/cv?profile=9'),
         );
+    });
+
+    it('stores an explicit absence declaration only when the user confirms it', async () => {
+        vi.mocked(postJson).mockResolvedValue({
+            redirect: '/cv?profile=9',
+        });
+
+        render(
+            <CvAdaptationReview
+                analysis={analysis}
+                dataNotice={notice}
+                onCancel={() => {}}
+            />,
+        );
+
+        const absence = screen.getByRole('checkbox', {
+            name: /Confirmo que no dispongo de este requisito/,
+        });
+
+        expect(absence).toBeDisabled();
+
+        fireEvent.change(
+            screen.getByLabelText(/Respuesta a: ¿Tenés experiencia con AWS\?/),
+            { target: { value: 'No tengo esa certificación.' } },
+        );
+
+        expect(absence).toBeEnabled();
+        fireEvent.click(absence);
+
+        fireEvent.click(
+            screen.getByRole('checkbox', {
+                name: /Entiendo y acepto que se guarde/,
+            }),
+        );
+
+        fireEvent.click(
+            screen.getByRole('button', {
+                name: 'Crear perfil y guardar evaluación',
+            }),
+        );
+
+        await waitFor(() =>
+            expect(vi.mocked(postJson)).toHaveBeenCalledTimes(1),
+        );
+
+        const payload = vi.mocked(postJson).mock.calls[0][1] as {
+            questions: Array<Record<string, unknown>>;
+        };
+
+        expect(payload.questions[0]).toMatchObject({
+            index: 0,
+            status: 'answered',
+            answer: 'No tengo esa certificación.',
+            user_confirmed_absent: true,
+        });
     });
 
     it('uses reuse without sending profile changes', async () => {
@@ -415,7 +526,11 @@ describe('CvAdaptationReview', () => {
         };
 
         render(
-            <CvAdaptationReview analysis={reuseAnalysis} onCancel={() => {}} />,
+            <CvAdaptationReview
+                analysis={reuseAnalysis}
+                dataNotice={notice}
+                onCancel={() => {}}
+            />,
         );
 
         expect(
@@ -423,7 +538,15 @@ describe('CvAdaptationReview', () => {
         ).not.toBeInTheDocument();
 
         fireEvent.click(
-            screen.getByRole('button', { name: 'Usar este perfil' }),
+            screen.getByRole('checkbox', {
+                name: /Entiendo y acepto que se guarde/,
+            }),
+        );
+
+        fireEvent.click(
+            screen.getByRole('button', {
+                name: 'Usar perfil y guardar evaluación',
+            }),
         );
 
         await waitFor(() =>
@@ -438,10 +561,66 @@ describe('CvAdaptationReview', () => {
         expect(payload).toMatchObject({
             operation: 'reuse',
             ref_nonce: analysis.ref_nonce,
+            confirmation_token: analysis.confirmation_token,
+            retention_accepted: true,
+            job_title: 'Analista de Sistemas',
+            company: 'Acme',
             source_profile_ref: refs.profile,
             profile_details: null,
             selected_content: null,
+            questions: [],
         });
+    });
+});
+
+describe('CvAdaptationObservationForm', () => {
+    it('saves status and note and can clear the note', () => {
+        const observation: CvAdaptationObservation = {
+            id: 7,
+            type: 'gap',
+            reference: 'gap:req_02',
+            status: 'pending',
+            note: null,
+        };
+        const patch = vi
+            .spyOn(router, 'patch')
+            .mockImplementation((_url, _data, options) => {
+                options?.onFinish?.({} as never);
+            });
+
+        render(
+            <CvAdaptationObservationForm
+                profileId={1}
+                adaptationId={2}
+                observation={observation}
+                linkedTitle="Brecha AWS"
+                linkedDetail="Falta evidencia de AWS."
+            />,
+        );
+
+        fireEvent.change(screen.getByLabelText('Estado'), {
+            target: { value: 'resolved' },
+        });
+        fireEvent.change(screen.getByLabelText('Nota opcional'), {
+            target: { value: 'Revisar AWS.' },
+        });
+        fireEvent.click(
+            screen.getByRole('button', { name: 'Guardar observación' }),
+        );
+
+        expect(patch).toHaveBeenCalledWith(
+            '/profiles/1/adaptations/2/observations/7',
+            { status: 'resolved', note: 'Revisar AWS.' },
+            expect.objectContaining({ preserveScroll: true }),
+        );
+
+        fireEvent.click(screen.getByRole('button', { name: 'Borrar nota' }));
+
+        expect(patch).toHaveBeenLastCalledWith(
+            '/profiles/1/adaptations/2/observations/7',
+            { status: 'resolved', note: '' },
+            expect.objectContaining({ preserveScroll: true }),
+        );
     });
 });
 

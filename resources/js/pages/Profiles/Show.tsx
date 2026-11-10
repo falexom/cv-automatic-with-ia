@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Pencil, Undo2 } from 'lucide-react';
+import { History, Pencil, Undo2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -61,6 +61,11 @@ export default function Show({
             <div className="mb-4 flex flex-wrap justify-end gap-2">
                 <Button variant="outline" asChild>
                     <Link href="/profiles">Volver</Link>
+                </Button>
+                <Button variant="outline" asChild>
+                    <Link href={`/profiles/${profile.id}/adaptations`}>
+                        <History /> Ver adaptación
+                    </Link>
                 </Button>
                 <Button asChild>
                     <Link href={`/profiles/${profile.id}/edit`}>

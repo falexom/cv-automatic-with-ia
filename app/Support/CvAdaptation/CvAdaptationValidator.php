@@ -18,6 +18,8 @@ final class CvAdaptationValidator
         $this->assertStrategy($proposal, $strategy);
         $this->assertOperation($proposal, $built['lookup']);
         $proposal = $this->normalizeProfileDetails($proposal);
+        $proposal = $this->normalizeJobDetails($proposal);
+        $proposal = $this->normalizeRequirements($proposal);
         $this->assertRequirements($proposal);
         $this->assertSelections($proposal['selected_content'], $built['lookup']);
 
@@ -162,6 +164,43 @@ final class CvAdaptationValidator
 
     /**
      * @param  array<string, mixed>  $proposal
+     * @return array<string, mixed>
+     */
+    private function normalizeJobDetails(array $proposal): array
+    {
+        $jobTitle = is_string($proposal['job_title'] ?? null)
+            ? trim($proposal['job_title'])
+            : '';
+
+        $proposal['job_title'] = $jobTitle === ''
+            ? 'Puesto no identificado'
+            : $jobTitle;
+        $proposal['company'] = $this->normalizeNullable($proposal['company'] ?? null);
+
+        return $proposal;
+    }
+
+    /**
+     * @param  array<string, mixed>  $proposal
+     * @return array<string, mixed>
+     */
+    private function normalizeRequirements(array $proposal): array
+    {
+        foreach ($proposal['requirements'] as $index => $requirement) {
+            $exclusive = $requirement['exclusive'] === true;
+            $support = $requirement['exclusive_support'] ?? null;
+
+            $proposal['requirements'][$index]['exclusive'] = $exclusive;
+            $proposal['requirements'][$index]['exclusive_support'] = $exclusive && is_string($support)
+                ? (trim($support) === '' ? null : trim($support))
+                : null;
+        }
+
+        return $proposal;
+    }
+
+    /**
+     * @param  array<string, mixed>  $proposal
      */
     private function assertRequirements(array $proposal): void
     {
@@ -174,6 +213,14 @@ final class CvAdaptationValidator
                 throw new CvAdaptationException(
                     'invalid_requirements',
                     'La propuesta repite referencias de requisitos.',
+                    502,
+                );
+            }
+
+            if ($requirement['exclusive'] === true && ! is_string($requirement['exclusive_support'])) {
+                throw new CvAdaptationException(
+                    'invalid_requirements',
+                    'La propuesta marca un requisito como excluyente sin el fragmento que lo justifica.',
                     502,
                 );
             }

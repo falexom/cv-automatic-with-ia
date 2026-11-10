@@ -18,6 +18,8 @@ final class CvAdaptationSchema
                 'schema_version',
                 'operation',
                 'source_profile_ref',
+                'job_title',
+                'company',
                 'rationale',
                 'profile_details',
                 'requirements',
@@ -41,6 +43,17 @@ final class CvAdaptationSchema
                     'type' => ['string', 'null'],
                     'pattern' => '^cv_[a-f0-9]{12}$',
                     'description' => 'Referencia opaca al perfil de CV de origen. Obligatoria para reuse y duplicate; null para create.',
+                ],
+                'job_title' => [
+                    'type' => 'string',
+                    'minLength' => 1,
+                    'maxLength' => 255,
+                    'description' => 'Puesto identificado en la oferta, o exactamente "Puesto no identificado" si no se identifica.',
+                ],
+                'company' => [
+                    'type' => ['string', 'null'],
+                    'maxLength' => 255,
+                    'description' => 'Empresa solo si la oferta la informa; null si no se conoce. No inventar.',
                 ],
                 'rationale' => [
                     'type' => 'array',
@@ -83,7 +96,7 @@ final class CvAdaptationSchema
                     'items' => [
                         'type' => 'object',
                         'additionalProperties' => false,
-                        'required' => ['ref', 'text', 'importance', 'coverage'],
+                        'required' => ['ref', 'text', 'importance', 'coverage', 'exclusive', 'exclusive_support'],
                         'properties' => [
                             'ref' => [
                                 'type' => 'string',
@@ -101,6 +114,15 @@ final class CvAdaptationSchema
                             'coverage' => [
                                 'type' => 'string',
                                 'enum' => ['supported', 'partial', 'gap', 'needs_confirmation'],
+                            ],
+                            'exclusive' => [
+                                'type' => 'boolean',
+                                'description' => 'Solo true si la oferta expresa que el requisito es excluyente. required no implica excluyente.',
+                            ],
+                            'exclusive_support' => [
+                                'type' => ['string', 'null'],
+                                'maxLength' => 500,
+                                'description' => 'Fragmento mínimo de la oferta que justifica la exclusión; null si no es excluyente.',
                             ],
                         ],
                     ],

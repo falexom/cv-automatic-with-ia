@@ -7,6 +7,7 @@ use Database\Factories\CvProfileFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CvProfile extends Model
 {
@@ -135,6 +136,14 @@ class CvProfile extends Model
             ->orderByDesc('projects.start_year')
             ->orderByRaw('COALESCE(projects.start_month, 1) DESC')
             ->orderByDesc('projects.id');
+    }
+
+    /**
+     * @return HasMany<CvAdaptation, $this>
+     */
+    public function adaptations(): HasMany
+    {
+        return $this->hasMany(CvAdaptation::class);
     }
 
     private static function relevanceOrder(string $pivot): string

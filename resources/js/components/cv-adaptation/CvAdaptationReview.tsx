@@ -16,6 +16,7 @@ import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
@@ -33,7 +34,9 @@ import {
     type CvAdaptationCatalog,
     type CvAdaptationCatalogProfile,
     type CvAdaptationContentField,
+    type CvAdaptationDataNotice,
     type CvAdaptationQuestion,
+    type CvAdaptationQuestionReview,
     type CvAdaptationRequirement,
     type CvAdaptationSelection,
     type CvAdaptationSelectedContent,
@@ -54,8 +57,8 @@ const CONTENT_FIELDS: CvAdaptationContentField[] = [
     'projects',
 ];
 
-function questionKey(question: CvAdaptationQuestion): string {
-    return `${question.requirement_ref}::${question.question}`;
+function questionKey(question: CvAdaptationQuestion, index: number): string {
+    return `${question.requirement_ref}::${question.question}::${index}`;
 }
 
 function coverageVariant(
@@ -238,9 +241,11 @@ function SourceProfileCard({
 
 export default function CvAdaptationReview({
     analysis,
+    dataNotice,
     onCancel,
 }: {
     analysis: CvAdaptationAnalysisResponse;
+    dataNotice: CvAdaptationDataNotice;
     onCancel: () => void;
 }) {
     const { proposal, catalog, ref_nonce: refNonce } = analysis;
@@ -249,6 +254,8 @@ export default function CvAdaptationReview({
         professional_title: proposal.profile_details?.professional_title ?? '',
         summary: proposal.profile_details?.summary ?? '',
     });
+    const [jobTitle, setJobTitle] = useState(proposal.job_title);
+    const [company, setCompany] = useState(proposal.company ?? '');
     const [selected, setSelected] = useState<CvAdaptationSelectedContent>(
         selectedContentFromProposal(proposal),
     );
@@ -256,6 +263,10 @@ export default function CvAdaptationReview({
     const [discardedQuestions, setDiscardedQuestions] = useState<Set<string>>(
         new Set(),
     );
+    const [confirmedAbsent, setConfirmedAbsent] = useState<Set<string>>(
+        new Set(),
+    );
+    const [retentionAccepted, setRetentionAccepted] = useState(false);
     const [processing, setProcessing] = useState(false);
     const [error, setError] = useState<{
         message: string;
@@ -281,10 +292,13 @@ export default function CvAdaptationReview({
     const visibleQuestions = proposal.clarifying_questions
         .map((question, index) => ({
             question,
-            key: `${questionKey(question)}::${index}`,
+            key: questionKey(question, index),
         }))
         .filter(({ key }) => !discardedQuestions.has(key));
-    const canApply = isReuse || details.name.trim() !== '';
+    const canApply =
+        jobTitle.trim() !== '' &&
+        retentionAccepted &&
+        (isReuse || details.name.trim() !== '');
 
     const apply = async () => {
         if (!canApply || applyingRef.current) {
@@ -295,6 +309,25 @@ export default function CvAdaptationReview({
         setProcessing(true);
         setError(null);
 
+        const questions: CvAdaptationQuestionReview[] =
+            proposal.clarifying_questions.map((question, index) => {
+                const key = questionKey(question, index);
+                const discarded = discardedQuestions.has(key);
+                const answer = answers[key] ?? '';
+                const answered = !discarded && answer.trim() !== '';
+
+                return {
+                    index,
+                    status: discarded
+                        ? 'discarded'
+                        : answered
+                          ? 'answered'
+                          : 'unanswered',
+                    answer: answered ? answer : null,
+                    user_confirmed_absent: answered && confirmedAbsent.has(key),
+                };
+            });
+
         let redirect: string;
 
         try {
@@ -303,6 +336,11 @@ export default function CvAdaptationReview({
                 {
                     operation: proposal.operation,
                     ref_nonce: refNonce,
+                    confirmation_token: analysis.confirmation_token,
+                    retention_accepted: true,
+                    job_title: jobTitle.trim(),
+                    company: company.trim() === '' ? null : company,
+                    questions,
                     source_profile_ref: proposal.source_profile_ref,
                     profile_details: isReuse
                         ? null
@@ -348,10 +386,8 @@ export default function CvAdaptationReview({
     };
 
     const buttonLabel = isReuse
-        ? 'Usar este perfil'
-        : proposal.operation === 'duplicate'
-          ? 'Crear perfil duplicado'
-          : 'Crear perfil nuevo';
+        ? 'Usar perfil y guardar evaluación'
+        : 'Crear perfil y guardar evaluación';
 
     return (
         <div className="space-y-6">
@@ -427,6 +463,42 @@ export default function CvAdaptationReview({
                     }
                 />
             ) : null}
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Datos de la evaluación</CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5 sm:col-span-2">
+                        <Label htmlFor="job-title">Puesto de la oferta *</Label>
+                        <Input
+                            id="job-title"
+                            value={jobTitle}
+                            onChange={(event) =>
+                                setJobTitle(event.target.value)
+                            }
+                            maxLength={255}
+                            disabled={processing}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Si no se identifica, usá «Puesto no identificado».
+                        </p>
+                    </div>
+                    <div className="space-y-1.5 sm:col-span-2">
+                        <Label htmlFor="company">Empresa</Label>
+                        <Input
+                            id="company"
+                            value={company}
+                            onChange={(event) => setCompany(event.target.value)}
+                            maxLength={255}
+                            disabled={processing}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Dejala vacía si no se conoce. No se inventa.
+                        </p>
+                    </div>
+                </CardContent>
+            </Card>
 
             {!isReuse ? (
                 <Card>
@@ -767,9 +839,8 @@ export default function CvAdaptationReview({
                 </CardHeader>
                 <CardContent className="space-y-3">
                     <p className="text-sm text-muted-foreground">
-                        Podés responder o descartar. Las respuestas quedan solo
-                        en esta pantalla: no se guardan, no se envían y no se
-                        convierten en evidencia profesional.
+                        Las respuestas se guardarán con la evaluación histórica.
+                        No modifican la cobertura ni acreditan competencias.
                     </p>
                     {visibleQuestions.length === 0 ? (
                         <p className="text-sm text-muted-foreground">
@@ -782,6 +853,8 @@ export default function CvAdaptationReview({
                             const requirement = requirementsByRef.get(
                                 question.requirement_ref,
                             );
+                            const hasAnswer =
+                                (answers[key] ?? '').trim() !== '';
 
                             return (
                                 <div
@@ -799,25 +872,79 @@ export default function CvAdaptationReview({
                                     <textarea
                                         className="min-h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                                         value={answers[key] ?? ''}
-                                        onChange={(event) =>
+                                        onChange={(event) => {
+                                            const value = event.target.value;
+
                                             setAnswers((current) => ({
                                                 ...current,
-                                                [key]: event.target.value,
-                                            }))
-                                        }
-                                        placeholder="Respuesta local opcional…"
+                                                [key]: value,
+                                            }));
+
+                                            if (value.trim() === '') {
+                                                setConfirmedAbsent(
+                                                    (current) => {
+                                                        const next = new Set(
+                                                            current,
+                                                        );
+                                                        next.delete(key);
+
+                                                        return next;
+                                                    },
+                                                );
+                                            }
+                                        }}
+                                        placeholder="Respuesta opcional…"
                                         aria-label={`Respuesta a: ${question.question}`}
+                                        maxLength={5000}
                                         disabled={processing}
                                     />
+                                    <label className="flex items-start gap-2 text-xs text-muted-foreground">
+                                        <Checkbox
+                                            checked={confirmedAbsent.has(key)}
+                                            disabled={processing || !hasAnswer}
+                                            onCheckedChange={(checked) =>
+                                                setConfirmedAbsent(
+                                                    (current) => {
+                                                        const next = new Set(
+                                                            current,
+                                                        );
+
+                                                        if (checked === true) {
+                                                            next.add(key);
+                                                        } else {
+                                                            next.delete(key);
+                                                        }
+
+                                                        return next;
+                                                    },
+                                                )
+                                            }
+                                        />
+                                        <span>
+                                            Confirmo que no dispongo de este
+                                            requisito.
+                                        </span>
+                                    </label>
+                                    <p className="text-xs text-muted-foreground">
+                                        La confirmación de ausencia es una
+                                        declaración humana: no se infiere del
+                                        texto ni modifica la cobertura.
+                                    </p>
                                     <Button
                                         type="button"
                                         variant="ghost"
                                         size="sm"
-                                        onClick={() =>
+                                        onClick={() => {
                                             setDiscardedQuestions((current) =>
                                                 new Set(current).add(key),
-                                            )
-                                        }
+                                            );
+                                            setConfirmedAbsent((current) => {
+                                                const next = new Set(current);
+                                                next.delete(key);
+
+                                                return next;
+                                            });
+                                        }}
                                         disabled={processing}
                                     >
                                         Descartar pregunta
@@ -826,6 +953,74 @@ export default function CvAdaptationReview({
                             );
                         })
                     )}
+                </CardContent>
+            </Card>
+
+            <Card className="border-primary/20">
+                <CardHeader>
+                    <CardTitle>Qué se guardará al confirmar</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                        Esta evaluación quedará guardada localmente y vinculada
+                        al perfil. No se actualiza con cambios posteriores del
+                        Maestro o del perfil.
+                    </p>
+                    <div className="grid gap-4 lg:grid-cols-2">
+                        <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-4">
+                            <p className="mb-2 text-sm font-medium text-emerald-950">
+                                Se guardará
+                            </p>
+                            <ul className="space-y-1.5 text-sm text-emerald-900">
+                                {dataNotice.retention.stored.map((item) => (
+                                    <li key={item} className="flex gap-2">
+                                        <span aria-hidden="true">•</span>
+                                        <span className="break-words">
+                                            {item}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div className="rounded-lg border border-rose-200 bg-rose-50/60 p-4">
+                            <p className="mb-2 text-sm font-medium text-rose-950">
+                                No se guardará
+                            </p>
+                            <ul className="space-y-1.5 text-sm text-rose-900">
+                                {dataNotice.retention.excluded.map((item) => (
+                                    <li key={item} className="flex gap-2">
+                                        <span aria-hidden="true">•</span>
+                                        <span className="break-words">
+                                            {item}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                    <div className="flex items-start gap-3 rounded-lg border bg-muted/30 p-4">
+                        <Checkbox
+                            id="retention-accepted"
+                            checked={retentionAccepted}
+                            onCheckedChange={(checked) =>
+                                setRetentionAccepted(checked === true)
+                            }
+                            disabled={processing}
+                        />
+                        <div className="space-y-1">
+                            <Label
+                                htmlFor="retention-accepted"
+                                className="cursor-pointer leading-5"
+                            >
+                                Entiendo y acepto que se guarde esta evaluación
+                                histórica con los datos revisados.
+                            </Label>
+                            <p className="text-xs text-muted-foreground">
+                                Sin esta aceptación no se crea ni reutiliza el
+                                perfil ni se guarda la evaluación.
+                            </p>
+                        </div>
+                    </div>
                 </CardContent>
             </Card>
 
@@ -856,18 +1051,20 @@ export default function CvAdaptationReview({
                     <div className="space-y-1 text-sm">
                         <p className="font-medium">
                             {isReuse
-                                ? 'Se abrirá el perfil activo tal como está.'
+                                ? 'Se usará el perfil activo sin modificar sus datos.'
                                 : 'Se creará un perfil nuevo y activo.'}
                         </p>
                         <p className="text-muted-foreground">
                             {isReuse
-                                ? 'No se guardará ni modificará ningún dato.'
+                                ? 'Se guardará una evaluación histórica vinculada al perfil.'
                                 : `Relevancias elegidas: ${CONTENT_FIELDS.map(
                                       (field) =>
                                           `${CONTENT_FIELD_LABELS[field]} ${
                                               selected[field].length
                                           }`,
-                                  ).join(' · ')}`}
+                                  ).join(
+                                      ' · ',
+                                  )} · Se guardará una evaluación histórica.`}
                         </p>
                     </div>
                     <div className="flex flex-col-reverse gap-2 sm:flex-row">

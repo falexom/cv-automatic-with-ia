@@ -13,6 +13,7 @@ use App\Models\WorkExperience;
 use App\Support\CvAdaptation\CvAdaptationAnalyzer;
 use App\Support\CvAdaptation\CvAdaptationApplier;
 use App\Support\CvAdaptation\CvAdaptationCatalog;
+use App\Support\CvAdaptation\CvAdaptationConfirmationToken;
 use App\Support\CvAdaptation\CvAdaptationDataNotice;
 use App\Support\CvAdaptation\CvAdaptationException;
 use App\Support\CvAdaptation\CvAdaptationReferences;
@@ -28,6 +29,7 @@ class CvAdaptationController extends Controller
         private readonly CvAdaptationAnalyzer $analyzer,
         private readonly CvAdaptationApplier $applier,
         private readonly CvAdaptationCatalog $catalog,
+        private readonly CvAdaptationConfirmationToken $confirmationToken,
         private readonly CvAdaptationDataNotice $dataNotice,
         private readonly CvAdaptationReferences $references,
         private readonly CvAdaptationValidator $validator,
@@ -69,6 +71,7 @@ class CvAdaptationController extends Controller
                 $built,
                 $data['strategy'] ?? null,
             );
+            $confirmationToken = $this->confirmationToken->issue($proposal, $nonce);
         } catch (CvAdaptationException $exception) {
             return $this->errorResponse($exception);
         } catch (Throwable $exception) {
@@ -84,6 +87,7 @@ class CvAdaptationController extends Controller
             'proposal' => $proposal,
             'catalog' => $built['catalog'],
             'ref_nonce' => $nonce,
+            'confirmation_token' => $confirmationToken,
         ]);
     }
 
@@ -105,9 +109,11 @@ class CvAdaptationController extends Controller
         try {
             $request->session()->flash('toast', [
                 'type' => 'success',
-                'message' => $result['created']
-                    ? 'Perfil creado. Revisá la vista previa y exportá el PDF.'
-                    : 'Perfil reutilizado. Se abrió su vista previa.',
+                'message' => $result['idempotent']
+                    ? 'La adaptación ya estaba guardada. Se abrió su perfil.'
+                    : ($result['created']
+                        ? 'Perfil creado y evaluación guardada. Revisá la vista previa y exportá el PDF.'
+                        : 'Perfil reutilizado y evaluación guardada. Se abrió su vista previa.'),
             ]);
         } catch (Throwable $exception) {
             report($exception);
