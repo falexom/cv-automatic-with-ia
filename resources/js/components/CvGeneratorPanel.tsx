@@ -17,6 +17,20 @@ export default function CvGeneratorPanel({
 }: CvGeneratorPageProps) {
     return (
         <div className="space-y-4">
+            <div className="flex flex-col gap-3 rounded-xl border bg-background p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="space-y-1">
+                    <p className="font-medium">¿Tenés una oferta laboral?</p>
+                    <p className="text-sm text-muted-foreground">
+                        Codex puede contrastarla con tu Perfil Maestro y tus
+                        perfiles, y proponer un CV adaptado con revisión y
+                        aprobación previas.
+                    </p>
+                </div>
+                <Button asChild variant="outline" className="w-full sm:w-auto">
+                    <Link href="/cv/adapt">Adaptar CV a una oferta</Link>
+                </Button>
+            </div>
+
             {status === 'no_active_profiles' ? (
                 <EmptyState
                     title="Sin perfiles activos"

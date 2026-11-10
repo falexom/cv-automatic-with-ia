@@ -1,7 +1,7 @@
 # US-008 — Adaptar CV a una oferta laboral
 
 **Identificador:** US-008  
-**Estado:** APROBADA_PARA_DESARROLLO — aprobada por el responsable el 2026-11-06  
+**Estado:** PENDIENTE_ACEPTACION — implementación técnica completada el 2026-11-06; aceptación funcional y visual pendiente  
 **SPEC relacionada:** [SPEC-008 — Adaptación de CV a una oferta laboral](../008-adaptacion-cv-ofertas/spec.md)  
 **Fuente contractual:** este archivo contiene el único contrato funcional de SPEC-008. La SPEC mantiene contexto y dependencias, sin duplicar estos criterios.
 
@@ -108,7 +108,7 @@ Reglas del contrato:
 ## Criterios de aceptación
 
 1. **CA-01 — Validación técnica interna:** antes de implementar el flujo dependiente se prueba autenticación, `gpt-6-luna`, `xhigh` y generación estructurada con una oferta real y datos profesionales existentes. Si una verificación falla, el trabajo dependiente se detiene y se presenta evidencia y alternativas; no hay sustitución automática. Esta etapa no agrega interfaz ni persistencia de aplicación.
-2. **CA-02 — Consentimiento y datos:** antes de enviar, se muestran el destino y los campos concretos definidos en Datos enviados y privacidad. Sin consentimiento no se envía información.
+2. **CA-02 — Consentimiento y datos:** antes de enviar, se muestran el destino, los campos concretos definidos en Datos enviados y privacidad, y el modelo y esfuerzo configurados para Codex, obtenidos de la misma configuración efectiva del backend que usa la invocación. La indicación informa la configuración previa al envío; no afirma disponibilidad ni uso previo. Sin consentimiento no se envía información.
 3. **CA-03 — Propuesta válida y fundamentada:** se recibe una salida que cumple el contrato JSON y enumera requisitos, recomendación, selecciones, relevancias, brechas y recomendaciones de desarrollo separadas. No se presentan como hechos experiencia, dominio, titulaciones, logros o formación sin sustento en los datos recibidos.
 4. **CA-04 — Reutilizar sin alterar:** si se aprueba `reuse`, el perfil debe seguir activo y disponible; se usa exactamente como existe, sin crear copia, actualizar campos, selecciones o relevancias ni guardar nuevamente.
 5. **CA-05 — Duplicar sin alterar origen:** al aprobar `duplicate`, Laravel crea un perfil nuevo y sus asociaciones a partir de las referencias validadas. Ningún campo o asociación del perfil origen ni del Perfil Maestro cambia.
@@ -151,3 +151,24 @@ Reglas del contrato:
 ## Criterios de revisión y verificación
 
 La validación técnica inicial y los flujos de `reuse`, `duplicate`, `create`, revalidación ante referencias obsoletas y exportación con la ruta existente deben comprobarse de forma focalizada durante Build. La prueba técnica no sustituye la aceptación funcional del responsable; no se ejecutan suites completas ni automatizaciones adicionales sin autorización.
+
+## Estado de implementación
+
+**Estado:** PENDIENTE_ACEPTACION (2026-11-06).
+
+- Rama: `008-adaptacion-cv-ofertas`, creada desde `main` (`2f5871c`), sin modificar `main`.
+- Commit preparatorio documental: `722d77f`.
+- Validación técnica de CA-01: superada con autenticación ChatGPT, `gpt-6-luna`, esfuerzo `xhigh`, oferta real y datos existentes. Evidencia en [validation-evidence.md](../008-adaptacion-cv-ofertas/validation-evidence.md).
+- Implementación: página `/cv/adapt` accesible desde el generador; análisis con Codex; revisión y edición de la propuesta; operaciones `reuse`, `duplicate` y `create`; revalidación de referencias al confirmar; creación atómica mediante las validaciones y la operación existentes de Laravel.
+- Verificaciones técnicas: pruebas focalizadas de backend y frontend, comprobación de tipos TypeScript, formato/lint de los archivos modificados, build cliente y SSR. `phpstan` conserva errores previos en archivos no modificados por esta historia.
+- Pendiente: aceptación funcional y visual del responsable. No se declara la historia aceptada ni se cierra SPEC-008.
+- Los cambios de implementación quedan sin commit en la rama para revisión.
+
+### Validación manual sugerida
+
+1. Entrar a `/cv/adapt` desde el generador de CV.
+2. Pegar una oferta, revisar la lista de datos que se enviarán, marcar el consentimiento y analizar.
+3. Revisar requisitos, brechas, selecciones, recomendaciones de desarrollo separadas y preguntas opcionales.
+4. Probar `reuse` (no debe guardar), `duplicate` (el perfil de origen no debe cambiar) y `create`.
+5. Confirmar que el perfil creado o reutilizado se abre en `/cv?profile=...` y que la vista previa y el PDF existentes funcionan.
+6. Verificar que cancelar no guarda cambios y que una referencia obsoleta produce un error sin persistencia parcial.

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CertificationController;
+use App\Http\Controllers\CvAdaptationController;
 use App\Http\Controllers\CvDocumentedPdfController;
 use App\Http\Controllers\CvGeneratorController;
 use App\Http\Controllers\CvMarkdownController;
@@ -51,6 +52,9 @@ Route::post('/profiles/{cvProfile}/activate', [CvProfileController::class, 'acti
 Route::post('/profiles/{cvProfile}/deactivate', [CvProfileController::class, 'deactivate'])->name('profiles.deactivate');
 
 Route::get('/cv', [CvGeneratorController::class, 'index'])->name('cv.index');
+Route::get('/cv/adapt', [CvAdaptationController::class, 'create'])->name('cv.adapt.create');
+Route::post('/cv/adapt/analyze', [CvAdaptationController::class, 'analyze'])->name('cv.adapt.analyze');
+Route::post('/cv/adapt/apply', [CvAdaptationController::class, 'apply'])->name('cv.adapt.apply');
 Route::get('/cv/pdf', CvPdfController::class)->name('cv.pdf');
 Route::get('/cv/markdown', CvMarkdownController::class)->name('cv.markdown');
 Route::get('/cv/documentado', CvDocumentedPdfController::class)->name('cv.documented');

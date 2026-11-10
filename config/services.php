@@ -44,4 +44,12 @@ return [
         'binary' => env('QPDF_BINARY', 'qpdf'),
     ],
 
+    'codex' => [
+        'binary' => env('CODEX_BINARY', 'codex'),
+        'node_binary' => env('CODEX_NODE_BINARY', 'node'),
+        'model' => env('CODEX_MODEL', 'gpt-6-luna'),
+        'reasoning_effort' => env('CODEX_REASONING_EFFORT', 'xhigh'),
+        'timeout' => (int) env('CODEX_TIMEOUT', 300),
+    ],
+
 ];
