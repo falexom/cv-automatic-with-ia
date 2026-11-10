@@ -1,9 +1,13 @@
 # US-008 — Adaptar CV a una oferta laboral
 
 **Identificador:** US-008  
-**Estado:** PENDIENTE_ACEPTACION — implementación técnica completada el 2026-11-06; aceptación funcional y visual pendiente  
+**Estado:** Base implementada y con funcionamiento general confirmado por el usuario; ampliación R1 APROBADA_PARA_DESARROLLO (2026-11-10). Sin aceptación exhaustiva ni cierre.  
 **SPEC relacionada:** [SPEC-008 — Adaptación de CV a una oferta laboral](../008-adaptacion-cv-ofertas/spec.md)  
 **Fuente contractual:** este archivo contiene el único contrato funcional de SPEC-008. La SPEC mantiene contexto y dependencias, sin duplicar estos criterios.
+
+## Contrato inicial conservado (aprobado el 2026-11-06)
+
+Las secciones iniciales conservan el alcance implementado, incluidas sus exclusiones de persistencia. La revisión R1 al final está aprobada para desarrollo y sustituye expresamente las reglas que indica. No hay dos contratos activos: la base con las sustituciones R1 es el contrato vigente para esta implementación; la aceptación funcional y visual sigue pendiente.
 
 ## Historia de usuario
 
@@ -162,7 +166,7 @@ La validación técnica inicial y los flujos de `reuse`, `duplicate`, `create`, 
 - Implementación: página `/cv/adapt` accesible desde el generador; análisis con Codex; revisión y edición de la propuesta; operaciones `reuse`, `duplicate` y `create`; revalidación de referencias al confirmar; creación atómica mediante las validaciones y la operación existentes de Laravel.
 - Verificaciones técnicas: pruebas focalizadas de backend y frontend, comprobación de tipos TypeScript, formato/lint de los archivos modificados, build cliente y SSR. `phpstan` conserva errores previos en archivos no modificados por esta historia.
 - Pendiente: aceptación funcional y visual del responsable. No se declara la historia aceptada ni se cierra SPEC-008.
-- Los cambios de implementación quedan sin commit en la rama para revisión.
+- Actualización verificada el 2026-11-10: implementación inicial conservada en `d8d56f65af1e55f45ac944d9e752d24690c71cc4` (`Implement CV adaptation feature with Codex integration`), posterior a `722d77f`. La indicación anterior de cambios sin commit quedó obsoleta.
 
 ### Validación manual sugerida
 
@@ -172,3 +176,88 @@ La validación técnica inicial y los flujos de `reuse`, `duplicate`, `create`, 
 4. Probar `reuse` (no debe guardar), `duplicate` (el perfil de origen no debe cambiar) y `create`.
 5. Confirmar que el perfil creado o reutilizado se abre en `/cv?profile=...` y que la vista previa y el PDF existentes funcionan.
 6. Verificar que cancelar no guarda cambios y que una referencia obsoleta produce un error sin persistencia parcial.
+
+
+## Revisión R1 — Consulta y gestión de la adaptación (APROBADA_PARA_DESARROLLO)
+
+**Fecha:** 2026-11-10. **Aprobación:** concedida por el responsable el 2026-11-10; habilita la implementación en la rama `008-adaptacion-cv-ofertas`. No autoriza integración, push ni cierre. Sigue siendo US-008, relacionada con SPEC-008; base inalterada `d8d56f6`. La implementación posterior corresponde a OpenCode Build nativo.
+
+### Diagnóstico y evidencia del avance
+
+- Git inicial: HEAD `d8d56f6`, árbol e índice limpios, sin archivos sin seguimiento; único worktree en esta rama. No se reescribe ni repite la implementación inicial.
+- Código reutilizable: catálogo y referencias opacas, consentimiento, invocación aislada de Codex, esquema/validador, revisión editable, tres operaciones, revalidación y creación transaccional de `CvAdaptationApplier`, gestión de perfiles y generador/PDF existentes.
+- Causa raíz: `Cv/Adapt.tsx` mantiene oferta y resultado en `useState`; `CvAdaptationReview.tsx` mantiene respuestas y descartes localmente. Su petición `apply` solo envía operación, referencias, detalles y selección: no envía evaluación ni respuestas. `reuse` retorna sin escribir; `create`/`duplicate` guardan únicamente perfil y asociaciones. La pérdida al salir responde al contrato inicial, no a una persistencia fallida.
+- Evidencia técnica histórica: CA-01 y comprobaciones registradas en esta historia y `validation-evidence.md`; no se han vuelto a ejecutar en esta revisión documental. No prueban aceptación humana.
+- Confirmación humana en esta solicitud: la versión inicial funciona y permite crear un perfil adaptado; al salir se pierde el análisis. No confirma individualmente `reuse`, `duplicate`, cancelación, referencias obsoletas, PDF ni todos los criterios iniciales. Quedan pendientes de aceptación los escenarios no confirmados y toda R1; no se declara cierre.
+
+### Sustituciones explícitas del contrato inicial
+
+R1 sustituye la prohibición de persistencia del análisis en «Datos enviados y privacidad», CA-08, CA-11, FR-009 y las exclusiones de historial/snapshots y cambios de esquema, **solo** para conservar evaluaciones confirmadas según esta sección. Ajusta CA-04/FR-006: `reuse` sigue sin guardar o modificar el perfil, pero sí guarda una nueva evaluación vinculada. CA-05/06/09 y FR-008 incluyen evaluación y observaciones en la misma operación atómica. El resto permanece vigente, incluidos consentimiento, revisión humana, Laravel como única autoridad de escritura y ausencia de acciones autónomas del agente.
+
+No se guarda historial de prompts, respuestas técnicas completas, propuestas sin confirmar o versiones del CV. El registro histórico acotado de evaluación no es un snapshot de la trayectoria profesional ni un sistema de postulaciones.
+
+### Alcance actualizado y datos mínimos
+
+Como usuario, quiero consultar desde mis perfiles la evaluación histórica de cada oferta confirmada y gestionar sus observaciones para recordar qué requiere atención, sin confundir esa gestión con mis competencias o con una nueva evaluación de Codex.
+
+Al confirmar la adaptación, se revisa y acepta expresamente que Laravel conserve localmente:
+
+- Puesto identificado o «Puesto no identificado»; empresa nullable, solo si se conoce, revisable sin inventarla; fecha/hora del análisis fijada por backend al obtener el resultado y fecha/hora de confirmación separada.
+- Requisitos con identificadores locales estables, texto, importancia y cobertura evaluada; brechas y sus motivos/estado de evidencia; recomendaciones y justificación de la recomendación de operación.
+- Marca de excluyente **solo** cuando la oferta lo expresa, acompañada de su fragmento mínimo justificativo. `required` no equivale automáticamente a excluyente. Sin soporte explícito, no se marca.
+- Preguntas y respuestas aclaratorias vinculadas al requisito, diferenciando respondida, sin respuesta y descartada. Conservar el texto literal de la respuesta y su procedencia «declaración del usuario», separada de la evaluación IA. Una respuesta positiva tampoco acredita una capacidad automáticamente.
+- Operación confirmada y vínculo al perfil destino. No se conserva el catálogo completo del Maestro, el prompt, la salida técnica completa, el CV ni documentos.
+
+**Retención:** basta este resumen estructurado, revisable antes de confirmar; no guardar la oferta completa. Permite reconocer la oferta, consultar requisitos y entender pendientes sin retener contactos, instrucciones u otros datos irrelevantes. El fragmento que sustenta un excluyente es la única cita necesaria; no se requiere una reconstrucción de la oferta. No agregar subida de ofertas ni un selector de retención ampliada. El envío de la oferta al análisis conserva el consentimiento y límites iniciales; la consulta y gestión posteriores son locales, sin llamadas a Codex.
+
+La evaluación conserva su contenido y fecha originales. Un nuevo análisis genera otra evaluación al confirmarse; nunca actualiza silenciosamente una anterior. El aviso «Evaluación histórica del [fecha]; no se actualiza con cambios del Maestro o perfil» es siempre visible. No se necesita detectar cambios ni guardar versiones del Maestro.
+
+### Relación mínima con perfiles e integridad
+
+Relación **perfil 1:N evaluaciones**; cada evaluación pertenece a un único perfil destino y puede tener N observaciones. No hace falta una relación N:M ni una entidad postulación.
+
+| Operación | Perfil destino | Evaluación al confirmar |
+|---|---|---|
+| `reuse` | Existente y activo; sin guardar ni alterar sus campos/asociaciones | Nueva evaluación ligada a ese perfil, aunque ya tenga otras |
+| `duplicate` | Nuevo perfil adaptado; origen intacto | Nueva evaluación ligada solo al nuevo; no copiar ni trasladar evaluaciones del origen |
+| `create` | Nuevo perfil revisado | Nueva evaluación ligada al nuevo |
+
+En confirmaciones independientes, incluso para el mismo puesto/empresa, se agregan evaluaciones identificables por fecha; no se deduplican por nombre de oferta. El reintento de **la misma confirmación** usa un identificador único validado por Laravel para no duplicar perfiles ni evaluaciones. Cancelar o abandonar antes de confirmar no conserva análisis en la aplicación.
+
+Propuesta física mínima: tabla `cv_adaptations` con FK al perfil, contexto estructurado JSON validado y fecha original; tabla `cv_adaptation_observations` con FK a evaluación, identificador estable, tipo, vínculo a requisito/recomendación/pregunta, estado y nota nullable. El contexto es histórico; estado/nota son editables aparte. Sin copia de registros profesionales ni tabla de versiones. Perfiles actuales admiten cero evaluaciones; migraciones futuras solo aditivas, sin backfill ni reconstrucción de análisis.
+
+Laravel valida estructura cerrada, límites de texto, referencias internas, enumeraciones, pertenencia de observaciones y perfil, procedencia de datos y fecha del análisis (no confiar en una fecha arbitraria del cliente). Conservar un contexto de confirmación autenticado por backend, mínimo y temporal, sin persistir la oferta; revalidarlo al aplicar. No aceptar una evaluación alterada como si fuera salida de Codex. El usuario revisa sus respuestas y metadatos; no edita la cobertura IA.
+
+Una única transacción abarca perfil/asociaciones nuevos, evaluación y observaciones; en `reuse`, evaluación y observaciones con validación del perfil activo. Si falla cualquier parte no queda ningún registro parcial. Un reintento retorna el resultado ya confirmado. No se amplían operaciones sobre Maestro/perfiles ni se habilita escritura del agente.
+
+### Consulta y gestión de observaciones
+
+- En la gestión existente de perfiles, acción «Ver adaptación» abre la evaluación si hay una; con varias, permite elegir por puesto, empresa conocida y fecha (más reciente primero), sin ocultar las anteriores. Disponible también para consultar perfiles inactivos. Con cero, mostrar «Sin adaptación guardada», manteniendo edición y generación existentes.
+- El generador sigue mostrando/exportando el CV; no se convierte en gestor de observaciones. Se reutilizan componentes visuales y navegación de Perfiles.
+- Crear observaciones para cada brecha, recomendación y pregunta que requiera atención, conservando referencias y tipo. Cada una inicia `pendiente` y permite `resuelto` o `descartado`, volver a `pendiente` y guardar/borrar una nota opcional. No se agrega un historial de cambios de estados.
+- La respuesta original es contexto histórico, no la nota editable. Para una ausencia confirmada, el usuario debe marcar explícitamente «Confirmo que no dispongo de este requisito» junto a su respuesta. Guardar esa declaración como `user_confirmed_absent`; no inferirla automáticamente del texto. Por ejemplo, «no tengo esa certificación» se conserva literalmente y, con esa confirmación, se muestra «Carencia confirmada por el usuario». Sin ella, mostrar la respuesta y mantener la incertidumbre, sin atribuir reevaluación a IA.
+- Mostrar «Sin información registrada», «Requiere confirmación» o «Carencia confirmada por el usuario» según procedencia. Conservar aparte `not_recorded`/`needs_confirmation` originales de Codex. Resolver/descartar no cambia ninguna de esas evidencias ni la cobertura.
+- Cantidades: cubiertos = `supported`, parciales = `partial`, pendientes de cobertura = `gap` + `needs_confirmation`. Cada requisito cuenta una vez; total = suma de los tres. Desglosar los pendientes por brecha y por confirmar. El número de observaciones pendientes es distinto y se etiqueta aparte. No usar porcentajes. Resaltar excluyentes tanto en listado como en el detalle, solo con soporte en la oferta.
+- Brechas, declaraciones, notas y recomendaciones quedan fuera de resumen/título profesional, selecciones, CV, PDF normal/documentado y Markdown. Ningún cambio de gestión modifica Maestro, asociaciones o cobertura. Incorporar nuevos datos profesionales sigue las pantallas existentes; requiere otro análisis confirmado para una nueva evaluación.
+
+### Criterios R1 verificables (aprobados para desarrollo; aceptación pendiente)
+
+1. **R1-CA-01 — Consulta durable:** confirmar, abandonar y volver desde Perfiles permite leer puesto, empresa conocida o ausencia explícita, fecha original, requisitos/cobertura, brechas, recomendaciones, preguntas y respuestas exactas. Cerrar/reabrir la aplicación conserva esos datos. Antes de confirmar o al cancelar no se crean registros.
+2. **R1-CA-02 — Tres operaciones:** dos confirmaciones `reuse` para ofertas diferentes sobre el mismo perfil conservan ambas evaluaciones sin modificarlo. `duplicate` crea perfil y evaluación nuevos sin copiar evaluaciones ni alterar el origen. `create` crea perfil y evaluación nuevos. Con múltiples evaluaciones se puede abrir cada una por su identificador, fecha y contexto.
+3. **R1-CA-03 — Respuestas y procedencia:** responder «no tengo esa certificación» y confirmar explícitamente la ausencia conserva texto y marca de declaración humana al volver. Sin esa marca no se infiere carencia. Preguntas sin responder o descartadas conservan su condición. Ninguna respuesta modifica automáticamente cobertura o acredita conocimientos.
+4. **R1-CA-04 — Gestión independiente:** cambiar cada tipo de observación entre pendiente/resuelto/descartado, guardar o borrar nota y recargar conserva la elección. No cambia fecha, cobertura original, evidencia IA, respuesta original, Maestro ni perfil. Una observación ajena a la evaluación se rechaza sin cambios.
+5. **R1-CA-05 — Cantidades y excluyentes:** con 2 `supported`, 1 `partial`, 1 `gap` y 1 `needs_confirmation`, mostrar 2 cubiertos, 1 parcial y 2 pendientes, total 5. Resolver una observación no cambia esos números. Un requisito obligatorio sin exclusión explícita no se marca excluyente; uno expresamente excluyente muestra su fragmento de soporte. Nunca hay porcentajes.
+6. **R1-CA-06 — Separación e historicidad:** editar después Maestro o perfil conserva evaluación/fecha originales y aviso histórico, mientras el CV sigue usando los datos actuales. Notas, brechas, respuestas y recomendaciones no aparecen en vista previa, PDF normal/documentado o Markdown. Un nuevo análisis confirmado agrega otra evaluación sin reemplazar la previa.
+7. **R1-CA-07 — Nombre y compatibilidad:** antes de `create`/`duplicate` se puede editar nombre, incluido puesto y empresa conocida; nombre vacío/duplicado se rechaza mediante reglas existentes. Sin empresa no se inventa. Perfiles previos y creados manualmente funcionan con cero evaluaciones; no se reconstruye información anterior. Perfil inactivo permite consultar su evaluación sin habilitar `reuse`.
+8. **R1-CA-08 — Atomicidad y reintentos:** referencia obsoleta, contexto alterado, estado inválido o fallo de persistencia no deja perfil/evaluación/observaciones parciales. Reenviar la misma confirmación no duplica datos; confirmar un análisis distinto sí añade evaluación. Laravel ejecuta y valida todas las escrituras.
+9. **R1-CA-09 — Minimización:** almacenamiento y avisos reflejan únicamente el contexto aprobado, sin oferta completa, prompt, catálogo del Maestro ni salida técnica bruta; consultar y cambiar estados no envía datos a Codex. El fragmento de excluyente solo contiene el soporte necesario.
+
+### Pasos técnicos previstos
+
+1. Aprobación registrada; comprobar rama, base y limpieza Git. Conservar `d8d56f6` como avance inicial.
+2. Extender el esquema estructurado y validadores existentes para puesto/empresa y soporte de excluyentes; conservar cobertura y separar respuestas humanas del contrato de salida IA. Transportar el contexto de análisis y respuestas hasta confirmación con integridad de backend, sin sesiones de oferta durables.
+3. Agregar las dos tablas y relaciones aditivas; integrar persistencia e idempotencia en la transacción del applier existente para las tres operaciones. Actualizar aviso de retención y revisión previa; mantener editable el nombre.
+4. Añadir consulta desde Perfiles y actualización acotada de estado/nota; reutilizar componentes existentes. No tocar compositores ni renderizadores del CV.
+5. Verificación focalizada de esquema/tipos y pruebas críticas de atomicidad, pertenencia, idempotencia, relación 1:N, procedencia humana y separación de exportaciones. No ejecutar suites completas ni automatizaciones funcionales adicionales sin autorización. Aceptación funcional/visual del usuario sobre R1 y escenarios iniciales afectados; después QA/seguridad según riesgo y cierre Git solo con autorización expresa.
+
+**Fuera de R1:** postulación/seguimiento laboral, pipeline, recordatorios, cartas, importación automática, historial de versiones o estados, reevaluación automática, nuevos datos profesionales desde respuestas, retención de oferta completa, reconstrucción de análisis anteriores y operaciones destructivas sobre evaluaciones.
