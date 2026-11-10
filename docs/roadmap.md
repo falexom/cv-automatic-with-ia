@@ -381,7 +381,7 @@ Contrato aprobado: [US-007 — Exportación de CV en formato Markdown](../specs/
 
 ## Posibles evoluciones posteriores
 
-Las mejoras visuales del CV quedaron cubiertas por US-006. La adaptación de CV a ofertas laborales se implementó técnicamente en [SPEC-008](../specs/008-adaptacion-cv-ofertas/spec.md) con una única historia [US-008](../specs/stories/US-008-adaptacion-cv-ofertas.md), aprobada para desarrollo el 2026-11-06 y conservada en el commit inicial `d8d56f6`. El usuario confirmó el funcionamiento general durante la validación; los escenarios no confirmados no se declaran aceptados. La revisión R1 de la misma US-008 quedó **PENDIENTE_ACEPTACION (2026-11-10)** con implementación técnica completada para persistir evaluaciones confirmadas y gestionar observaciones desde Perfiles; aceptación funcional y visual pendiente, sin autorización de integración ni cierre. La validación técnica es el primer paso interno de esa historia; no existe una historia técnica separada.
+Las mejoras visuales del CV quedaron cubiertas por US-006. La adaptación de CV a ofertas laborales se completó en [SPEC-008](../specs/008-adaptacion-cv-ofertas/spec.md) mediante una única historia [US-008](../specs/stories/US-008-adaptacion-cv-ofertas.md), aprobada para desarrollo el 2026-11-06 sobre la implementación inicial `d8d56f6`. El responsable aceptó US-008, R1 y los ajustes de seguridad/publicación el 2026-11-10. La historia quedó integrada localmente en `main` mediante fast-forward; no se hizo push ni se creó tag.
 
 Las siguientes oportunidades se registran como propuestas de análisis. No son requisitos aprobados, no amplían el MVP y no tienen SPEC ni ID asignado.
 
@@ -418,7 +418,7 @@ Las siguientes oportunidades se registran como propuestas de análisis. No son r
 | SPEC-005 | Exportación PDF | COMPLETADA e integrada (`d4e8a1b`); aceptación funcional y visual registrada, con cobertura manual parcial documentada para T019. |
 | SPEC-006 | CV Documentado | COMPLETADA e integrada mediante US-002 y US-003 (`b0b0578`); cierre registrado (`006d3ed`). |
 | SPEC-007 | Importación Inteligente de Certificados | CANCELADA; fuera del alcance de v1.0, sin trabajo pendiente. |
-| SPEC-008 | Adaptación de CV a una oferta laboral | Base implementada en `d8d56f6`, rama `008-adaptacion-cv-ofertas`; funcionamiento general confirmado, aceptación por escenarios incompleta. Ampliación R1 PENDIENTE_ACEPTACION (2026-11-10); implementación técnica completada, aceptación funcional y visual pendiente, sin cierre ni integración. |
+| SPEC-008 | Adaptación de CV a una oferta laboral | COMPLETADA, aceptada e integrada localmente en `main` mediante fast-forward el 2026-11-10, con US-008 como única historia. Sin push ni tag. |
 
 ---
 

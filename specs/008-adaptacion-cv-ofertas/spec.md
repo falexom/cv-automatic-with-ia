@@ -2,7 +2,7 @@
 
 **Feature Branch**: `008-adaptacion-cv-ofertas`  
 **Created**: 2026-11-06  
-**Status**: Base APROBADA el 2026-11-06 e implementada en `d8d56f6`; ampliación R1 PENDIENTE_ACEPTACION (2026-11-10), implementación técnica completada  
+**Status**: CERRADA — US-008, R1 y ajustes de seguridad/publicación aceptados el 2026-11-10; integrada localmente en `main` mediante fast-forward.
 **Clasificación**: Nueva funcionalidad  
 **Input**: Adaptar un CV a una oferta mediante Codex, con datos del Perfil Maestro y los perfiles existentes, revisión humana y persistencia validada por Laravel.
 
@@ -38,12 +38,16 @@ Los campos exactos, exclusiones de datos, consentimiento previo y controles para
 - [Uso de Codex con un plan ChatGPT](https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan) · [Facturación ChatGPT y API](https://help.openai.com/en/articles/9039756-managing-billing-for-chatgpt-and-the-api-platform) · [Niveles de integración Codex](https://developers.openai.com/blog/codex-as-a-platform)
 
 
-## Revisión de alcance R1 — PENDIENTE_ACEPTACION
+## Revisión de alcance R1 — ACEPTADA
 
-Necesidad descubierta por el usuario al validar: el perfil adaptado permanece, pero la evaluación y las respuestas desaparecen al salir. La versión inicial funciona según su confirmación general; no se declara aceptación individual de todos los escenarios ni cierre.
+Necesidad descubierta por el usuario al validar: el perfil adaptado permanece, pero la evaluación y las respuestas desaparecen al salir. El responsable confirmó la validación funcional de US-008 y R1 y aceptó los ajustes de seguridad/publicación el 2026-11-10. SPEC-008 queda cerrada e integrada localmente en `main`.
 
 La ampliación implementada extiende la misma US-008 para consultar desde Perfiles evaluaciones históricas confirmadas y gestionar observaciones sin alterar cobertura, Maestro ni CV. La relación será un perfil con varias evaluaciones independientes, incluidas las confirmadas mediante `reuse`; `duplicate` y `create` vinculan la nueva evaluación al perfil nuevo. No se sobrescriben análisis anteriores ni se reconstruyen los ausentes.
 
 Las exclusiones iniciales de persistencia de análisis, snapshots y migraciones dejan de aplicar para R1, únicamente para el resumen estructurado histórico y sus observaciones. Se permiten cambios de esquema aditivos mínimos; siguen excluidos oferta completa, prompts, versiones del Maestro/CV y sistema de postulaciones. La evaluación no duplica la fuente profesional y no se actualiza automáticamente al editarla. No se modifica la Constitución.
 
-[US-008, revisión R1](../stories/US-008-adaptacion-cv-ofertas.md#revisión-r1--consulta-y-gestión-de-la-adaptación-pendiente_aceptacion) contiene el único contrato aprobado, modelo mínimo, sustituciones explícitas de criterios iniciales, criterios verificables y pasos técnicos. La aprobación se concedió el 2026-11-10; la implementación técnica está completada en la rama `008-adaptacion-cv-ofertas` y pendiente de aceptación. No autoriza integración ni cierre. Base documental `722d77f`, implementación inicial `d8d56f6`; se conserva su historial.
+[US-008, revisión R1](../stories/US-008-adaptacion-cv-ofertas.md#revisión-r1--consulta-y-gestión-de-la-adaptación-aceptada) contiene el único contrato funcional, decisiones, criterios y verificaciones de la historia. La aceptación humana se registró el 2026-11-10. Base documental `722d77f` e implementación inicial `d8d56f6` conservadas; cierre local integrado mediante fast-forward, sin push ni tag.
+
+## Autenticación y publicación local
+
+Los ajustes de publicación y autenticación de Codex forman parte de US-008 y fueron aceptados. El README documenta el uso monousuario local y el inicio de Laravel/Vite en loopback; el CLI verifica el método ChatGPT, elimina del entorno de análisis variables de API key e identidad de workload y falla cerrado ante otros estados. Los criterios y la evidencia de verificación se mantienen únicamente en US-008.

@@ -1,7 +1,7 @@
 # US-008 — Adaptar CV a una oferta laboral
 
 **Identificador:** US-008  
-**Estado:** Base implementada y con funcionamiento general confirmado por el usuario; ampliación R1 PENDIENTE_ACEPTACION (2026-11-10) — implementación técnica completada; aceptación funcional y visual pendiente.  
+**Estado:** IMPLEMENTADA_ACEPTADA — el responsable aceptó US-008, R1 y los ajustes de seguridad/publicación el 2026-11-10; integrada localmente en `main` mediante fast-forward el 2026-11-10.
 **SPEC relacionada:** [SPEC-008 — Adaptación de CV a una oferta laboral](../008-adaptacion-cv-ofertas/spec.md)  
 **Fuente contractual:** este archivo contiene el único contrato funcional de SPEC-008. La SPEC mantiene contexto y dependencias, sin duplicar estos criterios.
 
@@ -156,17 +156,17 @@ Reglas del contrato:
 
 La validación técnica inicial y los flujos de `reuse`, `duplicate`, `create`, revalidación ante referencias obsoletas y exportación con la ruta existente deben comprobarse de forma focalizada durante Build. La prueba técnica no sustituye la aceptación funcional del responsable; no se ejecutan suites completas ni automatizaciones adicionales sin autorización.
 
-## Estado de implementación
+## Estado de la implementación inicial
 
-**Estado:** PENDIENTE_ACEPTACION (2026-11-06).
+**Estado inicial (2026-11-06):** implementación técnica completada; aceptación del responsable pendiente en ese momento. La aceptación funcional se confirmó el 2026-11-10 como parte del cierre de US-008.
 
 - Rama: `008-adaptacion-cv-ofertas`, creada desde `main` (`2f5871c`), sin modificar `main`.
 - Commit preparatorio documental: `722d77f`.
 - Validación técnica de CA-01: superada con autenticación ChatGPT, `gpt-6-luna`, esfuerzo `xhigh`, oferta real y datos existentes. Evidencia en [validation-evidence.md](../008-adaptacion-cv-ofertas/validation-evidence.md).
 - Implementación: página `/cv/adapt` accesible desde el generador; análisis con Codex; revisión y edición de la propuesta; operaciones `reuse`, `duplicate` y `create`; revalidación de referencias al confirmar; creación atómica mediante las validaciones y la operación existentes de Laravel.
 - Verificaciones técnicas: pruebas focalizadas de backend y frontend, comprobación de tipos TypeScript, formato/lint de los archivos modificados, build cliente y SSR. `phpstan` conserva errores previos en archivos no modificados por esta historia.
-- Pendiente: aceptación funcional y visual del responsable. No se declara la historia aceptada ni se cierra SPEC-008.
-- Actualización verificada el 2026-11-10: implementación inicial conservada en `d8d56f65af1e55f45ac944d9e752d24690c71cc4` (`Implement CV adaptation feature with Codex integration`), posterior a `722d77f`. La indicación anterior de cambios sin commit quedó obsoleta.
+- Aceptación funcional de US-008 confirmada por el responsable el 2026-11-10; el usuario no registró un desglose de aceptación separado por cada subescenario.
+- Implementación inicial conservada en `d8d56f65af1e55f45ac944d9e752d24690c71cc4` (`Implement CV adaptation feature with Codex integration`), posterior a `722d77f`.
 
 ### Validación manual sugerida
 
@@ -178,9 +178,9 @@ La validación técnica inicial y los flujos de `reuse`, `duplicate`, `create`, 
 6. Verificar que cancelar no guarda cambios y que una referencia obsoleta produce un error sin persistencia parcial.
 
 
-## Revisión R1 — Consulta y gestión de la adaptación (PENDIENTE_ACEPTACION)
+## Revisión R1 — Consulta y gestión de la adaptación (ACEPTADA)
 
-**Fecha:** 2026-11-10. **Aprobación:** concedida por el responsable el 2026-11-10; implementación técnica completada en la rama `008-adaptacion-cv-ofertas`. **Estado:** PENDIENTE_ACEPTACION. No autoriza integración, push ni cierre. Sigue siendo US-008, relacionada con SPEC-008; base inalterada `d8d56f6`. La implementación posterior corresponde a OpenCode Build nativo.
+**Fecha:** 2026-11-10. **Estado:** aprobada, implementada y aceptada por el responsable el 2026-11-10. Cierre e integración local autorizados; no incluye push ni tag. Sigue siendo la única historia de SPEC-008; base inicial `d8d56f6` conservada.
 
 ### Diagnóstico y evidencia del avance
 
@@ -188,7 +188,7 @@ La validación técnica inicial y los flujos de `reuse`, `duplicate`, `create`, 
 - Código reutilizable: catálogo y referencias opacas, consentimiento, invocación aislada de Codex, esquema/validador, revisión editable, tres operaciones, revalidación y creación transaccional de `CvAdaptationApplier`, gestión de perfiles y generador/PDF existentes.
 - Causa raíz: `Cv/Adapt.tsx` mantiene oferta y resultado en `useState`; `CvAdaptationReview.tsx` mantiene respuestas y descartes localmente. Su petición `apply` solo envía operación, referencias, detalles y selección: no envía evaluación ni respuestas. `reuse` retorna sin escribir; `create`/`duplicate` guardan únicamente perfil y asociaciones. La pérdida al salir responde al contrato inicial, no a una persistencia fallida.
 - Evidencia técnica histórica: CA-01 y comprobaciones registradas en esta historia y `validation-evidence.md`; no se han vuelto a ejecutar en esta revisión documental. No prueban aceptación humana.
-- Confirmación humana en esta solicitud: la versión inicial funciona y permite crear un perfil adaptado; al salir se pierde el análisis. No confirma individualmente `reuse`, `duplicate`, cancelación, referencias obsoletas, PDF ni todos los criterios iniciales. Quedan pendientes de aceptación los escenarios no confirmados y toda R1; no se declara cierre.
+- Historial de aceptación: al descubrirse esta ampliación, el responsable confirmó el funcionamiento de la versión inicial y el problema de pérdida del análisis. Después confirmó la validación funcional de US-008 y R1 y, en esta solicitud, aceptó el cierre con los ajustes de seguridad/publicación. No se inventa evidencia de ejecución individual por subescenario.
 
 ### Sustituciones explícitas del contrato inicial
 
@@ -262,11 +262,18 @@ Una única transacción abarca perfil/asociaciones nuevos, evaluación y observa
 
 **Fuera de R1:** postulación/seguimiento laboral, pipeline, recordatorios, cartas, importación automática, historial de versiones o estados, reevaluación automática, nuevos datos profesionales desde respuestas, retención de oferta completa, reconstrucción de análisis anteriores y operaciones destructivas sobre evaluaciones.
 
-### Estado de implementación R1
+### Estado de implementación y aceptación R1
 
-**Estado:** PENDIENTE_ACEPTACION (2026-11-10).
+**Estado:** R1 y los ajustes de seguridad/publicación aceptados por el responsable el 2026-11-10. US-008 se cierra e integra localmente en `main`.
 
 - Implementado: extensión del contrato IA con puesto, empresa y excluyentes; contexto de confirmación cifrado por backend; tablas aditivas `cv_adaptations` y `cv_adaptation_observations`; persistencia transaccional e idempotente para `reuse`, `duplicate` y `create`; consulta desde Perfiles; gestión acotada de observaciones (pendiente/resuelto/descartado y nota); respuestas humanas con declaración explícita de ausencia; conteos de cobertura y aviso histórico.
 - Verificaciones: 27 pruebas focalizadas de backend, 25 de frontend, comprobación de tipos TypeScript, Pint, `vp check` focalizado, build cliente/SSR y migraciones locales. `phpstan` conserva 16 errores previos en archivos no modificados por esta historia.
-- Limitación: el contrato IA extendido se verificó con pruebas y esquema, pero no se volvió a ejecutar una llamada real a Codex en esta ronda. La aceptación manual debe incluir un análisis real y la revisión visual de la consulta/gestión.
-- Pendiente: aceptación funcional y visual del responsable. No se declara aceptación ni se cierra SPEC-008. Los cambios de implementación quedan sin commit en la rama.
+- Limitaciones: no se ejecutó una llamada real al Codex CLI durante esta revisión de seguridad/cierre. `phpstan` conserva 16 errores previos en archivos no modificados. La aceptación corresponde al responsable; no se afirma que cada subescenario se probara individualmente.
+- Verificaciones focalizadas del ajuste de autenticación: CLI simulado permitió ChatGPT y rechazó API key/sesión ausente antes de `exec`; se comprobó que las variables API/workload no se heredaron y que CLI inexistente falla cerrado. `node --check`, `php -l`, exclusiones Git y `git diff --check` pasaron. No se repitieron las suites completas.
+- Cierre Git: commit de cierre en `008-adaptacion-cv-ofertas`; fast-forward local a `main` el 2026-11-10. Rama de origen conservada. Sin push ni tag.
+
+### Ajustes de publicación y autenticación local
+
+Esta aplicación conserva el alcance monousuario local, sin autenticación web ni despliegue público. El análisis usa Codex CLI, requiere internet y autenticación ChatGPT propia en cada instalación; la aplicación no distribuye credenciales. Antes de `codex exec`, comprobar `codex login status`, permitir únicamente sesión ChatGPT, retirar del entorno del proceso variables de API key e identidad de workload y fallar sin analizar si no se puede verificar el método. No alterar credenciales ni configuración global. El servidor de Laravel y Vite se documentan enlazados a `127.0.0.1`; los archivos de entorno locales y el almacén `auth.json` de Codex deben quedar excluidos de Git, conservando los ejemplos versionados. Compartir código mediante Git, nunca la carpeta de trabajo con datos privados.
+
+**Criterios de validación de seguridad:** (1) con estado ChatGPT, se permite la ruta normal de invocación; (2) con estado API key, sesión ausente, resultado desconocido, error o timeout de `codex login status`, no se ejecuta `codex exec` y se devuelve error controlado; (3) variables de API key e identidad de workload no llegan al proceso de análisis; (4) instalación sin sesión no cambia proveedor ni facturación y muestra un error que indica iniciar sesión con ChatGPT; (5) Laravel y Vite se enlazan a loopback en el inicio local; (6) `.env.example` y otros ejemplos permitidos siguen versionables mientras variantes locales, `.codex/auth.json` y datos de trabajo quedan fuera de Git. Los criterios se verificaron de forma focalizada con CLI simulado y comprobaciones locales; la aceptación final del responsable consta arriba. No se afirma haber probado una instalación nueva ni desplegado la app.

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -110,6 +110,59 @@ function classifyFailure(stderr, model, effort) {
     ];
 }
 
+function codexEnvironment() {
+    const env = { ...process.env };
+
+    for (const key of [
+        'OPENAI_API_KEY',
+        'CODEX_API_KEY',
+        'OPENAI_FEDERATION_RULE_ID',
+        'OPENAI_IDENTITY_TOKEN_FILE',
+        'OPENAI_WORKLOAD_IDENTITY_CONTEXT',
+    ]) {
+        delete env[key];
+    }
+
+    return env;
+}
+
+function requireChatGptAuthentication(binary, workDirectory) {
+    let status;
+
+    try {
+        status = spawnSync(binary, ['login', 'status'], {
+            cwd: workDirectory,
+            env: codexEnvironment(),
+            encoding: 'utf8',
+            timeout: 10_000,
+            maxBuffer: 16_000,
+            windowsHide: true,
+        });
+    } catch {
+        return 'No se pudo verificar la autenticación de Codex. Iniciá sesión con ChatGPT y volvé a intentar.';
+    }
+
+    if (status.error?.code === 'ENOENT') {
+        return 'No se encontró Codex CLI. Instalalo y verificá CODEX_BINARY antes de analizar.';
+    }
+
+    if (status.error || status.status !== 0) {
+        return 'No se pudo verificar la autenticación de Codex. Iniciá sesión con ChatGPT y volvé a intentar.';
+    }
+
+    const output = `${status.stdout ?? ''}\n${status.stderr ?? ''}`;
+
+    if (/logged in using chatgpt|authenticated with chatgpt/i.test(output)) {
+        return null;
+    }
+
+    if (/api[ -]?key/i.test(output)) {
+        return 'Esta integración requiere autenticación ChatGPT. La sesión actual de Codex usa una API key; no se inició el análisis.';
+    }
+
+    return 'Esta integración requiere una sesión válida de Codex iniciada con ChatGPT. No se inició el análisis.';
+}
+
 async function runCodex(input, workDirectory) {
     const schemaPath = path.join(workDirectory, 'schema.json');
     const outputPath = path.join(workDirectory, 'output.json');
@@ -153,7 +206,7 @@ async function runCodex(input, workDirectory) {
     return new Promise((resolve) => {
         const child = spawn(input.binary, args, {
             cwd: workDirectory,
-            env: process.env,
+            env: codexEnvironment(),
             stdio: ['pipe', 'pipe', 'pipe'],
         });
 
@@ -324,6 +377,17 @@ async function main() {
 
     try {
         workDirectory = await mkdtemp(path.join(tmpdir(), 'cv-adaptation-'));
+
+        const authenticationError = requireChatGptAuthentication(
+            input.binary,
+            workDirectory,
+        );
+
+        if (authenticationError !== null) {
+            failure('codex_auth', authenticationError);
+            return;
+        }
+
         const result = await runCodex(input, workDirectory);
         writeResult(result);
     } catch {
