@@ -1,6 +1,6 @@
-# CV Automático
+# CV Automatic with IA
 
-CV Automático es una aplicación web **local y monousuario** para gestionar el **Perfil Profesional Maestro**. No incluye autenticación web ni está preparada para ejecutarse como un servidor público o un servicio para terceros.
+**Tu experiencia, potenciada con IA.** CV Automatic with IA es una aplicación web **local y monousuario** para gestionar el **Perfil Profesional Maestro**. No incluye autenticación web ni está preparada para ejecutarse como un servidor público o un servicio para terceros.
 
 - **Stack**: Laravel 13 + PHP 8.3–8.5, Inertia + React 19 + TypeScript, Tailwind CSS 4, shadcn/ui, SQLite local.
 - La información se guarda en el equipo. La adaptación de un CV a una oferta invoca el **Codex CLI** y envía a Codex/OpenAI el texto de la oferta y los datos profesionales aprobados tras consentimiento; requiere conexión a internet. No usa el SDK de OpenAI ni incluye credenciales.

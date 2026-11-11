@@ -25,16 +25,16 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
     return (
         <div className="min-h-screen bg-muted/40">
             <header className="border-b bg-background">
-                <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
+                <div className="mx-auto flex w-full max-w-screen-2xl flex-col gap-2 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
                     <Link
                         href="/profile"
-                        className="text-base font-semibold tracking-tight"
+                        className="shrink-0 whitespace-nowrap text-base font-semibold tracking-tight"
                     >
                         {name}
                     </Link>
                     <nav
                         aria-label="Secciones del perfil"
-                        className="flex flex-wrap items-center gap-1"
+                        className="flex flex-wrap items-center gap-1 lg:flex-nowrap lg:gap-0"
                     >
                         {navigation.map((item) => {
                             const isActive = isCurrentOrParentUrl(item.href);
@@ -44,7 +44,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
                                     key={item.href}
                                     href={item.href}
                                     className={cn(
-                                        'rounded-md px-3 py-1.5 text-sm transition-colors',
+                                        'whitespace-nowrap rounded-md px-3 py-1.5 text-sm transition-colors lg:px-2',
                                         isActive
                                             ? 'bg-primary text-primary-foreground'
                                             : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
