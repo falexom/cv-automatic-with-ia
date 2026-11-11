@@ -40,5 +40,21 @@ jobs:
       - name: Setup Application
         run: composer setup
 
+      - name: Setup PDF tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes qpdf
+
+          chrome_path="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          if [[ -z "$chrome_path" || ! -x "$chrome_path" ]]; then
+            echo "Chrome/Chromium executable was not found." >&2
+            exit 1
+          fi
+
+          "$chrome_path" --version
+          printf 'BROWSERSHOT_CHROME_PATH=%s\n' "$chrome_path" >> "$GITHUB_ENV"
+          command -v qpdf
+          qpdf --version
+
       - name: Run CI Checks
         run: composer ci:check
