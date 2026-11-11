@@ -9,7 +9,7 @@ Guía para ejecutar las pruebas y validar la capacidad de extremo a extremo una 
 
 - PHP 8.3+ con extensión `pdo_sqlite`.
 - Composer 2.x.
-- Node.js 22+ y npm.
+- Node.js 22+ y pnpm 11.1.1 (fijado en `package.json`).
 - Navegador de escritorio.
 - Base de datos local con el esquema de SPEC-001, SPEC-002 y SPEC-003 ya migrado.
 - Al menos un Perfil Maestro y, para los escenarios de selección, dos perfiles de CV activos (por ejemplo, los presets «Analista» y «Programador»).
@@ -38,19 +38,19 @@ php artisan test tests/Feature/CvGeneratorTest.php
 php artisan test
 
 # Plantilla del CV
-npm test -- resources/js/components/__tests__/CvPreview.test.tsx
+pnpm run test -- resources/js/components/__tests__/CvPreview.test.tsx
 
 # Selector y estados vacíos/error
-npm test -- resources/js/components/__tests__/CvGeneratorPanel.test.tsx
+pnpm run test -- resources/js/components/__tests__/CvGeneratorPanel.test.tsx
 
 # Suite completa de frontend (Vitest + React Testing Library)
-npm test
+pnpm run test
 
 # Verificación de tipos
-npm run types:check
+pnpm run types:check
 
 # Formato/lint del proyecto
-npm run check
+pnpm run check
 composer lint:check
 ```
 
@@ -193,9 +193,9 @@ Cada escenario deriva de los criterios de aceptación del spec y debe pasar ante
 ## Resultado esperado
 
 - `php artisan test` en verde, incluido `CvGeneratorTest`.
-- `npm test` en verde, incluidos `CvPreview.test.tsx` y `CvGeneratorPanel.test.tsx`.
-- `npm run types:check` sin errores.
-- `npm run check` y `composer lint:check` sin errores.
+- `pnpm run test` en verde, incluidos `CvPreview.test.tsx` y `CvGeneratorPanel.test.tsx`.
+- `pnpm run types:check` sin errores.
+- `pnpm run check` y `composer lint:check` sin errores.
 - Los escenarios manuales 1–13 pasan; el escenario 14 se acredita con la prueba automatizada.
 - La base de datos no cambia de esquema y no se crea ningún CV persistido.
 - El Perfil Maestro, los perfiles de CV, sus asociaciones y los documentos existentes permanecen intactos.

@@ -73,7 +73,7 @@ function cvPdfSsrBundlePath(): string
     }
 
     throw new RuntimeException(
-        'Ejecutá `npm run build:ssr` antes de las pruebas de exportación PDF.',
+        'Ejecutá `pnpm run build:ssr` antes de las pruebas de exportación PDF.',
     );
 }
 

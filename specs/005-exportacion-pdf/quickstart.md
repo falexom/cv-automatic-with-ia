@@ -9,13 +9,13 @@ Guía para implementar, ejecutar las pruebas y validar la capacidad de extremo a
 
 - PHP 8.3+ (el entorno observado tiene 8.5.5) con `ext-dom`, `ext-mbstring`, `ext-gd`, `ext-zlib`, `ext-iconv`, `ext-fileinfo` y `pdo_sqlite`.
 - Composer 2.x.
-- Node.js **>=22.12.0** y npm.
+- Node.js **>=22.12.0** y pnpm 11.1.1 (fijado en `package.json`).
 - Google Chrome (o Chromium completo) instalado y accesible por ruta absoluta; `chrome-headless-shell` no es el objetivo de `newHeadless()`.
 - Navegador de escritorio y dos lectores de PDF (por ejemplo, Vista Previa de macOS y Google Chrome; Adobe Acrobat si está disponible).
 - Base de datos local con el esquema de SPEC-001/002/003/004 ya migrado.
 - Un Perfil Maestro y, para los escenarios de selección, dos perfiles de CV activos (por ejemplo, «Analista» y «Programador»).
 
-Chrome, Puppeteer y el SSR son necesarios para exportar y para las pruebas de PDF. En desarrollo, `composer dev` ya inicia `npm run dev` y el SSR lo sirve el plugin Inertia de Vite; no arrancar `inertia:start-ssr` en paralelo. Para una build local o para tests, usar `npm run build:ssr` + `php artisan inertia:start-ssr` (o el helper de test). El CSS de impresión se lee del manifiesto de `public/build`: en desarrollo hay que ejecutar `npm run build` (o `build:ssr`) al menos una vez antes de exportar; el servidor Vite en caliente no genera ese manifiesto. El SSR está acotado a `/cv/pdf`: `/cv` y el resto de páginas siguen usando CSR; no se debe activar SSR global. **No se ejecuta ninguna migración nueva.**
+Chrome, Puppeteer y el SSR son necesarios para exportar y para las pruebas de PDF. En desarrollo, `composer dev` ya inicia `pnpm run dev` y el SSR lo sirve el plugin Inertia de Vite; no arrancar `inertia:start-ssr` en paralelo. Para una build local o para tests, usar `pnpm run build:ssr` + `php artisan inertia:start-ssr` (o el helper de test). El CSS de impresión se lee del manifiesto de `public/build`: en desarrollo hay que ejecutar `pnpm run build` (o `build:ssr`) al menos una vez antes de exportar; el servidor Vite en caliente no genera ese manifiesto. El SSR está acotado a `/cv/pdf`: `/cv` y el resto de páginas siguen usando CSR; no se debe activar SSR global. **No se ejecuta ninguna migración nueva.**
 
 ## Instalación propuesta (requiere aprobación humana)
 
@@ -27,21 +27,21 @@ composer remove dompdf/dompdf
 composer require spatie/browsershot:^5.4
 
 # Puppeteer como dependencia de runtime Node; usar el Chrome instalado
-PUPPETEER_SKIP_DOWNLOAD=true npm install puppeteer@^25.16
+PUPPETEER_SKIP_DOWNLOAD=true pnpm add puppeteer@^25.16
 
 # Mantener el parser solo para pruebas
 composer require --dev smalot/pdfparser:^2.13
 
 # Generar assets cliente y bundle SSR
-npm run build:ssr
+pnpm run build:ssr
 ```
 
 - `spatie/browsershot:^5.4` es runtime y usa `puppeteer:^25.16` desde `node_modules`; `smalot/pdfparser` es **solo dev** para extraer texto, páginas y metadatos.
-- `PUPPETEER_SKIP_DOWNLOAD=true` evita descargar Chromium cuando se usa un Chrome/Chromium completo. `BROWSERSHOT_CHROME_PATH` debe apuntar al ejecutable completo (no a `chrome-headless-shell`); se configura en `.env` o en el entorno del proceso, nunca en el código. Si no se configura, las pruebas autodetectan Chrome for Testing.
+- La instalación con pnpm deniega los scripts de dependencias de `puppeteer` y `fsevents`; el hook de Puppeteer solo descarga su navegador. Chrome/Chromium se instala por separado y `BROWSERSHOT_CHROME_PATH` debe apuntar al ejecutable completo (no a `chrome-headless-shell`); se configura en `.env` o en el entorno del proceso, nunca en el código. Si no se configura, las pruebas autodetectan Chrome for Testing.
 - **Entorno macOS observado**: el Chrome estándar (`/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`) es un symlink roto y no sirve para exportar. Usar el Chrome for Testing instalado por Playwright (`/Users/aom/Library/Caches/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing`) o instalar/reparar Chrome. Esa ruta es específica de esta máquina: no se versiona ni se hardcodea. `BROWSERSHOT_TIMEOUT=30` es opcional (segundos).
-- Fallback sin Chrome del sistema: `npx puppeteer browsers install chrome` (Chrome completo) o instalar Chrome; no usar `chrome-headless-shell` con `newHeadless()`.
+- Fallback sin Chrome del sistema: `pnpm exec puppeteer browsers install chrome` (Chrome completo) o instalar Chrome; no usar `chrome-headless-shell` con `newHeadless()`.
 - Verificar `node -v` >= 22.12, `php -m` con `dom`, `mbstring`, `gd`, `zlib`, `iconv` y `fileinfo`, y `composer audit`.
-- No se añaden dependencias JS de UI. El bundle real es `bootstrap/ssr/ssr.js` (Vite emite `.js`, no `.mjs`); está en `.gitignore` y se regenera con `npm run build:ssr`.
+- No se añaden dependencias JS de UI. El bundle real es `bootstrap/ssr/ssr.js` (Vite emite `.js`, no `.mjs`); está en `.gitignore` y se regenera con `pnpm run build:ssr`.
 - `vite.config.ts` debe compilar el SSR con `host: '127.0.0.1'` y puerto 13714; `config/inertia.php` debe apuntar a `http://127.0.0.1:13714` y a `base_path('bootstrap/ssr/ssr.js')`.
 
 ## Base de datos: no hay migración nueva
@@ -60,7 +60,7 @@ php artisan migrate:status
 
 ```bash
 # Requisito previo de la suite PDF: bundle SSR y servidor Inertia activo
-npm run build:ssr
+pnpm run build:ssr
 php artisan inertia:start-ssr   # en otra terminal; el helper de test puede arrancarlo
 
 # Feature de la exportación
@@ -80,17 +80,17 @@ php artisan test tests/Unit/CvPdfValidatorTest.php
 php artisan test
 
 # Acción de exportación en el panel
-npm test -- resources/js/components/__tests__/CvGeneratorPanel.test.tsx
+pnpm run test -- resources/js/components/__tests__/CvGeneratorPanel.test.tsx
 
 # La hoja sigue sin controles de exportación
-npm test -- resources/js/components/__tests__/CvPreview.test.tsx
+pnpm run test -- resources/js/components/__tests__/CvPreview.test.tsx
 
 # Suite completa de frontend
-npm test
+pnpm run test
 
 # Tipos y formato/lint
-npm run types:check
-npm run check
+pnpm run types:check
+pnpm run check
 composer lint:check
 
 # Chequeo integral definido por Composer (lint + tipos + tests)
@@ -102,8 +102,8 @@ composer test
 - Las pruebas Feature usan SQLite en memoria y `RefreshDatabase`; no tocan la base local.
 - Las pruebas Vitest usan `jsdom`; no requieren navegador real.
 - Las pruebas de PDF usan Chrome real, `CvPdfRenderer` con SSR y `smalot/pdfparser` para verificar el archivo generado. No dependen de `qpdf`, `pdfinfo` ni `pdftotext`.
-- `CvPdfExportTest`/`CvPrintHtmlTest` necesitan `bootstrap/ssr/ssr.js`. El helper `cvPdfStartSsr()` reutiliza un servidor sano en `127.0.0.1:13714` o lanza `node bootstrap/ssr/ssr.js` y lo detiene al final; si el bundle falta, la prueba falla con el mensaje «Ejecutá `npm run build:ssr`». Si hay un `npm run dev` activo, el SSR puede servirse desde Vite; no dejar `public/hot` apuntando a un Vite caído.
-- Estas pruebas no deben usar el fake de `withoutVite()`: el fake devuelve CSS vacío y `Vite::content('resources/css/app.css')` no encontraría el CSS compilado. `tests/Pest.php` aplica `withoutVite()` a todo Feature; `CvPdfExportTest` y `CvPrintHtmlTest` deben llamar a `$this->withVite()` en su `beforeEach`, después del global, (o quedar fuera de ese fake) y usar el manifiesto real de `public/build` generado por `npm run build:ssr`.
+- `CvPdfExportTest`/`CvPrintHtmlTest` necesitan `bootstrap/ssr/ssr.js`. El helper `cvPdfStartSsr()` reutiliza un servidor sano en `127.0.0.1:13714` o lanza `node bootstrap/ssr/ssr.js` y lo detiene al final; si el bundle falta, la prueba falla con el mensaje «Ejecutá `pnpm run build:ssr`». Si hay un `pnpm run dev` activo, el SSR puede servirse desde Vite; no dejar `public/hot` apuntando a un Vite caído.
+- Estas pruebas no deben usar el fake de `withoutVite()`: el fake devuelve CSS vacío y `Vite::content('resources/css/app.css')` no encontraría el CSS compilado. `tests/Pest.php` aplica `withoutVite()` a todo Feature; `CvPdfExportTest` y `CvPrintHtmlTest` deben llamar a `$this->withVite()` en su `beforeEach`, después del global, (o quedar fuera de ese fake) y usar el manifiesto real de `public/build` generado por `pnpm run build:ssr`.
 - Si una prueba de PDF es lenta, no reducir cobertura: es el riesgo principal de la capacidad (Principio XXI). Se puede ejecutar el archivo Feature aislado durante el desarrollo. La suite completa será más lenta que con Dompdf por el arranque de Chrome y el SSR.
 - No se conservan `CvPdfFormatterTest` ni `CvPdfLinkTest`; su formato/enlaces los cubre `CvPreview` y la allowlist del renderer se prueba en Feature.
 
@@ -126,7 +126,7 @@ Cada escenario deriva de los criterios de aceptación y debe pasar antes de dar 
 
 ### 1. Preparación
 
-1. Iniciar la aplicación con `composer dev` (o el comando local equivalente) y confirmar que el SSR responde: en desarrollo lo sirve Vite; para una build local, `npm run build:ssr` + `php artisan inertia:start-ssr`.
+1. Iniciar la aplicación con `composer dev` (o el comando local equivalente) y confirmar que el SSR responde: en desarrollo lo sirve Vite; para una build local, `pnpm run build:ssr` + `php artisan inertia:start-ssr`.
 2. Confirmar que Chrome está disponible en `BROWSERSHOT_CHROME_PATH` (o que la autodetección de Chrome for Testing funciona) y que `node -v` es >=22.12.
 3. Completar el Perfil Maestro con nombre, teléfono, correo, ubicación, LinkedIn, GitHub, sitio web y al menos un enlace adicional.
 4. Crear o activar dos perfiles, por ejemplo «Analista» y «Programador», con títulos, resúmenes, selecciones y relevancias distintas.
@@ -228,9 +228,9 @@ qpdf --check cv-analista.pdf     # estructura y errores
 
 ## Resultado esperado
 
-- `php artisan test` en verde, incluidos `CvPdfExportTest`, `CvPrintHtmlTest` y `CvGeneratorTest`, con `npm run build:ssr` y SSR disponible.
-- `npm test` en verde, incluidos `CvGeneratorPanel.test.tsx` y `CvPreview.test.tsx`.
-- `npm run types:check`, `npm run check` y `composer lint:check` sin errores.
+- `php artisan test` en verde, incluidos `CvPdfExportTest`, `CvPrintHtmlTest` y `CvGeneratorTest`, con `pnpm run build:ssr` y SSR disponible.
+- `pnpm run test` en verde, incluidos `CvGeneratorPanel.test.tsx` y `CvPreview.test.tsx`.
+- `pnpm run types:check`, `pnpm run check` y `composer lint:check` sin errores.
 - La acción «Exportar PDF» aparece solo en `ready` con datos, fuera de la hoja, y descarga un PDF con el nombre determinista.
 - El PDF es A4 vertical, una columna, con Instrument Sans embebida, texto real, páginas completas y enlaces externos seguros.
 - El HTML de impresión contiene el `CvPreview` real, sin app chrome ni `source_links`, con CSS/fuentes autocontenidos.

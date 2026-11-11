@@ -9,7 +9,7 @@ Guía para ejecutar y validar la capacidad de extremo a extremo una vez implemen
 
 - PHP 8.4 con extensiones estándar (pdo_sqlite incluida)
 - Composer 2.x
-- Node.js 22+ y npm
+- Node.js 22+ y pnpm 11.1.1 (fijado en `package.json`)
 - Navegador de escritorio con visor PDF integrado (Chrome, Edge, Firefox o Safari)
 
 ### Configuración PHP recomendada para cargas
@@ -29,7 +29,7 @@ Sin este ajuste, PHP descarta la carga antes de llegar a la aplicación y el for
 ```bash
 # 1. Dependencias
 composer install
-npm install
+pnpm install --frozen-lockfile
 
 # 2. Configuración local (sin secretos en el repositorio)
 cp .env.example .env
@@ -49,7 +49,7 @@ Abrir `http://localhost:8000` y navegar a **Documentos** desde la barra principa
 
 ```bash
 php artisan test        # Pest: Feature + Unit (SQLite en memoria, Storage::fake('local'))
-npm test                # Vitest + React Testing Library (componentes)
+pnpm run test                # Vitest + React Testing Library (componentes)
 ```
 
 ## Validación manual por historia de usuario

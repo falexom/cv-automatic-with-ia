@@ -9,7 +9,7 @@ Guía para ejecutar y validar la capacidad de extremo a extremo una vez implemen
 
 - PHP 8.4 con extensiones estándar (pdo_sqlite incluida)
 - Composer 2.x
-- Node.js 22+ y npm
+- Node.js 22+ y pnpm 11.1.1 (fijado en `package.json`)
 - Navegador de escritorio
 
 ## Puesta en marcha
@@ -17,7 +17,7 @@ Guía para ejecutar y validar la capacidad de extremo a extremo una vez implemen
 ```bash
 # 1. Dependencias
 composer install
-npm install
+pnpm install --frozen-lockfile
 
 # 2. Configuración local (sin secretos en el repositorio)
 cp .env.example .env
@@ -37,7 +37,7 @@ Abrir `http://localhost:8000`: la raíz redirige a `/profile`.
 
 ```bash
 php artisan test        # Pest: Feature + Unit (SQLite en memoria)
-npm test                # Vitest + React Testing Library (componentes)
+pnpm run test                # Vitest + React Testing Library (componentes)
 ```
 
 ## Escenarios de validación manual
@@ -98,6 +98,6 @@ Cada escenario deriva de los criterios de aceptación del spec y debe pasar ante
 
 ## Resultado esperado
 
-- `php artisan test` y `npm test` en verde.
+- `php artisan test` y `pnpm run test` en verde.
 - Los 9 escenarios manuales pasan.
 - El flujo queda listo para la siguiente capacidad (perfiles objetivo y reglas de relevancia).

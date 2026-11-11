@@ -12,17 +12,20 @@
 
 - PHP 8.3+ (recomendado 8.4) con extensión `pdo_sqlite`
 - Composer 2.x
-- Node.js 22+ y npm
+- Node.js 22+ y Corepack para activar pnpm **11.1.1** (versión fijada en `package.json`)
 
 ## Puesta en marcha
 
 ```bash
 composer install
-npm install
+corepack enable pnpm
+pnpm --version  # debe mostrar 11.1.1
+pnpm install --frozen-lockfile
 cp .env.example .env
 php artisan key:generate
 touch database/database.sqlite
 php artisan migrate
+pnpm run build:ssr
 ```
 
 Inicia Laravel y Vite en terminales separadas. Laravel escucha explícitamente solo en la interfaz local; Vite también está configurado para enlazarse a `127.0.0.1`:
@@ -32,7 +35,7 @@ php artisan serve --host=127.0.0.1 --port=8000
 ```
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 Abre `http://127.0.0.1:8000` (redirige a `/profile`). No configures `0.0.0.0`, un proxy público ni reenvío de puertos para esta aplicación monousuario.
@@ -43,8 +46,8 @@ Comparte el proyecto mediante Git, publicando el código versionado. No distribu
 
 ```bash
 php artisan test      # Pest: tests Feature + Unit (SQLite en memoria)
-npm test              # Vitest + React Testing Library
-npm run check         # formato + lint + tipos (Vite+)
+pnpm run test         # Vitest + React Testing Library
+pnpm run check        # formato + lint + tipos (Vite+)
 ```
 
 ## Estructura principal

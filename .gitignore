@@ -1,6 +1,7 @@
 /.phpunit.cache
 /bootstrap/ssr
 /node_modules
+/.pnpm-store
 /public/build
 /public/fonts-manifest.dev.json
 /public/hot
@@ -22,7 +23,7 @@
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
-npm-debug.log
+pnpm-debug.log
 yarn-error.log
 /auth.json
 **/.codex/auth.json

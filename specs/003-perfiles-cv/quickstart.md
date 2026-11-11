@@ -9,7 +9,7 @@ Guía para aplicar la migración, ejecutar las pruebas y validar la capacidad de
 
 - PHP 8.3+ con extensión `pdo_sqlite`
 - Composer 2.x
-- Node.js 22+ y npm
+- Node.js 22+ y pnpm 11.1.1 (fijado en `package.json`)
 - Navegador de escritorio
 - Base de datos local existente con el Perfil Maestro de SPEC-001 (puede estar vacío)
 
@@ -18,7 +18,7 @@ Guía para aplicar la migración, ejecutar las pruebas y validar la capacidad de
 ```bash
 # Dependencias (si no están instaladas)
 composer install
-npm install
+pnpm install --frozen-lockfile
 
 # Configuración local (sin secretos en el repositorio)
 cp .env.example .env        # solo si no existe .env
@@ -62,18 +62,18 @@ php artisan test tests/Feature/CvProfileContentTest.php
 php artisan test tests/Feature/CvProfileInitialProfilesTest.php
 
 # Frontend (Vitest + React Testing Library)
-npm test
-npm test -- resources/js/components/__tests__/CvProfileForm.test.tsx
-npm test -- resources/js/hooks/__tests__/use-current-url.test.ts
+pnpm run test
+pnpm run test -- resources/js/components/__tests__/CvProfileForm.test.tsx
+pnpm run test -- resources/js/hooks/__tests__/use-current-url.test.ts
 
 # Verificación de tipos
-npm run types:check
+pnpm run types:check
 ```
 
 Si se modificó el frontend, también puede ejecutarse la verificación de formato/lint del proyecto:
 
 ```bash
-npm run check
+pnpm run check
 composer lint:check
 ```
 
@@ -222,8 +222,8 @@ Los siguientes puntos **no** se declaran aprobados por la lista de evidencias an
 ## Resultado esperado
 
 - `php artisan test` en verde, incluidos `CvProfileTest`, `CvProfileContentTest` y `CvProfileInitialProfilesTest`.
-- `npm test` en verde, incluidos `CvProfileForm` y `use-current-url`.
-- `npm run types:check` sin errores.
+- `pnpm run test` en verde, incluidos `CvProfileForm` y `use-current-url`.
+- `pnpm run types:check` sin errores.
 - Los 11 escenarios manuales pasan.
 - La migración es aditiva y reversible; el Perfil Maestro y los documentos existentes permanecen intactos.
 - La configuración queda lista para que SPEC-004 consuma los perfiles activos y su contenido ordenado, sin implementar la generación en esta capacidad.

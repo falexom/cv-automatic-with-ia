@@ -3,3 +3,9 @@ packages:
 
 publicHoistPattern:
     - '@inertiajs/core'
+
+strictDepBuilds: true
+
+allowBuilds:
+    fsevents: false
+    puppeteer: false
