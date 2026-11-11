@@ -1,7 +1,7 @@
 # US-009 — Corregir el tipado estático de perfiles de CV
 
 - **Identificador:** US-009
-- **Estado:** APROBADA_PARA_DESARROLLO — aprobación explícita concedida en la solicitud actual.
+- **Estado:** IMPLEMENTADA_ACEPTADA — cierre autorizado por el responsable; integrada en `main` mediante PR #4.
 - **SPEC relacionadas:** [SPEC-003 — Perfiles de CV](../003-perfiles-cv/spec.md) y [SPEC-004 — Generador de CV](../004-generador-de-cv/spec.md).
 - **Incidente de origen:** ejecución GitHub Actions `42956799349`; el log completo reporta 16 errores PHPStan.
 
@@ -29,3 +29,9 @@ Como responsable del proyecto, quiero que PHPStan compruebe correctamente las co
 - Cambiar reglas funcionales, contenido del CV, criterios de orden, esquema o persistencia.
 - Silenciar diagnósticos, rebajar el nivel de PHPStan o modificar controles de CI.
 - Corregir otros errores PHPStan no incluidos en la ejecución `42956799349`.
+
+## Cierre
+
+- **PR:** [#4](https://github.com/falexom/cv-automatic-with-ia/pull/4).
+- **Merge en `main`:** `70777f78c3ad9de5bef94026c5e2130e00c7f55b`.
+- **CI:** [ejecución 42961663112](https://github.com/falexom/cv-automatic-with-ia/actions/runs/42961663112) — exitosa para el SHA del merge.
