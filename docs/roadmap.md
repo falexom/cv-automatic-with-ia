@@ -409,16 +409,16 @@ Las siguientes oportunidades se registran como propuestas de análisis. No son r
 
 # Estado del Roadmap
 
-| Spec | Capacidad | Estado verificado en `main` |
-|---|---|---|
-| SPEC-001 | Perfil Profesional Maestro | COMPLETADA e integrada (`323eeb1`); aceptación manual y cierre registrados (`bffb1e2`). T063/T064 completadas; SC-001 retirado por decisión del responsable. |
-| SPEC-002 | Documentos y Evidencias | COMPLETADA e integrada (`1f154bc`); validación manual y pruebas automatizadas registradas. |
-| SPEC-003 | Perfiles de CV | COMPLETADA e integrada; implementación presente (`2c0658f`) y cierre registrado (`63ab15b`). T050 conserva cobertura manual parcial documentada; aceptación del responsable registrada. |
-| SPEC-004 | Generador de CV | COMPLETADA e integrada (`df45be1`); aceptación funcional y visual registrada. T025 conserva escenarios manuales no ejecutados individualmente, documentados en su evidencia. |
-| SPEC-005 | Exportación PDF | COMPLETADA e integrada (`d4e8a1b`); aceptación funcional y visual registrada, con cobertura manual parcial documentada para T019. |
-| SPEC-006 | CV Documentado | COMPLETADA e integrada mediante US-002 y US-003 (`b0b0578`); cierre registrado (`006d3ed`). |
-| SPEC-007 | Importación Inteligente de Certificados | CANCELADA; fuera del alcance de v1.0, sin trabajo pendiente. |
-| SPEC-008 | Adaptación de CV a una oferta laboral | COMPLETADA, aceptada e integrada localmente en `main` mediante fast-forward el 2026-11-10, con US-008 como única historia. Sin push ni tag. |
+| Spec     | Capacidad                               | Estado verificado en `main`                                                                                                                                                             |
+| -------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SPEC-001 | Perfil Profesional Maestro              | COMPLETADA e integrada (`323eeb1`); aceptación manual y cierre registrados (`bffb1e2`). T063/T064 completadas; SC-001 retirado por decisión del responsable.                            |
+| SPEC-002 | Documentos y Evidencias                 | COMPLETADA e integrada (`1f154bc`); validación manual y pruebas automatizadas registradas.                                                                                              |
+| SPEC-003 | Perfiles de CV                          | COMPLETADA e integrada; implementación presente (`2c0658f`) y cierre registrado (`63ab15b`). T050 conserva cobertura manual parcial documentada; aceptación del responsable registrada. |
+| SPEC-004 | Generador de CV                         | COMPLETADA e integrada (`df45be1`); aceptación funcional y visual registrada. T025 conserva escenarios manuales no ejecutados individualmente, documentados en su evidencia.            |
+| SPEC-005 | Exportación PDF                         | COMPLETADA e integrada (`d4e8a1b`); aceptación funcional y visual registrada, con cobertura manual parcial documentada para T019.                                                       |
+| SPEC-006 | CV Documentado                          | COMPLETADA e integrada mediante US-002 y US-003 (`b0b0578`); cierre registrado (`006d3ed`).                                                                                             |
+| SPEC-007 | Importación Inteligente de Certificados | CANCELADA; fuera del alcance de v1.0, sin trabajo pendiente.                                                                                                                            |
+| SPEC-008 | Adaptación de CV a una oferta laboral   | COMPLETADA, aceptada e integrada localmente en `main` mediante fast-forward el 2026-11-10, con US-008 como única historia. Sin push ni tag.                                             |
 
 ---
 

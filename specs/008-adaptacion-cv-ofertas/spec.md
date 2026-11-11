@@ -37,7 +37,6 @@ Los campos exactos, exclusiones de datos, consentimiento previo y controles para
 - [Codex TypeScript SDK](https://developers.openai.com/codex/sdk) · [README del SDK](https://github.com/openai/codex/blob/main/sdk/typescript/README.md) · [Opciones de hilo](https://github.com/openai/codex/blob/main/sdk/typescript/src/threadOptions.ts) · [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna)
 - [Uso de Codex con un plan ChatGPT](https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan) · [Facturación ChatGPT y API](https://help.openai.com/en/articles/9039756-managing-billing-for-chatgpt-and-the-api-platform) · [Niveles de integración Codex](https://developers.openai.com/blog/codex-as-a-platform)
 
-
 ## Revisión de alcance R1 — ACEPTADA
 
 Necesidad descubierta por el usuario al validar: el perfil adaptado permanece, pero la evaluación y las respuestas desaparecen al salir. El responsable confirmó la validación funcional de US-008 y R1 y aceptó los ajustes de seguridad/publicación el 2026-11-10. SPEC-008 queda cerrada e integrada localmente en `main`.

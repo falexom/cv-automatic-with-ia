@@ -28,7 +28,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
                 <div className="mx-auto flex w-full max-w-screen-2xl flex-col gap-2 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
                     <Link
                         href="/profile"
-                        className="shrink-0 whitespace-nowrap text-base font-semibold tracking-tight"
+                        className="shrink-0 text-base font-semibold tracking-tight whitespace-nowrap"
                     >
                         {name}
                     </Link>
@@ -44,7 +44,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
                                     key={item.href}
                                     href={item.href}
                                     className={cn(
-                                        'whitespace-nowrap rounded-md px-3 py-1.5 text-sm transition-colors lg:px-2',
+                                        'rounded-md px-3 py-1.5 text-sm whitespace-nowrap transition-colors lg:px-2',
                                         isActive
                                             ? 'bg-primary text-primary-foreground'
                                             : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',

@@ -18,9 +18,9 @@ Como usuario de CV Automático, quiero contrastar una oferta con mi Perfil Maest
 - El usuario pega una oferta laboral y, después de revisar qué información profesional se enviará a Codex/OpenAI, consiente explícitamente el análisis.
 - Codex identifica requisitos y contrasta el texto con el Perfil Maestro y los perfiles de CV. Entrega una recomendación, justificación, contenido y relevancias sugeridos, orden conforme a las reglas existentes, brechas y posibles preguntas aclaratorias.
 - Se permiten tres operaciones, claramente diferenciadas:
-  - **Reutilizar**: recomendar y utilizar un perfil existente activo exactamente como está almacenado. No cambia campos, selecciones ni relevancias y no requiere volver a guardar el perfil.
-  - **Duplicar y adaptar**: tomar un perfil existente (activo o inactivo) como base. Tras revisión y aprobación, crear un perfil nuevo con los cambios aprobados. El perfil de origen permanece intacto.
-  - **Crear**: proponer un perfil nuevo específico para la oferta, con registros existentes del Perfil Maestro, relevancias, nombre, título y resumen revisables. Crear únicamente después de aprobación humana.
+    - **Reutilizar**: recomendar y utilizar un perfil existente activo exactamente como está almacenado. No cambia campos, selecciones ni relevancias y no requiere volver a guardar el perfil.
+    - **Duplicar y adaptar**: tomar un perfil existente (activo o inactivo) como base. Tras revisión y aprobación, crear un perfil nuevo con los cambios aprobados. El perfil de origen permanece intacto.
+    - **Crear**: proponer un perfil nuevo específico para la oferta, con registros existentes del Perfil Maestro, relevancias, nombre, título y resumen revisables. Crear únicamente después de aprobación humana.
 - Nunca se actualiza ni elimina un perfil preexistente ni se modifica un registro del Perfil Maestro. La adaptación solo puede crear un perfil nuevo y sus asociaciones mediante las validaciones y operaciones existentes de Laravel.
 - El agente puede recomendar habilidades, cursos, certificaciones o formación para incorporar o desarrollar. Estas recomendaciones se presentan separadas del contenido seleccionado para el CV e indican si falta evidencia registrada o si se requiere confirmación. No acreditan que el usuario tenga esa capacidad y no se agregan al Maestro, a asociaciones de perfiles ni al CV. El usuario puede incorporarlas mediante las funciones existentes y solicitar luego otro análisis.
 - Durante la revisión se pueden hacer preguntas aclaratorias si un dato existente es ambiguo o requiere confirmación. Son opcionales, no convierten cada análisis en cuestionario ni crean una plataforma conversacional. Una respuesta no registrada no se convierte por sí sola en evidencia profesional; el usuario puede actualizar el Maestro por sus funciones existentes y volver a analizar.
@@ -52,48 +52,46 @@ La salida tiene `schema_version: 1`, estructura cerrada (`additionalProperties: 
 
 ```json
 {
-  "schema_version": 1,
-  "operation": "duplicate",
-  "source_profile_ref": "cv_a81",
-  "rationale": ["..."],
-  "profile_details": {
-    "name": "Perfil para ...",
-    "professional_title": null,
-    "summary": null
-  },
-  "requirements": [
-    {
-      "ref": "req_01",
-      "text": "...",
-      "importance": "required",
-      "coverage": "partial"
-    }
-  ],
-  "gaps": [
-    {
-      "requirement_ref": "req_01",
-      "reason": "...",
-      "evidence_state": "not_recorded"
-    }
-  ],
-  "selected_content": {
-    "work_experiences": [{"ref": "exp_1f2", "relevance": "alta"}],
-    "education_entries": [],
-    "certifications": [],
-    "skills": [],
-    "projects": []
-  },
-  "development_recommendations": [
-    {
-      "kind": "skill",
-      "label": "...",
-      "reason": "...",
-      "evidence_state": "not_recorded"
-    }
-  ],
-  "clarifying_questions": [
-    {"requirement_ref": "req_01", "question": "..."}
-  ]
+    "schema_version": 1,
+    "operation": "duplicate",
+    "source_profile_ref": "cv_a81",
+    "rationale": ["..."],
+    "profile_details": {
+        "name": "Perfil para ...",
+        "professional_title": null,
+        "summary": null
+    },
+    "requirements": [
+        {
+            "ref": "req_01",
+            "text": "...",
+            "importance": "required",
+            "coverage": "partial"
+        }
+    ],
+    "gaps": [
+        {
+            "requirement_ref": "req_01",
+            "reason": "...",
+            "evidence_state": "not_recorded"
+        }
+    ],
+    "selected_content": {
+        "work_experiences": [{ "ref": "exp_1f2", "relevance": "alta" }],
+        "education_entries": [],
+        "certifications": [],
+        "skills": [],
+        "projects": []
+    },
+    "development_recommendations": [
+        {
+            "kind": "skill",
+            "label": "...",
+            "reason": "...",
+            "evidence_state": "not_recorded"
+        }
+    ],
+    "clarifying_questions": [{ "requirement_ref": "req_01", "question": "..." }]
 }
 ```
 
@@ -177,7 +175,6 @@ La validación técnica inicial y los flujos de `reuse`, `duplicate`, `create`, 
 5. Confirmar que el perfil creado o reutilizado se abre en `/cv?profile=...` y que la vista previa y el PDF existentes funcionan.
 6. Verificar que cancelar no guarda cambios y que una referencia obsoleta produce un error sin persistencia parcial.
 
-
 ## Revisión R1 — Consulta y gestión de la adaptación (ACEPTADA)
 
 **Fecha:** 2026-11-10. **Estado:** aprobada, implementada y aceptada por el responsable el 2026-11-10. Cierre e integración local autorizados; no incluye push ni tag. Sigue siendo la única historia de SPEC-008; base inicial `d8d56f6` conservada.
@@ -216,11 +213,11 @@ La evaluación conserva su contenido y fecha originales. Un nuevo análisis gene
 
 Relación **perfil 1:N evaluaciones**; cada evaluación pertenece a un único perfil destino y puede tener N observaciones. No hace falta una relación N:M ni una entidad postulación.
 
-| Operación | Perfil destino | Evaluación al confirmar |
-|---|---|---|
-| `reuse` | Existente y activo; sin guardar ni alterar sus campos/asociaciones | Nueva evaluación ligada a ese perfil, aunque ya tenga otras |
-| `duplicate` | Nuevo perfil adaptado; origen intacto | Nueva evaluación ligada solo al nuevo; no copiar ni trasladar evaluaciones del origen |
-| `create` | Nuevo perfil revisado | Nueva evaluación ligada al nuevo |
+| Operación   | Perfil destino                                                     | Evaluación al confirmar                                                               |
+| ----------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| `reuse`     | Existente y activo; sin guardar ni alterar sus campos/asociaciones | Nueva evaluación ligada a ese perfil, aunque ya tenga otras                           |
+| `duplicate` | Nuevo perfil adaptado; origen intacto                              | Nueva evaluación ligada solo al nuevo; no copiar ni trasladar evaluaciones del origen |
+| `create`    | Nuevo perfil revisado                                              | Nueva evaluación ligada al nuevo                                                      |
 
 En confirmaciones independientes, incluso para el mismo puesto/empresa, se agregan evaluaciones identificables por fecha; no se deduplican por nombre de oferta. El reintento de **la misma confirmación** usa un identificador único validado por Laravel para no duplicar perfiles ni evaluaciones. Cancelar o abandonar antes de confirmar no conserva análisis en la aplicación.
 
