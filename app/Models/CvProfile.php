@@ -4,11 +4,19 @@ namespace App\Models;
 
 use App\Support\NameNormalizer;
 use Database\Factories\CvProfileFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property-read Collection<int, WorkExperience&object{pivot: CvProfilePivot}> $workExperiences
+ * @property-read Collection<int, EducationEntry&object{pivot: CvProfilePivot}> $educationEntries
+ * @property-read Collection<int, Certification&object{pivot: CvProfilePivot}> $certifications
+ * @property-read Collection<int, Skill&object{pivot: CvProfilePivot}> $skills
+ * @property-read Collection<int, Project&object{pivot: CvProfilePivot}> $projects
+ */
 class CvProfile extends Model
 {
     /** @use HasFactory<CvProfileFactory> */
@@ -44,7 +52,7 @@ class CvProfile extends Model
     }
 
     /**
-     * @return BelongsToMany<WorkExperience, $this>
+     * @return BelongsToMany<WorkExperience, $this, CvProfilePivot>
      */
     public function workExperiences(): BelongsToMany
     {
@@ -54,6 +62,7 @@ class CvProfile extends Model
             'cv_profile_id',
             'work_experience_id',
         )
+            ->using(CvProfilePivot::class)
             ->withPivot('relevance')
             ->orderByRaw(self::relevanceOrder('cv_profile_work_experience'))
             ->orderByDesc('work_experiences.start_year')
@@ -62,7 +71,7 @@ class CvProfile extends Model
     }
 
     /**
-     * @return BelongsToMany<EducationEntry, $this>
+     * @return BelongsToMany<EducationEntry, $this, CvProfilePivot>
      */
     public function educationEntries(): BelongsToMany
     {
@@ -72,6 +81,7 @@ class CvProfile extends Model
             'cv_profile_id',
             'education_entry_id',
         )
+            ->using(CvProfilePivot::class)
             ->withPivot('relevance')
             ->orderByRaw(self::relevanceOrder('cv_profile_education_entry'))
             ->orderByDesc('education_entries.start_year')
@@ -80,7 +90,7 @@ class CvProfile extends Model
     }
 
     /**
-     * @return BelongsToMany<Certification, $this>
+     * @return BelongsToMany<Certification, $this, CvProfilePivot>
      */
     public function certifications(): BelongsToMany
     {
@@ -90,6 +100,7 @@ class CvProfile extends Model
             'cv_profile_id',
             'certification_id',
         )
+            ->using(CvProfilePivot::class)
             ->withPivot('relevance')
             ->orderByRaw(self::relevanceOrder('cv_profile_certification'))
             ->orderByDesc('certifications.date_year')
@@ -98,7 +109,7 @@ class CvProfile extends Model
     }
 
     /**
-     * @return BelongsToMany<Skill, $this>
+     * @return BelongsToMany<Skill, $this, CvProfilePivot>
      */
     public function skills(): BelongsToMany
     {
@@ -108,6 +119,7 @@ class CvProfile extends Model
             'cv_profile_id',
             'skill_id',
         )
+            ->using(CvProfilePivot::class)
             ->withPivot('relevance')
             ->orderByRaw(self::relevanceOrder('cv_profile_skill'))
             ->orderByRaw("CASE skills.category
@@ -121,7 +133,7 @@ class CvProfile extends Model
     }
 
     /**
-     * @return BelongsToMany<Project, $this>
+     * @return BelongsToMany<Project, $this, CvProfilePivot>
      */
     public function projects(): BelongsToMany
     {
@@ -131,6 +143,7 @@ class CvProfile extends Model
             'cv_profile_id',
             'project_id',
         )
+            ->using(CvProfilePivot::class)
             ->withPivot('relevance')
             ->orderByRaw(self::relevanceOrder('cv_profile_project'))
             ->orderByDesc('projects.start_year')
@@ -146,6 +159,10 @@ class CvProfile extends Model
         return $this->hasMany(CvAdaptation::class);
     }
 
+    /**
+     * @param  'cv_profile_work_experience'|'cv_profile_education_entry'|'cv_profile_certification'|'cv_profile_skill'|'cv_profile_project'  $pivot
+     * @return literal-string
+     */
     private static function relevanceOrder(string $pivot): string
     {
         return "CASE {$pivot}.relevance
