@@ -18,9 +18,11 @@ class CvProfileFactory extends Factory
     public function definition(): array
     {
         $faker = $this->faker->unique();
+        $words = $faker->words(2, true);
+        $name = is_array($words) ? implode(' ', $words) : $words;
 
         return [
-            'name' => ucfirst($faker->words(2, true)),
+            'name' => ucfirst($name),
             'professional_title' => $faker->jobTitle(),
             'summary' => $faker->sentence(),
             'is_active' => true,
