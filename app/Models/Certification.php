@@ -17,6 +17,13 @@ class Certification extends Model
     protected $guarded = [];
 
     /**
+     * Internal import idempotency key; never part of professional data.
+     *
+     * @var list<string>
+     */
+    protected $hidden = ['import_confirmation_id'];
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array

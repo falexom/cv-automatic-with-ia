@@ -8,7 +8,10 @@ use App\Models\Certification;
 use App\Models\Document;
 use App\Models\Profile;
 use App\Models\Skill;
+use App\Support\CertificationImport\CertificationImportConfig;
+use App\Support\CertificationImport\CertificationImportDataNotice;
 use App\Support\NameNormalizer;
+use App\Support\PdfFile;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -16,6 +19,11 @@ use Inertia\Response;
 
 class CertificationController extends Controller
 {
+    public function __construct(
+        private readonly CertificationImportDataNotice $importNotice,
+        private readonly CertificationImportConfig $importConfig,
+    ) {}
+
     public function index(): Response
     {
         $records = Profile::current()
@@ -35,6 +43,13 @@ class CertificationController extends Controller
     {
         return Inertia::render('Certifications/Create', [
             'skills' => $this->skillOptions(),
+            'import_notice' => $this->importNotice->payload(),
+            'import_limits' => [
+                'max_kilobytes' => PdfFile::MAX_KILOBYTES,
+                'max_text_chars' => $this->importConfig->maxTextChars(),
+                'max_pages' => $this->importConfig->maxPages(),
+                'max_page_chars' => $this->importConfig->maxPageChars(),
+            ],
         ]);
     }
 

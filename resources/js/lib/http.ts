@@ -17,22 +17,26 @@ export class RequestError extends Error {
     }
 }
 
-export async function postJson<T>(url: string, body: unknown): Promise<T> {
-    const token =
+function csrfToken(): string {
+    return (
         document
             .querySelector<HTMLMetaElement>('meta[name="csrf-token"]')
-            ?.getAttribute('content') ?? '';
+            ?.getAttribute('content') ?? ''
+    );
+}
+
+async function requestJson<T>(url: string, init: RequestInit): Promise<T> {
+    const { headers: initHeaders, ...rest } = init;
+    const headers = new Headers(initHeaders);
+
+    headers.set('Accept', 'application/json');
+    headers.set('X-CSRF-TOKEN', csrfToken());
+    headers.set('X-Requested-With', 'XMLHttpRequest');
 
     const response = await fetch(url, {
-        method: 'POST',
         credentials: 'same-origin',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': token,
-            'X-Requested-With': 'XMLHttpRequest',
-        },
-        body: JSON.stringify(body),
+        ...rest,
+        headers,
     });
 
     const payload = (await response.json().catch(() => ({}))) as {
@@ -59,4 +63,32 @@ export async function postJson<T>(url: string, body: unknown): Promise<T> {
     }
 
     return payload as T;
+}
+
+export async function postJson<T>(
+    url: string,
+    body: unknown,
+    signal?: AbortSignal,
+): Promise<T> {
+    return requestJson<T>(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+        signal,
+    });
+}
+
+export async function postForm<T>(
+    url: string,
+    body: FormData,
+    signal?: AbortSignal,
+): Promise<T> {
+    // The browser sets the multipart boundary; do not force Content-Type.
+    return requestJson<T>(url, {
+        method: 'POST',
+        body,
+        signal,
+    });
 }

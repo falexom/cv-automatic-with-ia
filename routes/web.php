@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CertificationController;
+use App\Http\Controllers\CertificationImportController;
 use App\Http\Controllers\CvAdaptationController;
 use App\Http\Controllers\CvDocumentedPdfController;
 use App\Http\Controllers\CvGeneratorController;
@@ -35,6 +36,10 @@ Route::get('/documents/{document}/viewer', [DocumentController::class, 'viewer']
 Route::get('/documents/{document}/file', [DocumentController::class, 'file'])->name('documents.file');
 Route::post('/documents/{document}/links', [DocumentLinkController::class, 'store'])->name('documents.links.store');
 Route::delete('/documents/{document}/links', [DocumentLinkController::class, 'destroy'])->name('documents.links.destroy');
+
+Route::post('/certifications/import/prepare', [CertificationImportController::class, 'prepare'])->name('certifications.import.prepare');
+Route::post('/certifications/import/analyze', [CertificationImportController::class, 'analyze'])->name('certifications.import.analyze');
+Route::post('/certifications/import/confirm', [CertificationImportController::class, 'confirm'])->name('certifications.import.confirm');
 
 Route::resource('experiences', WorkExperienceController::class)->except('show');
 Route::resource('education', EducationController::class)->except('show');

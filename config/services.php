@@ -44,6 +44,17 @@ return [
         'binary' => env('QPDF_BINARY', 'qpdf'),
     ],
 
+    'pdftotext' => [
+        'binary' => env('PDFTOTEXT_BINARY', 'pdftotext'),
+        'timeout' => (int) env('PDFTOTEXT_TIMEOUT', 30),
+    ],
+
+    'certification_import' => [
+        'max_text_chars' => (int) env('CERTIFICATION_IMPORT_MAX_TEXT_CHARS', 60000),
+        'max_pages' => (int) env('CERTIFICATION_IMPORT_MAX_PAGES', 30),
+        'max_page_chars' => (int) env('CERTIFICATION_IMPORT_MAX_PAGE_CHARS', 20000),
+    ],
+
     'codex' => [
         'binary' => env('CODEX_BINARY', 'codex'),
         'node_binary' => env('CODEX_NODE_BINARY', 'node'),
