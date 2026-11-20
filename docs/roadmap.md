@@ -292,6 +292,25 @@ Aceptación funcional y visual: 27/10/2026. Integración en `main`: `b0b0578`.
 
 ---
 
+# SPEC-009 — Importación asistida de cursos y certificaciones desde PDF
+
+**Estado:** APROBADA (2026-11-20); preparación documental completada. SPEC completa pendiente de implementación y aceptación humana de ambas historias. La ejecución comenzará con la siguiente instrucción del responsable.
+
+**Contrato:** [SPEC-009](../specs/009-importacion-asistida-certificados/spec.md) referencia una sola fuente funcional en las historias; [checklist documental](../specs/009-importacion-asistida-certificados/checklists/requirements.md) revisado, sin aceptación funcional implícita.
+
+| Historia | Contrato único | Estado y dependencia |
+| --- | --- | --- |
+| US-010 | [Importación de certificados PDF con texto](../specs/stories/US-010-importacion-certificados-pdf-texto.md) | APROBADA_PARA_DESARROLLO; primera entrega, depende de SPEC-001/002. Contiene recorrido completo y reglas comunes. |
+| US-011 | [Importación de certificados escaneados o mixtos con OCR local](../specs/stories/US-011-importacion-certificados-ocr-local.md) | APROBADA_PARA_DESARROLLO; extensión OCR, depende de US-010 implementada y aceptada. |
+
+**Rama y base:** `009-importacion-asistida-certificados`, creada desde `main` en `eae90399073e3895a24a1a8c81e8417f33ee0822`, preservando el trabajo documental pendiente del mismo encargo. La primera implementación será exclusivamente US-010; US-011 tendrá rama propia desde la base que contenga US-010 aceptada.
+
+**Integración conciliada:** inspección efectiva de Laravel/Node/paquetes y estado de sesión confirma adaptador Codex CLI 0.171.0, Luna 6, `xhigh`, timeout 300 s y autenticación ChatGPT. Se reutiliza esa vía existente, sin añadir SDK ni cambiar configuración. `pdftotext`, Tesseract y OCRmyPDF locales identificados mediante rutas/versiones, sin pruebas de procesamiento. Evidencia y limitaciones en la SPEC; no hay impedimento real identificado para iniciar US-010 cuando se instruya.
+
+**Historia y gobernanza:** SPEC-007 continúa CANCELADA históricamente con su backlog descartado. SPEC-009 es una nueva decisión, sin modificar SPEC-008 ni Constitución, ni declarar cerrado v1.0. La preparación autorizada comprende rama/documentación; no implementación, pruebas, commit, push ni merge en esta fase.
+
+---
+
 # Orden Propuesto de Implementación (referencia histórica)
 
 1. SPEC-002 — Documentos y Evidencias.
@@ -311,7 +330,8 @@ SPEC-001 — Perfil Profesional Maestro
 │ └── SPEC-004 — Generador de CV  
 │ └── SPEC-005 — Exportación PDF  
 │ └── SPEC-006 — CV Documentado  
-└── SPEC-007 — Importación Inteligente (cancelada; sin dependencia activa)
+├── SPEC-007 — Importación Inteligente (cancelada; sin dependencia activa)
+└── SPEC-009 — Importación asistida desde PDF (aprobada; SPEC-002 → US-010 → US-011)
 
 ---
 
@@ -345,7 +365,7 @@ No debe iniciarse la implementación del siguiente Spec hasta que el anterior se
 
 # Estado del alcance v1.0
 
-SPEC-001 a SPEC-006 están completadas e integradas en `main`, según el historial y los artefactos verificados. SPEC-007 está cancelada y retirada del alcance. No se declara cerrado formalmente CV Automático v1.0: la Constitución vigente todavía incluye la extracción automática de información de certificados en el MVP (Principio IV), exige revisión humana de esos datos (Principios VIII y IX) y la incorpora al criterio de éxito del MVP (sección IX). La cancelación de SPEC-007 entra en conflicto con esas reglas. Resolverlo requiere una decisión y alineación constitucional explícitas; esta actualización no modifica la Constitución.
+SPEC-001 a SPEC-006 están completadas e integradas en `main`, según el historial y los artefactos verificados. SPEC-007 está cancelada y retirada del alcance. No se declara cerrado formalmente CV Automático v1.0: la Constitución vigente todavía incluye la extracción automática de información de certificados en el MVP (Principio IV), exige revisión humana de esos datos (Principios VIII y IX) y la incorpora al criterio de éxito del MVP (sección IX). La cancelación de SPEC-007 entra en conflicto con esas reglas. Esta discrepancia histórica no se resuelve reabriendo SPEC-007. El responsable autoriza ahora una nueva decisión formalizada en SPEC-009 para cubrir la extracción y revisión previstas por la Constitución, sin modificarla. La capacidad todavía no está implementada ni aceptada; el cierre formal de v1.0 sigue pendiente.
 
 ### Historia incremental US-004 — Fotografía profesional en el CV
 
@@ -419,6 +439,7 @@ Las siguientes oportunidades se registran como propuestas de análisis. No son r
 | SPEC-006 | CV Documentado                          | COMPLETADA e integrada mediante US-002 y US-003 (`b0b0578`); cierre registrado (`006d3ed`).                                                                                             |
 | SPEC-007 | Importación Inteligente de Certificados | CANCELADA; fuera del alcance de v1.0, sin trabajo pendiente.                                                                                                                            |
 | SPEC-008 | Adaptación de CV a una oferta laboral   | COMPLETADA, aceptada e integrada localmente en `main` mediante fast-forward el 2026-11-10, con US-008 como única historia. Sin push ni tag.                                             |
+| SPEC-009 | Importación asistida desde PDF | APROBADA (2026-11-20); US-010 y US-011 APROBADA_PARA_DESARROLLO. Preparación documental en rama propia; pendiente implementar y aceptar ambas. CLI/Luna 6 conciliado. |
 
 ---
 
