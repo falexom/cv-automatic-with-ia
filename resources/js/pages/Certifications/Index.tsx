@@ -7,6 +7,7 @@ import type { SkillOption } from '@/components/SkillMultiSelect';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout';
 import { formatYearMonth } from '@/lib/dates';
 
@@ -22,9 +23,19 @@ type CertificationRecord = {
 };
 
 export default function Index({ records }: { records: CertificationRecord[] }) {
+    const [search, setSearch] = useState('');
     const [deleteTarget, setDeleteTarget] =
         useState<CertificationRecord | null>(null);
     const [processing, setProcessing] = useState(false);
+    const query = search.trim().toLowerCase();
+    const filteredRecords =
+        query === ''
+            ? records
+            : records.filter((record) =>
+                  [record.name, record.institution ?? ''].some((value) =>
+                      value.toLowerCase().includes(query),
+                  ),
+              );
 
     const confirmDelete = () => {
         if (!deleteTarget) {
@@ -44,7 +55,15 @@ export default function Index({ records }: { records: CertificationRecord[] }) {
     return (
         <AppLayout title="Cursos y certificaciones">
             <Head title="Cursos y certificaciones" />
-            <div className="mb-4 flex justify-end">
+            <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+                <Input
+                    type="search"
+                    value={search}
+                    aria-label="Buscar cursos y certificaciones"
+                    placeholder="Buscar por nombre o institución"
+                    className="sm:max-w-xs"
+                    onChange={(event) => setSearch(event.target.value)}
+                />
                 <Button asChild>
                     <Link href="/certifications/create">
                         <Plus /> Nueva certificación
@@ -52,7 +71,13 @@ export default function Index({ records }: { records: CertificationRecord[] }) {
                 </Button>
             </div>
 
-            {records.length === 0 ? (
+            {filteredRecords.length === 0 && query !== '' ? (
+                <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed bg-background p-10 text-center">
+                    <p className="text-sm text-muted-foreground">
+                        No se encontraron resultados
+                    </p>
+                </div>
+            ) : records.length === 0 ? (
                 <EmptyState
                     title="Sin cursos ni certificaciones"
                     description="Registrá los cursos y certificaciones que respaldan tus conocimientos."
@@ -61,7 +86,7 @@ export default function Index({ records }: { records: CertificationRecord[] }) {
                 />
             ) : (
                 <div className="space-y-3">
-                    {records.map((record) => (
+                    {filteredRecords.map((record) => (
                         <Card key={record.id}>
                             <CardContent className="flex flex-col gap-3 pt-6 sm:flex-row sm:items-start sm:justify-between">
                                 <div className="space-y-1">

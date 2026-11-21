@@ -2,6 +2,16 @@
 
 Todas las versiones notables de CV Automatic with IA. El proyecto usa versionado semántico (SemVer) a partir de esta entrega. El hito funcional previo (SPEC-001 a SPEC-006 y mejoras posteriores) se considera la base 1.0.0; no tuvo tag ni changelog.
 
+## [1.2.0] - 2026-11-21
+
+### Added
+
+- Búsqueda local en el listado combinado de Cursos y Certificaciones por coincidencia parcial en nombre o institución y en Habilidades por nombre (US-012).
+
+### Documentation
+
+- Aceptación funcional y visual de US-012; se conserva el flujo de publicación sin tag.
+
 ## [1.1.0] - 2026-11-21
 
 ### Added

@@ -5,6 +5,7 @@ import DeleteConfirmDialog from '@/components/DeleteConfirmDialog';
 import EmptyState from '@/components/EmptyState';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout';
 import {
     SKILL_CATEGORY_LABELS,
@@ -29,8 +30,16 @@ function deleteDescription(name: string, usageCount: number): string {
 }
 
 export default function Index({ records }: { records: SkillRecord[] }) {
+    const [search, setSearch] = useState('');
     const [deleteTarget, setDeleteTarget] = useState<SkillRecord | null>(null);
     const [processing, setProcessing] = useState(false);
+    const query = search.trim().toLowerCase();
+    const filteredRecords =
+        query === ''
+            ? records
+            : records.filter((record) =>
+                  record.name.toLowerCase().includes(query),
+              );
 
     const confirmDelete = () => {
         if (!deleteTarget) {
@@ -49,13 +58,21 @@ export default function Index({ records }: { records: SkillRecord[] }) {
 
     const groups = SKILL_CATEGORY_ORDER.map((category) => ({
         category,
-        items: records.filter((record) => record.category === category),
+        items: filteredRecords.filter((record) => record.category === category),
     })).filter((group) => group.items.length > 0);
 
     return (
         <AppLayout title="Habilidades">
             <Head title="Habilidades" />
-            <div className="mb-4 flex justify-end">
+            <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+                <Input
+                    type="search"
+                    value={search}
+                    aria-label="Buscar habilidades"
+                    placeholder="Buscar por nombre"
+                    className="sm:max-w-xs"
+                    onChange={(event) => setSearch(event.target.value)}
+                />
                 <Button asChild>
                     <Link href="/skills/create">
                         <Plus /> Nueva habilidad
@@ -63,7 +80,13 @@ export default function Index({ records }: { records: SkillRecord[] }) {
                 </Button>
             </div>
 
-            {records.length === 0 ? (
+            {filteredRecords.length === 0 && query !== '' ? (
+                <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed bg-background p-10 text-center">
+                    <p className="text-sm text-muted-foreground">
+                        No se encontraron resultados
+                    </p>
+                </div>
+            ) : records.length === 0 ? (
                 <EmptyState
                     title="Sin habilidades en el catálogo"
                     description="Creá tu catálogo de habilidades para reutilizarlas en experiencias, certificaciones y proyectos."

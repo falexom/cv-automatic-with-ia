@@ -1,6 +1,6 @@
 # CV Automatic with IA
 
-**Versión:** 1.1.0 (2026-11-21) · **Estado:** MVP funcional completo; SPEC-001 a SPEC-006, SPEC-008 y SPEC-009 aceptadas. SPEC-007 permanece cancelada.
+**Versión:** 1.2.0 (2026-11-21) · **Estado:** MVP funcional completo; SPEC-001 a SPEC-006, SPEC-008 y SPEC-009 completadas y aceptadas; US-012 aceptada. SPEC-007 permanece cancelada.
 
 **Tu experiencia, potenciada con IA.** CV Automatic with IA es una aplicación web **local y monousuario** para gestionar el **Perfil Profesional Maestro**. No incluye autenticación web ni está preparada para ejecutarse como un servidor público o un servicio para terceros.
 
@@ -76,4 +76,4 @@ La importación asistida (SPEC-009) conserva el PDF original, exige consentimien
 
 ### Estado de las especificaciones
 
-SPEC-001 a SPEC-006, SPEC-008 y SPEC-009 están completadas, aceptadas e integradas en `main`; SPEC-007 está cancelada. La versión 1.1.0 incorpora el cierre de SPEC-009. Fechas, historias y commits: `docs/roadmap.md`.
+SPEC-001 a SPEC-006, SPEC-008 y SPEC-009 están completadas, aceptadas e integradas en `main`; SPEC-007 está cancelada. La versión 1.2.0 incorpora la búsqueda local de US-012 y el cierre de SPEC-009. Fechas, historias y commits: `docs/roadmap.md`.
