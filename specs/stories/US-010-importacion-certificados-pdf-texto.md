@@ -1,12 +1,12 @@
 # US-010 — Importación de certificados PDF con texto
 
 - **Identificador:** US-010
-- **Estado:** APROBADA_PARA_DESARROLLO
-- **Aprobación humana:** 2026-11-20; el responsable aprueba la historia y sus límites en la conversación de preparación de SPEC-009.
+- **Estado:** ACEPTADA
+- **Aprobación humana:** 2026-11-20 (contrato); 2026-11-21 (aceptación funcional y visual).
 - **SPEC:** [SPEC-009 — Importación asistida de cursos y certificaciones](../009-importacion-asistida-certificados/spec.md).
 - **Prioridad y orden:** primera historia de SPEC-009.
-- **Rama documental:** `009-importacion-asistida-certificados`, creada desde `main` en `eae90399073e3895a24a1a8c81e8417f33ee0822`, preservando los documentos pendientes del mismo encargo.
-- **Ejecución:** no iniciada. La aprobación del contrato no habilita implementación en esta fase; se espera la siguiente instrucción del responsable. Sin autorización de commit, push ni merge.
+- **Rama documental:** `009-importacion-asistida-certificados`, creada desde `main` en `eae90399073e3895a24a1a8c81e8417f33ee0822`, preservando los documentos pendientes del mismo encargo. Implementación: `b693626`; ajustes finales de UI: `7e16e22`.
+- **Ejecución:** COMPLETADA — implementada, verificada, aceptada e integrada en `main` mediante fast-forward con la versión 1.1.0. Sin tag por el flujo histórico del repositorio.
 
 ## Historia de usuario
 
@@ -99,7 +99,7 @@ El PDF es un documento relacionado, no un campo textual de certificación. Nombr
 
 ## Descomposición y verificaciones previstas
 
-Preparación para la siguiente fase; no ejecutada ahora:
+Plan ejecutado y verificado; se conserva como referencia histórica. El resultado final está en la sección «Cierre».
 
 1. Revisar el contrato aprobado, estado Git y aislamiento de US-010 antes de escribir código; usar la rama de SPEC-009 exclusivamente para esta primera implementación. US-011 requerirá rama propia desde la base que contenga US-010 aceptada, sin mezclar implementaciones. No resolver el aislamiento mediante stash, descartes o commits no autorizados.
 2. Incorporar selección/validación temporal y extracción nativa aprovechando herramientas locales existentes, con detección de insuficiencia y alternativa manual, sin OCR.
@@ -109,6 +109,10 @@ Preparación para la siguiente fase; no ejecutada ahora:
 6. Realizar comprobaciones técnicas focalizadas según archivos cambiados y cobertura automatizada proporcional al Principio XXI: CA-01–14, sin llamadas reales a IA en la automatización. Incluir PDF con texto, texto insuficiente y archivo inválido, datos ausentes/ambiguos, referencias ajenas/obsoletas, inyección, cancelación tardía, fallos de guardado y reintentos. No ejecutar suites completas ni automatizaciones adicionales sin autorización.
 7. Presentar al responsable el recorrido con texto para aceptación funcional/visual; después revisar QA y seguridad según riesgo. No declarar aceptación a partir de comprobaciones técnicas ni cerrar la SPEC sin ambas historias aceptadas.
 
-## Estado de preparación
+## Cierre
 
-Contrato aprobado; implementación, verificaciones y aceptación funcional/visual pendientes. Herramientas locales identificadas mediante inspección, sin procesar certificados ni invocar análisis. La siguiente instrucción del responsable habilitará iniciar US-010; esta fase se limita a rama y documentación.
+- **Implementación:** `b693626`; ajustes finales de alineación y etiqueta de la pantalla de importación: `7e16e22`.
+- **Aceptación funcional y visual:** 2026-11-21, otorgada por el responsable junto con US-011 y los ajustes finales.
+- **Integración:** fast-forward en `main`; versión 1.1.0; sin tag por el flujo histórico del repositorio. Por instrucción expresa del responsable, US-011 se desarrolló en la misma rama y no en una rama separada.
+- **Verificación:** pruebas focalizadas de importación, regresión del recorrido con texto nativo y comprobación local de extracción/OCR; sin llamadas reales a IA en la automatización. La aceptación funcional/visual fue humana.
+- **Estado final:** contrato implementado, aceptado y cerrado.

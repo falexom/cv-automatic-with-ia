@@ -38,4 +38,4 @@
 - Resultado de revisión documental: 17/17 criterios satisfechos. No representa aceptación funcional ni resultado de pruebas.
 - SDK/CLI conciliado mediante configuración efectiva Laravel, resolución de paquetes, rutas/versiones y estado de sesión. Se reutiliza CLI, Luna 6, `xhigh` y autenticación ChatGPT existentes.
 - Herramientas locales de extracción/OCR identificadas; compatibilidad con documentos, idiomas, disponibilidad remota de IA y limpieza ante interrupciones no se han probado. Se comprobarán en las fases autorizadas de cada historia.
-- SPEC completa pendiente hasta la aceptación humana de US-010 y US-011. Esta preparación no autoriza implementación ahora ni commit, push o merge.
+- SPEC cerrada con la aceptación humana de US-010 y US-011 el 2026-11-21; la preparación documental se conserva como evidencia histórica. Implementación e integración: `b693626`, `3e91ee1`, `7e16e22`; versión 1.1.0; sin tag por el flujo histórico del repositorio.

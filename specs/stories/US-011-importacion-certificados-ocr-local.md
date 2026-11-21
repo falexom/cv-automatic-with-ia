@@ -1,13 +1,13 @@
 # US-011 — Importación de certificados escaneados o mixtos con OCR local
 
 - **Identificador:** US-011
-- **Estado:** APROBADA_PARA_DESARROLLO
-- **Aprobación humana:** 2026-11-20; aprobación expresa del responsable para extender el recorrido de US-010 con OCR local cuando sea necesario.
+- **Estado:** ACEPTADA
+- **Aprobación humana:** 2026-11-20 (contrato); 2026-11-21 (aceptación funcional y visual).
 - **SPEC:** [SPEC-009](../009-importacion-asistida-certificados/spec.md).
-- **Dependencia obligatoria:** [US-010 — Importación de certificados PDF con texto](US-010-importacion-certificados-pdf-texto.md), implementada y aceptada antes de iniciar esta extensión.
+- **Dependencia obligatoria:** [US-010 — Importación de certificados PDF con texto](US-010-importacion-certificados-pdf-texto.md), implementada y aceptada el 2026-11-21.
 - **Rama documental:** `009-importacion-asistida-certificados`, base `eae90399073e3895a24a1a8c81e8417f33ee0822`.
-- **Rama de implementación:** propia, a crear desde la base con US-010 aceptada cuando corresponda; esta rama documental no autoriza desarrollar ambas historias juntas.
-- **Ejecución:** no iniciada; la aprobación del contrato no autoriza implementación en esta fase ni commit, push o merge.
+- **Rama de implementación:** por instrucción expresa del responsable, US-011 se implementó en la rama vigente `009-importacion-asistida-certificados`; no se creó una rama propia. Implementación: `3e91ee1`; ajustes finales de UI: `7e16e22`.
+- **Ejecución:** COMPLETADA — implementada, verificada, aceptada e integrada en `main` mediante fast-forward con la versión 1.1.0. Sin tag por el flujo histórico del repositorio.
 
 ## Historia de usuario
 
@@ -47,7 +47,7 @@ Incluye PDF escaneado, mixto o con texto nativo insuficiente, manteniendo un PDF
 
 ## Descomposición y verificaciones previstas
 
-Preparación para fase futura; no ejecutada ahora:
+Plan ejecutado y verificado; se conserva como referencia histórica. El resultado final está en la sección «Cierre».
 
 1. Comprobar aceptación de US-010, base Git, rama propia y disponibilidad de OCR local/idiomas antes de implementar. Usar las herramientas ya instaladas; si se descubre una necesidad de instalación o cambio fuera del alcance aprobado, documentarla antes de proceder.
 2. Extender la detección de texto insuficiente con OCR local selectivo y trazabilidad al original, sin alterar extracción nativa suficiente ni persistencia común.
@@ -59,4 +59,10 @@ Preparación para fase futura; no ejecutada ahora:
 
 Hereda todas las exclusiones de US-010 salvo la exclusión específica de OCR, levantada exclusivamente para OCR local descrito aquí. No incluye OCR externo, imágenes como formato de entrada independiente, procesamiento masivo ni guardado automático.
 
-Aprobada para desarrollo, pendiente de US-010 implementada y aceptada y de su instrucción de ejecución. Tesseract y OCRmyPDF se identificaron instalados; no se ha probado procesamiento, idiomas ni limpieza bajo fallos. No existe impedimento documental pendiente para esta preparación.
+## Cierre
+
+- **Implementación:** `3e91ee1`; ajustes finales de alineación y etiqueta de la pantalla de importación: `7e16e22`.
+- **Aceptación funcional y visual:** 2026-11-21, otorgada por el responsable junto con US-010 y los ajustes finales.
+- **Integración:** fast-forward en `main`; versión 1.1.0; sin tag por el flujo histórico del repositorio.
+- **Verificación:** OCR local real con Tesseract/pdftoppm; certificado local de 0 caracteres nativos resuelto por OCR; PDF mixto con páginas nativas y OCR sin duplicación; cita no coincidente conservada como sugerencia sin respaldo; pruebas focalizadas y regresión del recorrido común. Sin envío de PDFs ni imágenes a servicios externos.
+- **Estado final:** contrato implementado, aceptado y cerrado.
