@@ -14,7 +14,7 @@ final class CertificationImportValidator
 
     /**
      * @param  array<string, mixed>  $proposal
-     * @param  array<int, array{page: int, text: string}>  $pages
+     * @param  array<int, array{page: int, text: string, origin?: string}>  $pages
      * @param  array<string, array{id: int, name: string, category: string}>  $skillLookup
      * @return array<string, mixed>
      */
@@ -88,7 +88,7 @@ final class CertificationImportValidator
             ? 'El texto extraído no parece corresponder al contenido relevante de un certificado.'
             : 'El PDF no tiene texto nativo suficiente para una propuesta fiable.';
 
-        $message = $prefix.' En esta versión no se ejecuta OCR. Podés ingresar los datos manualmente.';
+        $message = $prefix.' Podés reintentar con OCR local o ingresar los datos manualmente.';
 
         if ($note !== null) {
             $message .= ' Detalle: '.mb_substr($note, 0, 300);
@@ -99,7 +99,7 @@ final class CertificationImportValidator
 
     /**
      * @param  array<int, string>  $states
-     * @param  array<int, array{page: int, text: string}>  $pages
+     * @param  array<int, array{page: int, text: string, origin?: string}>  $pages
      * @return array{value: string|null, state: string, support: string|null, page: int|null, reason: string|null}
      */
     private function valueField(
@@ -134,43 +134,58 @@ final class CertificationImportValidator
         }
 
         if ($value === null) {
-            throw $this->invalidProposal();
-        }
-
-        if ($state === 'suggested') {
-            if (! $suggestionAllowed || $reason === null) {
-                throw $this->invalidProposal();
-            }
-
-            $resolvedPage = $support === null ? null : $this->resolveSupport($support, $page, $pages, $value);
-
             return [
-                'value' => $value,
-                'state' => 'suggested',
-                'support' => $support,
-                'page' => $resolvedPage,
-                'reason' => $reason,
+                'value' => null,
+                'state' => 'absent',
+                'support' => null,
+                'page' => null,
+                'reason' => null,
             ];
         }
 
-        if ($support === null) {
-            throw $this->invalidProposal();
+        if ($state === 'suggested') {
+            $resolved = ['valid' => false, 'page' => null];
+
+            if ($suggestionAllowed && $support !== null) {
+                $resolved = $this->attemptSupport($support, $page, $pages, $value);
+            }
+
+            return [
+                'value' => $value,
+                'state' => $suggestionAllowed ? 'suggested' : 'unverified',
+                'support' => $resolved['valid'] ? $support : null,
+                'page' => $resolved['valid'] ? $resolved['page'] : null,
+                'reason' => $reason
+                    ?? 'Sugerencia para revisar; no hay un fundamento literal verificado.',
+            ];
         }
 
-        $resolvedPage = $this->resolveSupport($support, $page, $pages, $value);
+        $resolved = $support === null
+            ? ['valid' => false, 'page' => null]
+            : $this->attemptSupport($support, $page, $pages, $value);
+
+        if (! $resolved['valid']) {
+            return [
+                'value' => $value,
+                'state' => 'unverified',
+                'support' => null,
+                'page' => null,
+                'reason' => 'La cita o página no coincide con el texto enviado; el valor queda como sugerencia sin respaldo verificado.',
+            ];
+        }
 
         return [
             'value' => $value,
             'state' => 'found',
             'support' => $support,
-            'page' => $resolvedPage,
+            'page' => $resolved['page'],
             'reason' => null,
         ];
     }
 
     /**
-     * @param  array<int, array{page: int, text: string}>  $pages
-     * @return array{year: int|null, month: int|null, state: string, support: string|null, page: int|null, reason: null}
+     * @param  array<int, array{page: int, text: string, origin?: string}>  $pages
+     * @return array{year: int|null, month: int|null, state: string, support: string|null, page: int|null, reason: string|null}
      */
     private function dateField(mixed $raw, array $pages): array
     {
@@ -201,29 +216,49 @@ final class CertificationImportValidator
             || $year > YearMonth::maxYear()
             || ($month !== null && ($month < 1 || $month > 12))
         ) {
-            throw $this->invalidProposal();
+            return [
+                'year' => null,
+                'month' => null,
+                'state' => 'absent',
+                'support' => null,
+                'page' => null,
+                'reason' => null,
+            ];
         }
 
         $support = $this->nullableString($data['support'] ?? null, 1000);
+        $resolved = $support === null
+            ? ['valid' => false, 'page' => null]
+            : $this->attemptSupport(
+                $support,
+                $this->nullablePage($data['page'] ?? null),
+                $pages,
+                (string) $year,
+            );
 
-        if ($support === null) {
-            throw $this->invalidProposal();
+        if (! $resolved['valid']) {
+            return [
+                'year' => $year,
+                'month' => $month,
+                'state' => 'unverified',
+                'support' => null,
+                'page' => null,
+                'reason' => 'La cita o página no coincide con el texto enviado; la fecha queda como sugerencia sin respaldo verificado.',
+            ];
         }
-
-        $page = $this->resolveSupport($support, $this->nullablePage($data['page'] ?? null), $pages, (string) $year);
 
         return [
             'year' => $year,
             'month' => $month,
             'state' => 'found',
             'support' => $support,
-            'page' => $page,
+            'page' => $resolved['page'],
             'reason' => null,
         ];
     }
 
     /**
-     * @param  array<int, array{page: int, text: string}>  $pages
+     * @param  array<int, array{page: int, text: string, origin?: string}>  $pages
      * @param  array<string, array{id: int, name: string, category: string}>  $lookup
      * @return array<int, array{id: int, name: string, category: string, state: string, support: string|null, page: int|null, reason: string|null}>
      */
@@ -269,15 +304,23 @@ final class CertificationImportValidator
             $skill = $lookup[$ref];
 
             if ($state === 'found') {
-                if ($support === null || ! $this->text->supportMatches($skill['name'], $support)) {
-                    throw new CertificationImportException(
-                        'invalid_proposal',
-                        'La propuesta menciona una habilidad sin soporte literal en el texto. Volvé a analizar o ingresá manualmente.',
-                        502,
-                    );
-                }
+                $resolved = $support === null
+                    ? ['valid' => false, 'page' => null]
+                    : $this->attemptSupport($support, $page, $pages, $skill['name']);
 
-                $resolvedPage = $this->resolveSupport($support, $page, $pages, $skill['name']);
+                if (! $resolved['valid']) {
+                    $skills[] = [
+                        'id' => $skill['id'],
+                        'name' => $skill['name'],
+                        'category' => $skill['category'],
+                        'state' => 'suggested',
+                        'support' => null,
+                        'page' => null,
+                        'reason' => 'La cita o página no coincide con el texto enviado; aceptá o rechazá la sugerencia.',
+                    ];
+
+                    continue;
+                }
 
                 $skills[] = [
                     'id' => $skill['id'],
@@ -285,27 +328,26 @@ final class CertificationImportValidator
                     'category' => $skill['category'],
                     'state' => 'found',
                     'support' => $support,
-                    'page' => $resolvedPage,
+                    'page' => $resolved['page'],
                     'reason' => null,
                 ];
 
                 continue;
             }
 
-            if ($reason === null) {
-                throw $this->invalidProposal();
-            }
-
-            $resolvedPage = $support === null ? null : $this->resolveSupport($support, $page, $pages, $support);
+            $resolved = $support === null
+                ? ['valid' => false, 'page' => null]
+                : $this->attemptSupport($support, $page, $pages, $support);
 
             $skills[] = [
                 'id' => $skill['id'],
                 'name' => $skill['name'],
                 'category' => $skill['category'],
                 'state' => 'suggested',
-                'support' => $support,
-                'page' => $resolvedPage,
-                'reason' => $reason,
+                'support' => $resolved['valid'] ? $support : null,
+                'page' => $resolved['valid'] ? $resolved['page'] : null,
+                'reason' => $reason
+                    ?? 'Sugerencia para revisar; no hay un fundamento literal verificado.',
             ];
         }
 
@@ -345,16 +387,22 @@ final class CertificationImportValidator
     }
 
     /**
-     * @param  array<int, array{page: int, text: string}>  $pages
+     * A support snippet is valid only when it exists in the sent text and its
+     * page (when provided) is the page that contains it. Invalid citations
+     * are downgraded to unverified suggestions instead of rejecting the
+     * whole proposal.
+     *
+     * @param  array<int, array{page: int, text: string, origin?: string}>  $pages
+     * @return array{valid: bool, page: int|null}
      */
-    private function resolveSupport(string $support, ?int $page, array $pages, string $expectedValue): ?int
+    private function attemptSupport(string $support, ?int $page, array $pages, string $expectedValue): array
     {
         if (mb_strlen($this->text->normalize($support)) < 3) {
-            throw $this->invalidSupport();
+            return ['valid' => false, 'page' => null];
         }
 
         if (mb_stripos($this->text->normalize($support), $this->text->normalize($expectedValue)) === false) {
-            throw $this->invalidSupport();
+            return ['valid' => false, 'page' => null];
         }
 
         if ($page !== null) {
@@ -369,28 +417,19 @@ final class CertificationImportValidator
             }
 
             if ($pageText === null || ! $this->text->supportMatches($support, $pageText)) {
-                throw $this->invalidSupport();
+                return ['valid' => false, 'page' => null];
             }
 
-            return $page;
+            return ['valid' => true, 'page' => $page];
         }
 
         $matches = $this->text->pagesContaining($support, $pages);
 
         if ($matches === []) {
-            throw $this->invalidSupport();
+            return ['valid' => false, 'page' => null];
         }
 
-        return count($matches) === 1 ? $matches[0] : null;
-    }
-
-    private function invalidSupport(): CertificationImportException
-    {
-        return new CertificationImportException(
-            'invalid_support',
-            'La propuesta contiene citas o páginas que no coinciden con el texto enviado. Volvé a analizar o ingresá manualmente.',
-            502,
-        );
+        return ['valid' => true, 'page' => count($matches) === 1 ? $matches[0] : null];
     }
 
     private function invalidProposal(): CertificationImportException

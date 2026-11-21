@@ -16,20 +16,35 @@ final class CertificationImportPreparationToken
         private readonly CertificationImportConfig $config,
     ) {}
 
-    public function issue(string $checksum, string $originalFilename, int $sizeBytes, int $pageCount): string
-    {
+    /**
+     * @param  array<int, string>  $origins  page number => native|ocr|mixed
+     */
+    public function issue(
+        string $checksum,
+        string $originalFilename,
+        int $sizeBytes,
+        int $pageCount,
+        array $origins,
+    ): string {
         return Crypt::encryptString(json_encode([
             'schema_version' => 1,
             'checksum' => $checksum,
             'original_filename' => $originalFilename,
             'size_bytes' => $sizeBytes,
             'page_count' => $pageCount,
+            'origins' => $origins,
             'prepared_at' => now()->toIso8601String(),
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR));
     }
 
     /**
-     * @return array{checksum: string, original_filename: string, size_bytes: int, page_count: int}
+     * @return array{
+     *     checksum: string,
+     *     original_filename: string,
+     *     size_bytes: int,
+     *     page_count: int,
+     *     origins: array<int, string>
+     * }
      */
     public function parse(string $token): array
     {
@@ -52,9 +67,23 @@ final class CertificationImportPreparationToken
             || ! is_int($payload['page_count'] ?? null)
             || $payload['page_count'] < 1
             || $payload['page_count'] > $this->config->maxPages()
+            || ! is_array($payload['origins'] ?? null)
+            || count($payload['origins']) !== $payload['page_count']
             || ! is_string($payload['prepared_at'] ?? null)
         ) {
             throw $this->invalidToken();
+        }
+
+        $origins = [];
+
+        for ($page = 1; $page <= $payload['page_count']; $page += 1) {
+            $origin = $payload['origins'][$page] ?? null;
+
+            if (! is_string($origin) || ! in_array($origin, ['native', 'ocr', 'mixed'], true)) {
+                throw $this->invalidToken();
+            }
+
+            $origins[$page] = $origin;
         }
 
         return [
@@ -62,6 +91,7 @@ final class CertificationImportPreparationToken
             'original_filename' => $payload['original_filename'],
             'size_bytes' => $payload['size_bytes'],
             'page_count' => $payload['page_count'],
+            'origins' => $origins,
         ];
     }
 

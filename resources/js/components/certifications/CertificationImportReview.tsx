@@ -4,6 +4,7 @@ import {
     Eye,
     FileText,
     Quote,
+    RefreshCw,
     Sparkles,
     Trash2,
 } from 'lucide-react';
@@ -17,6 +18,7 @@ import type {
     ImportAnalysis,
     ImportField,
     ImportFieldKey,
+    ImportPageOrigin,
     ImportSkill,
 } from '@/lib/certification-import';
 import {
@@ -24,6 +26,7 @@ import {
     formatImportDate,
     formatImportPage,
     importFieldLabel,
+    importPageOriginLabel,
 } from '@/lib/certification-import';
 
 type ReviewValues = {
@@ -63,10 +66,27 @@ function stateBadge(field: ImportField) {
         );
     }
 
+    if (field.state === 'unverified') {
+        return (
+            <Badge
+                variant="outline"
+                className="border-amber-300 bg-amber-50 text-amber-900"
+            >
+                Sin respaldo verificado
+            </Badge>
+        );
+    }
+
     return <Badge variant="outline">{fieldStateLabel(field.state)}</Badge>;
 }
 
-function SupportLine({ field }: { field: ImportField }) {
+function SupportLine({
+    field,
+    origin,
+}: {
+    field: ImportField;
+    origin?: ImportPageOrigin;
+}) {
     if (field.support === null) {
         return null;
     }
@@ -77,7 +97,12 @@ function SupportLine({ field }: { field: ImportField }) {
                 <Quote aria-hidden="true" className="mt-0.5 size-3 shrink-0" />
                 <span className="break-words">{field.support}</span>
             </p>
-            <p>{formatImportPage(field.page)}</p>
+            <p>
+                {formatImportPage(field.page)}
+                {field.page !== null && origin
+                    ? ` · ${importPageOriginLabel(origin)}`
+                    : ''}
+            </p>
         </div>
     );
 }
@@ -86,12 +111,14 @@ function SimpleFieldRow({
     fieldKey,
     field,
     currentValue,
+    pageOrigin,
     disabled,
     onApply,
 }: {
     fieldKey: SimpleFieldKey;
     field: ImportField;
     currentValue: string;
+    pageOrigin?: ImportPageOrigin;
     disabled: boolean;
     onApply: (value: string) => void;
 }) {
@@ -122,10 +149,13 @@ function SimpleFieldRow({
                     <p className="text-sm font-medium break-words">
                         {field.value}
                     </p>
-                    <SupportLine field={field} />
+                    <SupportLine field={field} origin={pageOrigin} />
                     {field.reason ? (
                         <p className="text-xs text-muted-foreground">
-                            Fundamento: {field.reason}
+                            {field.state === 'unverified'
+                                ? 'Aviso'
+                                : 'Fundamento'}
+                            : {field.reason}
                         </p>
                     ) : null}
                     <Button
@@ -160,11 +190,13 @@ export default function CertificationImportReview({
     current,
     originalUrl,
     acceptedCategory,
+    pageOrigins = {},
     onApplyField,
     onApplyDate,
     onApplyCategory,
     onAcceptCategory,
     onToggleSkill,
+    onRetryOcr,
     onDiscard,
     onCancel,
     disabled = false,
@@ -173,11 +205,13 @@ export default function CertificationImportReview({
     current: ReviewValues;
     originalUrl: string | null;
     acceptedCategory: boolean;
+    pageOrigins?: Record<number, ImportPageOrigin>;
     onApplyField: (field: SimpleFieldKey, value: string) => void;
     onApplyDate: (year: number | null, month: number | null) => void;
     onApplyCategory: (value: string) => void;
     onAcceptCategory: (accepted: boolean) => void;
     onToggleSkill: (skill: ImportSkill, checked: boolean) => void;
+    onRetryOcr?: () => void;
     onDiscard: () => void;
     onCancel: () => void;
     disabled?: boolean;
@@ -205,11 +239,12 @@ export default function CertificationImportReview({
                         </Badge>
                         <CardTitle>Propuesta de importación</CardTitle>
                         <p className="text-sm text-muted-foreground">
-                            Aplicá solo lo que quieras conservar. Podés corregir
-                            cualquier campo en el formulario; la propuesta no
-                            sobrescribe valores por sí sola. Los valores que
-                            queden en el formulario son tus datos ingresados o
-                            corregidos, no hallazgos del documento.
+                            Los campos vacíos se completaron automáticamente con
+                            la propuesta; tus valores escritos se conservaron.
+                            Podés editar o quitar cualquier valor. Las citas o
+                            páginas no verificadas quedan como sugerencias sin
+                            respaldo. Nada se guarda hasta la confirmación
+                            final.
                         </p>
                     </div>
                     {originalUrl ? (
@@ -262,6 +297,11 @@ export default function CertificationImportReview({
                             fieldKey={fieldKey}
                             field={fields[fieldKey]}
                             currentValue={String(current[fieldKey] ?? '')}
+                            pageOrigin={
+                                fields[fieldKey].page === null
+                                    ? undefined
+                                    : pageOrigins[fields[fieldKey].page]
+                            }
                             disabled={disabled}
                             onApply={(value) => onApplyField(fieldKey, value)}
                         />
@@ -276,6 +316,13 @@ export default function CertificationImportReview({
                                     className="border-emerald-300 bg-emerald-50 text-emerald-800"
                                 >
                                     Encontrada
+                                </Badge>
+                            ) : date.state === 'unverified' ? (
+                                <Badge
+                                    variant="outline"
+                                    className="border-amber-300 bg-amber-50 text-amber-900"
+                                >
+                                    Sin respaldo verificado
                                 </Badge>
                             ) : (
                                 <Badge variant="outline">No encontrada</Badge>
@@ -297,18 +344,31 @@ export default function CertificationImportReview({
                                         El mes no está informado; quedará vacío.
                                     </p>
                                 ) : null}
-                                <div className="space-y-1 rounded-md border-l-2 border-muted-foreground/30 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
-                                    <p className="flex gap-1.5">
-                                        <Quote
-                                            aria-hidden="true"
-                                            className="mt-0.5 size-3 shrink-0"
-                                        />
-                                        <span className="break-words">
-                                            {date.support}
-                                        </span>
+                                {date.support ? (
+                                    <div className="space-y-1 rounded-md border-l-2 border-muted-foreground/30 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
+                                        <p className="flex gap-1.5">
+                                            <Quote
+                                                aria-hidden="true"
+                                                className="mt-0.5 size-3 shrink-0"
+                                            />
+                                            <span className="break-words">
+                                                {date.support}
+                                            </span>
+                                        </p>
+                                        <p>
+                                            {formatImportPage(date.page)}
+                                            {date.page !== null &&
+                                            pageOrigins[date.page]
+                                                ? ` · ${importPageOriginLabel(pageOrigins[date.page])}`
+                                                : ''}
+                                        </p>
+                                    </div>
+                                ) : null}
+                                {date.reason ? (
+                                    <p className="text-xs text-muted-foreground">
+                                        Aviso: {date.reason}
                                     </p>
-                                    <p>{formatImportPage(date.page)}</p>
-                                </div>
+                                ) : null}
                                 <Button
                                     type="button"
                                     size="sm"
@@ -347,15 +407,26 @@ export default function CertificationImportReview({
                                     {category.value}
                                 </p>
                                 {category.support ? (
-                                    <SupportLine field={category} />
+                                    <SupportLine
+                                        field={category}
+                                        origin={
+                                            category.page === null
+                                                ? undefined
+                                                : pageOrigins[category.page]
+                                        }
+                                    />
                                 ) : null}
                                 {category.reason ? (
                                     <p className="text-xs text-muted-foreground">
-                                        Fundamento: {category.reason}
+                                        {category.state === 'unverified'
+                                            ? 'Aviso'
+                                            : 'Fundamento'}
+                                        : {category.reason}
                                     </p>
                                 ) : null}
 
-                                {category.state === 'suggested' ? (
+                                {category.state === 'suggested' ||
+                                category.state === 'unverified' ? (
                                     <div className="flex items-start gap-2 rounded-md border bg-amber-50/50 p-2">
                                         <Checkbox
                                             id="accept-import-category"
@@ -371,12 +442,12 @@ export default function CertificationImportReview({
                                             htmlFor="accept-import-category"
                                             className="cursor-pointer text-xs leading-5"
                                         >
-                                            Acepto esta categoría sugerida. Es
-                                            una inferencia, no un dato
-                                            acreditado.
+                                            {category.state === 'unverified'
+                                                ? 'Acepto esta categoría como sugerencia sin respaldo verificado.'
+                                                : 'Acepto esta categoría sugerida. Es una inferencia, no un dato acreditado.'}
                                         </Label>
                                     </div>
-                                ) : (
+                                ) : category.state === 'found' ? (
                                     <Button
                                         type="button"
                                         size="sm"
@@ -399,7 +470,7 @@ export default function CertificationImportReview({
                                               ? 'Reemplazar por propuesta'
                                               : 'Aplicar'}
                                     </Button>
-                                )}
+                                ) : null}
                             </>
                         )}
                     </div>
@@ -477,6 +548,13 @@ export default function CertificationImportReview({
                                                             page: skill.page,
                                                             reason: skill.reason,
                                                         }}
+                                                        origin={
+                                                            skill.page === null
+                                                                ? undefined
+                                                                : pageOrigins[
+                                                                      skill.page
+                                                                  ]
+                                                        }
                                                     />
                                                 ) : null}
                                                 {skill.reason ? (
@@ -493,6 +571,26 @@ export default function CertificationImportReview({
                         </div>
                     )}
                 </div>
+
+                {onRetryOcr ? (
+                    <div className="flex flex-col gap-2 rounded-lg border bg-muted/20 p-3 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="max-w-xl text-xs text-muted-foreground">
+                            Si el documento tiene partes escaneadas que no
+                            aparecen en esta propuesta, podés volver a extraerlo
+                            con OCR local. Se descartará esta propuesta y
+                            deberás autorizar el nuevo envío.
+                        </p>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={onRetryOcr}
+                            disabled={disabled}
+                        >
+                            <RefreshCw /> Reintentar con OCR local
+                        </Button>
+                    </div>
+                ) : null}
 
                 <div className="flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
                     <p className="max-w-xl text-xs text-muted-foreground">

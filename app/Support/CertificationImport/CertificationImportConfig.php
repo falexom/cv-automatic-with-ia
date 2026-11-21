@@ -85,4 +85,47 @@ final class CertificationImportConfig
     {
         return $this->maxTextChars() * 3;
     }
+
+    public function tesseractBinary(): string
+    {
+        return (string) config('services.ocr.tesseract_binary', 'tesseract');
+    }
+
+    public function pdftoppmBinary(): string
+    {
+        return (string) config('services.ocr.pdftoppm_binary', 'pdftoppm');
+    }
+
+    public function pdfimagesBinary(): string
+    {
+        return (string) config('services.ocr.pdfimages_binary', 'pdfimages');
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function ocrLanguages(): array
+    {
+        $configured = (string) config('services.ocr.languages', 'spa+eng');
+
+        return array_values(array_filter(
+            array_map('trim', explode('+', $configured)),
+            static fn (string $language): bool => $language !== '',
+        ));
+    }
+
+    public function ocrDpi(): int
+    {
+        return max(72, (int) config('services.ocr.dpi', 300));
+    }
+
+    public function ocrRenderTimeout(): int
+    {
+        return max(1, (int) config('services.ocr.render_timeout', 60));
+    }
+
+    public function ocrTimeout(): int
+    {
+        return max(1, (int) config('services.ocr.timeout', 120));
+    }
 }

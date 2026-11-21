@@ -11,8 +11,8 @@ use App\Models\Profile;
 final class CertificationImportText
 {
     /**
-     * @param  array<int, array{page: int, text: string}>  $pages
-     * @return array{pages: array<int, array{page: int, text: string}>, redactions: int}
+     * @param  array<int, array{page: int, text: string, origin?: string, has_content?: bool}>  $pages
+     * @return array{pages: array<int, array{page: int, text: string, origin?: string, has_content?: bool}>, redactions: int}
      */
     public function minimize(array $pages): array
     {
@@ -87,7 +87,7 @@ final class CertificationImportText
     }
 
     /**
-     * @param  array<int, array{page: int, text: string}>  $pages
+     * @param  array<int, array{page: int, text: string, origin?: string, has_content?: bool}>  $pages
      */
     public function totalChars(array $pages): int
     {
@@ -101,7 +101,7 @@ final class CertificationImportText
     }
 
     /**
-     * @param  array<int, array{page: int, text: string}>  $pages
+     * @param  array<int, array{page: int, text: string, origin?: string, has_content?: bool}>  $pages
      * @return 'ok'|'empty'|'illegible'
      */
     public function quality(array $pages): string
@@ -149,7 +149,7 @@ final class CertificationImportText
     }
 
     /**
-     * @param  array<int, array{page: int, text: string}>  $pages
+     * @param  array<int, array{page: int, text: string, origin?: string, has_content?: bool}>  $pages
      * @return array<int, int> pages whose text contains the support snippet
      */
     public function pagesContaining(string $support, array $pages): array

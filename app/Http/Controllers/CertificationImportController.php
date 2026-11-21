@@ -10,11 +10,11 @@ use App\Support\CertificationImport\CertificationImportCatalog;
 use App\Support\CertificationImport\CertificationImportConfig;
 use App\Support\CertificationImport\CertificationImportException;
 use App\Support\CertificationImport\CertificationImportPreparationToken;
+use App\Support\CertificationImport\CertificationImportPreparer;
 use App\Support\CertificationImport\CertificationImportProposalToken;
 use App\Support\CertificationImport\CertificationImportText;
 use App\Support\CertificationImport\CertificationImportValidator;
 use App\Support\CertificationImport\CertificationImportWriter;
-use App\Support\CertificationImport\PdfTextExtractor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
 use Throwable;
@@ -22,7 +22,7 @@ use Throwable;
 class CertificationImportController extends Controller
 {
     public function __construct(
-        private readonly PdfTextExtractor $extractor,
+        private readonly CertificationImportPreparer $preparer,
         private readonly CertificationImportText $text,
         private readonly CertificationImportPreparationToken $preparationToken,
         private readonly CertificationImportAnalyzer $analyzer,
@@ -34,12 +34,13 @@ class CertificationImportController extends Controller
     ) {}
 
     /**
-     * Extract native text and return the exact, editable content that could
-     * be sent later. No external call happens here and nothing is persisted.
+     * Extract native text and, when needed, local OCR text. The response is
+     * the exact, editable content that could be sent later. No external
+     * call happens here and nothing is persisted.
      */
     public function prepare(PrepareCertificationImportRequest $request): JsonResponse
     {
-        // La extracción local de un PDF grande puede superar el límite de PHP.
+        // La extracción local y el OCR de un PDF grande pueden superar el límite de PHP.
         @set_time_limit(0);
 
         $file = $request->file('file');
@@ -53,45 +54,12 @@ class CertificationImportController extends Controller
 
         try {
             $contents = (string) $file->get();
-            $pages = $this->extractor->extract($contents);
-            $minimized = $this->text->minimize($pages);
-            $pages = $minimized['pages'];
-            $quality = $this->text->quality($pages);
-            $total = $this->text->totalChars($pages);
-            $pageCount = count($pages);
-            $checksum = hash('sha256', $contents);
-            $filename = $file->getClientOriginalName();
-            $status = 'ready';
-            $message = null;
-            $token = null;
 
-            if ($quality !== 'ok') {
-                $status = 'insufficient';
-                $message = $quality === 'illegible'
-                    ? 'El texto nativo del PDF no es legible. En esta versión no se ejecuta OCR. Podés ingresar los datos manualmente.'
-                    : 'No se detectó texto nativo suficiente en el PDF. Si es un documento escaneado, en esta versión no se ejecuta OCR. Podés ingresar los datos manualmente.';
-            } elseif ($pageCount > $this->config->maxPages()) {
-                $status = 'too_long';
-                $message = 'El PDF tiene '.$pageCount.' páginas y el máximo para analizar es '.$this->config->maxPages().'. Podés ingresar los datos manualmente.';
-            } elseif ($total > $this->config->maxTextChars()) {
-                $status = 'too_long';
-                $message = 'El texto extraído tiene '.$total.' caracteres y el máximo es '.$this->config->maxTextChars().'. Podés quitar páginas o líneas hasta ese límite, o ingresar manualmente.';
-                $token = $this->preparationToken->issue($checksum, $filename, mb_strlen($contents, '8bit'), $pageCount);
-            } else {
-                $token = $this->preparationToken->issue($checksum, $filename, mb_strlen($contents, '8bit'), $pageCount);
-            }
-
-            return response()->json([
-                'preparation_token' => $token,
-                'checksum' => $checksum,
-                'original_filename' => $filename,
-                'size_bytes' => mb_strlen($contents, '8bit'),
-                'page_count' => $pageCount,
-                'pages' => $pages,
-                'redactions' => $minimized['redactions'],
-                'status' => $status,
-                'message' => $message,
-            ]);
+            return response()->json($this->preparer->prepare(
+                $contents,
+                $file->getClientOriginalName(),
+                $request->boolean('ocr'),
+            ));
         } catch (CertificationImportException $exception) {
             return $this->errorResponse($exception);
         } catch (Throwable $exception) {
@@ -114,13 +82,17 @@ class CertificationImportController extends Controller
 
         try {
             $preparation = $this->preparationToken->parse((string) $data['preparation_token']);
-            /** @var array<int, array{page: int, text: string}> $pages */
-            $pages = $this->validatedPages($data['pages'] ?? null, $preparation['page_count']);
+            /** @var array<int, array{page: int, text: string, origin: string}> $pages */
+            $pages = $this->validatedPages(
+                $data['pages'] ?? null,
+                $preparation['page_count'],
+                $preparation['origins'],
+            );
 
             if ($this->text->quality($pages) !== 'ok') {
                 throw new CertificationImportException(
                     'text_insufficient',
-                    'El texto seleccionado no es suficiente para analizarlo. En esta versión no se ejecuta OCR. Podés ingresar manualmente.',
+                    'El texto seleccionado no es suficiente para analizarlo. Podés reintentar con OCR local o ingresar manualmente.',
                     422,
                 );
             }
@@ -227,9 +199,10 @@ class CertificationImportController extends Controller
     }
 
     /**
-     * @return array<int, array{page: int, text: string}>
+     * @param  array<int, string>  $origins
+     * @return array<int, array{page: int, text: string, origin: string}>
      */
-    private function validatedPages(mixed $rawPages, int $preparedPageCount): array
+    private function validatedPages(mixed $rawPages, int $preparedPageCount, array $origins): array
     {
         if (! is_array($rawPages) || $rawPages === []) {
             throw new CertificationImportException(
@@ -265,8 +238,18 @@ class CertificationImportController extends Controller
                 );
             }
 
+            $origin = $origins[$number] ?? 'native';
+
+            if (! in_array($origin, ['native', 'ocr', 'mixed'], true)) {
+                throw new CertificationImportException(
+                    'invalid_preparation',
+                    'El origen del texto preparado no es válido. Volvé a preparar el PDF.',
+                    422,
+                );
+            }
+
             $seen[$number] = true;
-            $pages[] = ['page' => $number, 'text' => $text];
+            $pages[] = ['page' => $number, 'text' => $text, 'origin' => $origin];
         }
 
         usort($pages, static fn (array $a, array $b): int => $a['page'] <=> $b['page']);

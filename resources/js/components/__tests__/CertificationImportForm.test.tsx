@@ -73,11 +73,15 @@ const preparation: ImportPreparation = {
         {
             page: 1,
             text: 'Curso de Laravel\nAcademy\nEmitido en 2024\nTemario: Laravel',
+            origin: 'native',
         },
     ],
     redactions: 0,
     status: 'ready',
     message: null,
+    ocr_used: false,
+    ocr_languages: [],
+    ocr_warning: null,
 };
 
 const analysis: ImportAnalysis = {
@@ -202,25 +206,20 @@ describe('CertificationForm PDF import', () => {
         await screen.findByText('Propuesta de importación');
         expect(postForm).toHaveBeenCalledTimes(1);
 
-        fireEvent.click(screen.getByRole('button', { name: 'Aplicar Nombre' }));
-        expect(screen.getByLabelText('Nombre *')).toHaveValue(
-            'Curso de Laravel',
-        );
-
-        fireEvent.click(
-            screen.getByRole('button', { name: 'Aplicar Institución' }),
+        await waitFor(() =>
+            expect(screen.getByLabelText('Nombre *')).toHaveValue(
+                'Curso de Laravel',
+            ),
         );
         expect(screen.getByLabelText('Institución')).toHaveValue('Academy');
-
-        fireEvent.click(screen.getByRole('button', { name: 'Aplicar fecha' }));
         expect(screen.getByLabelText('Fecha')).toHaveValue('2024');
+        expect(screen.getByLabelText('Categoría')).toHaveValue('Programación');
 
         fireEvent.click(
             screen.getByRole('checkbox', {
                 name: /Acepto esta categoría sugerida/,
             }),
         );
-        expect(screen.getByLabelText('Categoría')).toHaveValue('Programación');
 
         fireEvent.click(
             screen.getByRole('checkbox', {
@@ -252,5 +251,69 @@ describe('CertificationForm PDF import', () => {
         expect(body.get('confirmation_id')).toEqual(expect.any(String));
         expect((body.get('file') as File).name).toBe('certificado.pdf');
         expect(body.get('confirm_duplicate')).toBeNull();
+    });
+
+    it('does not overwrite values typed before the analysis', async () => {
+        vi.mocked(postForm).mockImplementation(async (url) => {
+            if (url === '/certifications/import/prepare') {
+                return preparation;
+            }
+
+            return { redirect: '/certifications' };
+        });
+        vi.mocked(postJson).mockResolvedValue(analysis);
+
+        render(
+            <CertificationForm
+                skills={skills}
+                importNotice={notice}
+                importLimits={limits}
+            />,
+        );
+
+        fireEvent.change(screen.getByLabelText('Nombre *'), {
+            target: { value: 'Mi curso' },
+        });
+
+        fireEvent.change(screen.getByLabelText(/Certificado PDF/), {
+            target: {
+                files: [
+                    new File(['%PDF-1.4'], 'certificado.pdf', {
+                        type: 'application/pdf',
+                    }),
+                ],
+            },
+        });
+        fireEvent.click(screen.getByRole('button', { name: /Preparar texto/ }));
+        await screen.findByText('Contenido exacto que se enviará');
+
+        fireEvent.click(
+            screen.getByRole('checkbox', { name: /autorizo el envío/ }),
+        );
+        fireEvent.click(
+            screen.getByRole('button', { name: /Analizar con Luna 6/ }),
+        );
+
+        await screen.findByText('Propuesta de importación');
+        await waitFor(() =>
+            expect(screen.getByLabelText('Institución')).toHaveValue('Academy'),
+        );
+
+        expect(screen.getByLabelText('Nombre *')).toHaveValue('Mi curso');
+        expect(
+            screen.getByRole('button', {
+                name: 'Reemplazar por propuesta Nombre',
+            }),
+        ).toBeInTheDocument();
+
+        fireEvent.click(
+            screen.getByRole('button', {
+                name: 'Reemplazar por propuesta Nombre',
+            }),
+        );
+
+        expect(screen.getByLabelText('Nombre *')).toHaveValue(
+            'Curso de Laravel',
+        );
     });
 });

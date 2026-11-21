@@ -70,11 +70,15 @@ const preparation: ImportPreparation = {
         {
             page: 1,
             text: 'Curso de Laravel\nAcademy\nEmitido en 2024\nTemario: Laravel',
+            origin: 'native',
         },
     ],
     redactions: 1,
     status: 'ready',
     message: null,
+    ocr_used: false,
+    ocr_languages: [],
+    ocr_warning: null,
 };
 
 const analysis: ImportAnalysis = {

@@ -21,6 +21,7 @@ class PrepareCertificationImportRequest extends FormRequest
     {
         return [
             'file' => ['required', 'file', 'mimetypes:application/pdf', 'max:'.PdfFile::MAX_KILOBYTES],
+            'ocr' => ['sometimes', 'boolean'],
         ];
     }
 

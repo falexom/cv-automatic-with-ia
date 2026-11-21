@@ -5,6 +5,7 @@ use App\Models\Document;
 use App\Models\Profile;
 use App\Models\Skill;
 use App\Support\CertificationImport\CertificationImportAnalyzer;
+use App\Support\CertificationImport\LocalOcrExtractor;
 use App\Support\CertificationImport\PdfTextExtractor;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -78,6 +79,46 @@ function bindImportAnalyzer(Closure $callback): FakeImportAnalyzer
 {
     $fake = new FakeImportAnalyzer($callback);
     app()->bind(CertificationImportAnalyzer::class, fn (): FakeImportAnalyzer => $fake);
+
+    return $fake;
+}
+
+final class FakeImportOcrExtractor implements LocalOcrExtractor
+{
+    /**
+     * @var array<int, array<int, int>>
+     */
+    public array $calls = [];
+
+    /**
+     * @param  Closure(array<int, int>): array<int, array{page: int, text: string}>  $callback
+     */
+    public function __construct(private Closure $callback) {}
+
+    /**
+     * @param  array<int, int>  $pageNumbers
+     * @return array<int, array{page: int, text: string}>
+     */
+    public function extract(string $contents, array $pageNumbers): array
+    {
+        $this->calls[] = $pageNumbers;
+
+        return ($this->callback)($pageNumbers);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function usedLanguages(): array
+    {
+        return ['spa', 'eng'];
+    }
+}
+
+function bindImportOcr(Closure $callback): FakeImportOcrExtractor
+{
+    $fake = new FakeImportOcrExtractor($callback);
+    app()->bind(LocalOcrExtractor::class, fn (): FakeImportOcrExtractor => $fake);
 
     return $fake;
 }
@@ -233,6 +274,7 @@ function importConfirmData(array $overrides = []): array
 beforeEach(function () {
     Storage::fake('local');
     bindImportExtractor(importTextPages());
+    bindImportOcr(fn (): array => []);
 });
 
 it('prepares native text, redacts personal data and persists nothing', function () {
@@ -270,7 +312,7 @@ it('prepares native text, redacts personal data and persists nothing', function 
     expect(Storage::disk('local')->allFiles('documents'))->toBe([]);
 });
 
-it('reports insufficient native text without OCR and without a preparation token', function () {
+it('reports insufficient native and OCR text with a manual alternative', function () {
     bindImportExtractor([['page' => 1, 'text' => 'Membrete']]);
     $analyzer = bindImportAnalyzer(fn (): array => []);
 
@@ -338,7 +380,7 @@ it('rejects skills outside the current catalog', function () {
     expect(Certification::query()->count())->toBe(0);
 });
 
-it('rejects invented support that does not exist in the sent text', function () {
+it('keeps an invented citation as an unverified suggestion and reviews the rest', function () {
     $preparation = importPrepare();
     bindImportAnalyzer(fn (array $skills): array => importProposal($skills, [
         'fields' => [
@@ -352,9 +394,14 @@ it('rejects invented support that does not exist in the sent text', function () 
         ],
     ]));
 
-    importAnalyze($preparation)
-        ->assertStatus(502)
-        ->assertJsonPath('code', 'invalid_support');
+    $response = importAnalyze($preparation)->assertOk()->json();
+
+    expect($response['proposal']['fields']['name']['state'])->toBe('unverified');
+    expect($response['proposal']['fields']['name']['value'])->toBe('Certificación inventada');
+    expect($response['proposal']['fields']['name']['support'])->toBeNull();
+    expect($response['proposal']['fields']['name']['reason'])->toContain('cita');
+    expect($response['proposal']['fields']['institution']['state'])->toBe('found');
+    expect($response['confirmation_token'])->toBeString();
 
     expect(Certification::query()->count())->toBe(0);
 });

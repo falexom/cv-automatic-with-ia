@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Support\CertificationImport\CertificationImportAnalyzer;
 use App\Support\CertificationImport\CertificationImportCodex;
+use App\Support\CertificationImport\LocalOcrExtractor;
 use App\Support\CertificationImport\PdfTextExtractor;
 use App\Support\CertificationImport\PdftotextExtractor;
+use App\Support\CertificationImport\TesseractOcrExtractor;
 use App\Support\CvAdaptation\CvAdaptationAnalyzer;
 use App\Support\CvAdaptation\CvAdaptationCodex;
 use Carbon\CarbonImmutable;
@@ -23,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(CvAdaptationAnalyzer::class, CvAdaptationCodex::class);
         $this->app->bind(PdfTextExtractor::class, PdftotextExtractor::class);
+        $this->app->bind(LocalOcrExtractor::class, TesseractOcrExtractor::class);
         $this->app->bind(CertificationImportAnalyzer::class, CertificationImportCodex::class);
     }
 

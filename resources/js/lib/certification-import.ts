@@ -20,9 +20,12 @@ export type CertificationImportLimits = {
     max_page_chars: number;
 };
 
+export type ImportPageOrigin = 'native' | 'ocr' | 'mixed';
+
 export type ImportPage = {
     page: number;
     text: string;
+    origin: ImportPageOrigin;
 };
 
 export type ImportPreparationStatus = 'ready' | 'insufficient' | 'too_long';
@@ -37,9 +40,12 @@ export type ImportPreparation = {
     redactions: number;
     status: ImportPreparationStatus;
     message: string | null;
+    ocr_used: boolean;
+    ocr_languages: string[];
+    ocr_warning: string | null;
 };
 
-export type ImportFieldState = 'found' | 'suggested' | 'absent';
+export type ImportFieldState = 'found' | 'suggested' | 'unverified' | 'absent';
 
 export type ImportField = {
     value: string | null;
@@ -52,10 +58,10 @@ export type ImportField = {
 export type ImportDateField = {
     year: number | null;
     month: number | null;
-    state: 'found' | 'absent';
+    state: 'found' | 'unverified' | 'absent';
     support: string | null;
     page: number | null;
-    reason: null;
+    reason: string | null;
 };
 
 export type ImportSkill = {
@@ -114,6 +120,8 @@ export function fieldStateLabel(state: ImportFieldState): string {
             return 'Encontrado';
         case 'suggested':
             return 'Sugerencia';
+        case 'unverified':
+            return 'Sugerencia sin respaldo verificado';
         default:
             return 'No encontrado';
     }
@@ -121,6 +129,28 @@ export function fieldStateLabel(state: ImportFieldState): string {
 
 export function formatImportPage(page: number | null): string {
     return page === null ? 'Sin página localizada' : `Página ${page}`;
+}
+
+export function importPageOriginLabel(origin: ImportPageOrigin): string {
+    switch (origin) {
+        case 'ocr':
+            return 'OCR local';
+        case 'mixed':
+            return 'Mixto (nativo + OCR)';
+        default:
+            return 'Texto nativo';
+    }
+}
+
+export function importPageOriginShortLabel(origin: ImportPageOrigin): string {
+    switch (origin) {
+        case 'ocr':
+            return 'OCR';
+        case 'mixed':
+            return 'Mixto';
+        default:
+            return 'Nativo';
+    }
 }
 
 export function formatImportDate(date: ImportDateField): string {

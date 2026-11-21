@@ -23,6 +23,7 @@ import type {
     CertificationImportLimits,
     CertificationImportNotice,
 } from '@/lib/certification-import';
+import { importPageOriginShortLabel } from '@/lib/certification-import';
 import { formatBytes } from '@/lib/documents';
 import { SKILL_CATEGORY_LABELS } from '@/lib/skill-categories';
 
@@ -57,6 +58,19 @@ export default function CertificationImportPanel({
     const overPageLimit = flow.pages.some(
         (page) => page.text.length > limits.max_page_chars,
     );
+    const canRetryOcr =
+        flow.file !== null &&
+        !flow.fileInvalid &&
+        !flow.preparing &&
+        !flow.analyzing &&
+        [
+            'text_insufficient',
+            'ocr_unavailable',
+            'ocr_language_unavailable',
+            'ocr_failed',
+            'ocr_render_failed',
+            'ocr_timeout',
+        ].includes(flow.error?.code ?? '');
     const errorRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -95,7 +109,7 @@ export default function CertificationImportPanel({
                         </p>
                         <p className="mt-1 flex items-center gap-1">
                             <ShieldCheck aria-hidden="true" />
-                            El PDF no se envía.
+                            El PDF no se envía. OCR local.
                         </p>
                     </div>
                 </div>
@@ -168,7 +182,10 @@ export default function CertificationImportPanel({
                             >
                                 {flow.preparing ? (
                                     <>
-                                        <Spinner /> Preparando texto…
+                                        <Spinner />{' '}
+                                        {flow.preparingMode === 'ocr'
+                                            ? 'Procesando OCR local…'
+                                            : 'Preparando texto…'}
                                     </>
                                 ) : (
                                     <>
@@ -189,6 +206,11 @@ export default function CertificationImportPanel({
                         <span className="text-muted-foreground">
                             {formatBytes(flow.file.size)}
                         </span>
+                        {flow.preparingMode === 'ocr' ? (
+                            <span className="text-xs text-muted-foreground">
+                                El OCR se ejecuta localmente y puede tardar.
+                            </span>
+                        ) : null}
                     </div>
                 ) : null}
 
@@ -221,6 +243,19 @@ export default function CertificationImportPanel({
                                             disabled={disabled}
                                         >
                                             Seguir manualmente
+                                        </Button>
+                                    ) : null}
+                                    {canRetryOcr ? (
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() =>
+                                                void flow.prepare(true)
+                                            }
+                                            disabled={disabled}
+                                        >
+                                            Intentar OCR local
                                         </Button>
                                     ) : null}
                                     {flow.preparation ? (
@@ -260,9 +295,10 @@ export default function CertificationImportPanel({
                         <CheckCircle2 aria-hidden="true" />
                         <AlertTitle>Propuesta generada</AlertTitle>
                         <AlertDescription>
-                            Revisá cada valor, su soporte y las sugerencias
-                            antes de confirmar. La propuesta no modifica tus
-                            datos por sí sola.
+                            Los campos vacíos se completaron con la propuesta;
+                            tus datos escritos se conservan. Revisá valores,
+                            soportes y sugerencias antes de confirmar. Nada se
+                            guarda hasta la confirmación final.
                         </AlertDescription>
                     </Alert>
                 ) : null}
@@ -273,11 +309,24 @@ export default function CertificationImportPanel({
                             <Alert variant="destructive">
                                 <AlertCircle aria-hidden="true" />
                                 <AlertTitle>
-                                    El texto nativo no es suficiente
+                                    El texto disponible no es suficiente
                                 </AlertTitle>
                                 <AlertDescription className="space-y-2">
                                     <p>{flow.preparation.message}</p>
                                     <div className="flex flex-wrap gap-2">
+                                        {flow.file && !flow.fileInvalid ? (
+                                            <Button
+                                                type="button"
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={() =>
+                                                    void flow.prepare(true)
+                                                }
+                                                disabled={disabled}
+                                            >
+                                                Reintentar OCR local
+                                            </Button>
+                                        ) : null}
                                         <Button
                                             type="button"
                                             size="sm"
@@ -301,6 +350,16 @@ export default function CertificationImportPanel({
                                             Quitar PDF
                                         </Button>
                                     </div>
+                                </AlertDescription>
+                            </Alert>
+                        ) : null}
+
+                        {flow.preparation.ocr_warning ? (
+                            <Alert>
+                                <AlertCircle aria-hidden="true" />
+                                <AlertTitle>OCR local</AlertTitle>
+                                <AlertDescription>
+                                    {flow.preparation.ocr_warning}
                                 </AlertDescription>
                             </Alert>
                         ) : null}
@@ -422,7 +481,7 @@ export default function CertificationImportPanel({
                                             ? 'Contenido exacto que se envió'
                                             : canSend
                                               ? 'Contenido exacto que se enviará'
-                                              : 'Texto nativo extraído'}
+                                              : 'Texto extraído'}
                                     </p>
                                     <p className="text-xs text-muted-foreground">
                                         {flow.pages.length} página(s) ·{' '}
@@ -433,6 +492,11 @@ export default function CertificationImportPanel({
                                         {flow.preparation.redactions > 0
                                             ? ` · ${flow.preparation.redactions} coincidencia(s) de datos personales retiradas`
                                             : ''}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                        {flow.preparation.ocr_used
+                                            ? `OCR local: ${flow.preparation.ocr_languages.join('+')}`
+                                            : 'Extracción: texto nativo'}
                                     </p>
                                 </div>
                                 {canSend ? (
@@ -456,6 +520,10 @@ export default function CertificationImportPanel({
                                         >
                                             <summary className="cursor-pointer text-sm font-medium">
                                                 Página {page.page} ·{' '}
+                                                {importPageOriginShortLabel(
+                                                    page.origin,
+                                                )}{' '}
+                                                ·{' '}
                                                 {page.text.length.toLocaleString(
                                                     'es-AR',
                                                 )}{' '}
@@ -466,6 +534,10 @@ export default function CertificationImportPanel({
                                                     htmlFor={`import-page-${page.page}`}
                                                     className="text-xs text-muted-foreground"
                                                 >
+                                                    {page.origin === 'ocr' ||
+                                                    page.origin === 'mixed'
+                                                        ? 'Texto OCR local: revisalo con especial cuidado. '
+                                                        : ''}
                                                     Podés quitar líneas con
                                                     datos que no deban enviarse.
                                                 </Label>
@@ -510,7 +582,10 @@ export default function CertificationImportPanel({
                                     {flow.pages.map((page) => (
                                         <details key={page.page}>
                                             <summary className="cursor-pointer text-sm font-medium">
-                                                Página {page.page}
+                                                Página {page.page} ·{' '}
+                                                {importPageOriginShortLabel(
+                                                    page.origin,
+                                                )}
                                             </summary>
                                             <pre className="mt-2 max-h-48 overflow-auto text-xs whitespace-pre-wrap text-muted-foreground">
                                                 {page.text ||
@@ -580,13 +655,16 @@ export default function CertificationImportPanel({
                                                     de este texto a{' '}
                                                     {notice.destination} con{' '}
                                                     {notice.model_label} para
-                                                    este análisis.
+                                                    este análisis. El OCR, si se
+                                                    usó, se ejecutó localmente.
                                                 </Label>
                                                 <p className="text-xs text-muted-foreground">
                                                     Sin esta confirmación no se
                                                     envía nada. El análisis se
                                                     procesa fuera de esta
-                                                    aplicación y el
+                                                    aplicación; el texto OCR
+                                                    también se envía solo con
+                                                    esta autorización. El
                                                     consentimiento no confirma
                                                     el registro.
                                                 </p>

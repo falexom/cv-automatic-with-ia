@@ -55,6 +55,16 @@ return [
         'max_page_chars' => (int) env('CERTIFICATION_IMPORT_MAX_PAGE_CHARS', 20000),
     ],
 
+    'ocr' => [
+        'tesseract_binary' => env('TESSERACT_BINARY', 'tesseract'),
+        'pdftoppm_binary' => env('PDFTOPPM_BINARY', 'pdftoppm'),
+        'pdfimages_binary' => env('PDFIMAGES_BINARY', 'pdfimages'),
+        'languages' => env('OCR_LANGUAGES', 'spa+eng'),
+        'dpi' => (int) env('OCR_DPI', 300),
+        'render_timeout' => (int) env('OCR_RENDER_TIMEOUT', 60),
+        'timeout' => (int) env('OCR_TIMEOUT', 120),
+    ],
+
     'codex' => [
         'binary' => env('CODEX_BINARY', 'codex'),
         'node_binary' => env('CODEX_NODE_BINARY', 'node'),

@@ -40,8 +40,9 @@ export type CertificationImportFlow = {
     acceptedSkillIds: number[];
     totalChars: number;
     canAnalyze: boolean;
+    preparingMode: 'native' | 'ocr' | null;
     selectFile: (file: File | null) => void;
-    prepare: () => Promise<void>;
+    prepare: (forceOcr?: boolean) => Promise<void>;
     analyze: (
         existingCategory: string,
         existingSkillIds: number[],
@@ -90,6 +91,9 @@ export function useCertificationImport(
     const [analysis, setAnalysis] = useState<ImportAnalysis | null>(null);
     const [consent, setConsentState] = useState(false);
     const [preparing, setPreparing] = useState(false);
+    const [preparingMode, setPreparingMode] = useState<'native' | 'ocr' | null>(
+        null,
+    );
     const [analyzing, setAnalyzing] = useState(false);
     const [manualMode, setManualMode] = useState(false);
     const [error, setError] = useState<CertificationImportError | null>(null);
@@ -134,6 +138,7 @@ export function useCertificationImport(
         setAcceptedSkillIds([]);
         setManualMode(false);
         setPreparing(false);
+        setPreparingMode(null);
         setAnalyzing(false);
         setError(null);
     }, []);
@@ -197,82 +202,97 @@ export function useCertificationImport(
         ],
     );
 
-    const prepare = useCallback(async () => {
-        if (file === null || fileInvalid || preparingRef.current) {
-            return;
-        }
-
-        abortRequest();
-        preparingRef.current = true;
-        const controller = new AbortController();
-        abortRef.current = controller;
-        const generation = generationRef.current;
-
-        setPreparing(true);
-        setManualMode(false);
-        setError(null);
-
-        try {
-            const formData = new FormData();
-            formData.append('file', file);
-
-            const response = await postForm<ImportPreparation>(
-                '/certifications/import/prepare',
-                formData,
-                controller.signal,
-            );
-
-            if (generation !== generationRef.current) {
+    const prepare = useCallback(
+        async (forceOcr = false) => {
+            if (file === null || fileInvalid || preparingRef.current) {
                 return;
             }
 
-            setPreparation(response);
-            setPages(response.pages.map((page) => ({ ...page })));
+            abortRequest();
+            preparingRef.current = true;
+            const controller = new AbortController();
+            abortRef.current = controller;
+            const generation = generationRef.current;
+
+            setPreparing(true);
+            setPreparingMode(forceOcr ? 'ocr' : 'native');
+            setPreparation(null);
+            setPages([]);
             setAnalysis(null);
             setConsentState(false);
             setAcceptedCategory(false);
             setAcceptedSkillIds([]);
             setManualMode(false);
-            setFileInvalid(false);
-        } catch (caught) {
-            if (isAbortError(caught) || generation !== generationRef.current) {
-                return;
-            }
+            setError(null);
 
-            if (caught instanceof RequestError) {
-                const invalidFile =
-                    caught.code === 'pdf_invalid' ||
-                    caught.code === 'pdf_missing' ||
-                    Boolean(caught.errors?.file);
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('ocr', forceOcr ? '1' : '0');
 
-                setFileInvalid(invalidFile);
-                setError({
-                    message: caught.message,
-                    code: caught.code,
-                    errors: caught.errors,
-                });
-            } else {
-                setError({
-                    message:
-                        'No se pudo preparar el texto del PDF. No se guardó nada.',
-                });
-            }
+                const response = await postForm<ImportPreparation>(
+                    '/certifications/import/prepare',
+                    formData,
+                    controller.signal,
+                );
 
-            setPreparation(null);
-            setPages([]);
-            setAnalysis(null);
-            setConsentState(false);
-        } finally {
-            if (generation === generationRef.current) {
-                setPreparing(false);
-            }
+                if (generation !== generationRef.current) {
+                    return;
+                }
 
-            if (abortRef.current === controller) {
-                abortRef.current = null;
-                preparingRef.current = false;
+                setPreparation(response);
+                setPages(response.pages.map((page) => ({ ...page })));
+                setAnalysis(null);
+                setConsentState(false);
+                setAcceptedCategory(false);
+                setAcceptedSkillIds([]);
+                setManualMode(false);
+                setFileInvalid(false);
+            } catch (caught) {
+                if (
+                    isAbortError(caught) ||
+                    generation !== generationRef.current
+                ) {
+                    return;
+                }
+
+                if (caught instanceof RequestError) {
+                    const invalidFile =
+                        caught.code === 'pdf_invalid' ||
+                        caught.code === 'pdf_missing' ||
+                        Boolean(caught.errors?.file);
+
+                    setFileInvalid(invalidFile);
+                    setError({
+                        message: caught.message,
+                        code: caught.code,
+                        errors: caught.errors,
+                    });
+                } else {
+                    setError({
+                        message:
+                            'No se pudo preparar el texto del PDF. No se guardó nada.',
+                    });
+                }
+
+                setPreparation(null);
+                setPages([]);
+                setAnalysis(null);
+                setConsentState(false);
+            } finally {
+                if (generation === generationRef.current) {
+                    setPreparing(false);
+                }
+
+                if (abortRef.current === controller) {
+                    abortRef.current = null;
+                    preparingRef.current = false;
+                    setPreparingMode(null);
+                }
             }
-        }
-    }, [abortRequest, file, fileInvalid]);
+        },
+        [abortRequest, file, fileInvalid],
+    );
 
     const analyze = useCallback(
         async (existingCategory: string, existingSkillIds: number[]) => {
@@ -418,6 +438,7 @@ export function useCertificationImport(
         setAcceptedSkillIds([]);
         setManualMode(false);
         setPreparing(false);
+        setPreparingMode(null);
         setAnalyzing(false);
         setError(null);
     }, [abortRequest]);
@@ -434,6 +455,7 @@ export function useCertificationImport(
         setAcceptedSkillIds([]);
         setManualMode(true);
         setPreparing(false);
+        setPreparingMode(null);
         setAnalyzing(false);
         setError(null);
     }, [abortRequest]);
@@ -484,6 +506,7 @@ export function useCertificationImport(
         acceptedSkillIds,
         totalChars,
         canAnalyze,
+        preparingMode,
         selectFile,
         prepare,
         analyze,

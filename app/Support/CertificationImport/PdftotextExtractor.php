@@ -112,7 +112,9 @@ final class PdftotextExtractor implements PdfTextExtractor
     {
         $chunks = explode("\f", str_replace("\r\n", "\n", $output));
 
-        while (count($chunks) > 1 && trim((string) end($chunks)) === '') {
+        // pdftotext terminates each page with a form feed. Drop only the
+        // final separator so empty pages are preserved for OCR decisions.
+        if (count($chunks) > 1 && trim((string) end($chunks)) === '') {
             array_pop($chunks);
         }
 

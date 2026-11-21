@@ -232,7 +232,10 @@ final class CertificationImportWriter
         /** @var array<string, mixed> $category */
         $category = is_array($fields['category'] ?? null) ? $fields['category'] : [];
 
-        if (($category['state'] ?? null) === 'suggested' && is_string($category['value'] ?? null)) {
+        if (
+            in_array($category['state'] ?? null, ['suggested', 'unverified'], true)
+            && is_string($category['value'] ?? null)
+        ) {
             $submitted = $this->optionalString($data['category'] ?? null);
 
             if (

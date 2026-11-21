@@ -23,6 +23,7 @@ import {
 import type {
     CertificationImportLimits,
     CertificationImportNotice,
+    ImportField,
     ImportSkill,
 } from '@/lib/certification-import';
 import { postForm, RequestError } from '@/lib/http';
@@ -46,6 +47,8 @@ type ProposalField =
     | 'duration'
     | 'code'
     | 'validation_url';
+
+type PrefilledScalarField = ProposalField | 'category';
 
 type ImportConfirmResponse = {
     redirect?: string;
@@ -84,6 +87,14 @@ export default function CertificationForm({
     );
     const savingRef = useRef(false);
     const importFailureRef = useRef<HTMLDivElement | null>(null);
+    const prefilledAnalysisRef = useRef<string | null>(null);
+    const prefilledValuesRef = useRef<
+        Partial<Record<PrefilledScalarField, string>>
+    >({});
+    const prefilledDateRef = useRef<{
+        year: number | '';
+        month: number | '';
+    } | null>(null);
 
     const warning = localWarning ?? flashWarning;
 
@@ -130,6 +141,86 @@ export default function CertificationForm({
             });
         }
     }, [importFailure]);
+
+    useEffect(() => {
+        const analysis = importFlow.analysis;
+
+        if (!analysis) {
+            return;
+        }
+
+        if (prefilledAnalysisRef.current === analysis.confirmation_token) {
+            return;
+        }
+
+        prefilledAnalysisRef.current = analysis.confirmation_token;
+        const fields = analysis.proposal.fields;
+        const prefilled = prefilledValuesRef.current;
+
+        const isAutoOrEmpty = (
+            field: PrefilledScalarField,
+            current: string,
+        ): boolean => {
+            const previous = prefilled[field];
+
+            return (
+                current.trim() === '' ||
+                (previous !== undefined && current === previous)
+            );
+        };
+
+        const prefillField = (
+            field: PrefilledScalarField,
+            proposal: ImportField,
+        ) => {
+            const current = data[field];
+
+            if (!isAutoOrEmpty(field, current)) {
+                return;
+            }
+
+            if (proposal.state !== 'absent' && proposal.value !== null) {
+                setData(field, proposal.value);
+                prefilled[field] = proposal.value;
+
+                return;
+            }
+
+            if (current !== '') {
+                setData(field, '');
+                delete prefilled[field];
+            }
+        };
+
+        prefillField('name', fields.name);
+        prefillField('institution', fields.institution);
+        prefillField('duration', fields.duration);
+        prefillField('code', fields.code);
+        prefillField('validation_url', fields.validation_url);
+        prefillField('category', fields.category);
+
+        const previousDate = prefilledDateRef.current;
+        const dateIsAutoOrEmpty =
+            (data.date_year === '' && data.date_month === '') ||
+            (previousDate !== null &&
+                data.date_year === previousDate.year &&
+                data.date_month === previousDate.month);
+
+        if (dateIsAutoOrEmpty) {
+            if (fields.date.state !== 'absent' && fields.date.year !== null) {
+                setData('date_year', fields.date.year);
+                setData('date_month', fields.date.month ?? '');
+                prefilledDateRef.current = {
+                    year: fields.date.year,
+                    month: fields.date.month ?? '',
+                };
+            } else if (data.date_year !== '' || data.date_month !== '') {
+                setData('date_year', '');
+                setData('date_month', '');
+                prefilledDateRef.current = null;
+            }
+        }
+    }, [data, importFlow.analysis, setData]);
 
     const clearImportError = (field: string) => {
         setImportErrors((current) => {
@@ -436,11 +527,18 @@ export default function CertificationForm({
                             }}
                             originalUrl={importFlow.objectUrl}
                             acceptedCategory={importFlow.acceptedCategory}
+                            pageOrigins={Object.fromEntries(
+                                importFlow.pages.map((page) => [
+                                    page.page,
+                                    page.origin,
+                                ]),
+                            )}
                             onApplyField={applyField}
                             onApplyDate={applyDate}
                             onApplyCategory={applyCategory}
                             onAcceptCategory={acceptCategory}
                             onToggleSkill={toggleSkill}
+                            onRetryOcr={() => void importFlow.prepare(true)}
                             onDiscard={importFlow.discardProposal}
                             onCancel={() => {
                                 importFlow.cancel();
