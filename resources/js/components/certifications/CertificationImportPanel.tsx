@@ -116,11 +116,11 @@ export default function CertificationImportPanel({
             </CardHeader>
 
             <CardContent className="space-y-5">
-                <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-                    <div className="space-y-1.5">
-                        <Label htmlFor="import_file">
-                            Certificado PDF (opcional)
-                        </Label>
+                <div className="space-y-1.5">
+                    <Label htmlFor="import_file">
+                        Certificado PDF (opcional)
+                    </Label>
+                    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
                         <Input
                             key={flow.fileInputKey}
                             id="import_file"
@@ -134,67 +134,69 @@ export default function CertificationImportPanel({
                             }
                             aria-describedby="import-file-help"
                         />
-                        <p
-                            id="import-file-help"
-                            className="text-xs text-muted-foreground"
-                        >
-                            Un único PDF de hasta{' '}
-                            {Math.round(limits.max_kilobytes / 1024)} MB. Se
-                            conserva solo al confirmar; el PDF completo nunca se
-                            envía a la IA.
-                        </p>
-                    </div>
 
-                    <div className="flex flex-wrap gap-2">
-                        {flow.file && flow.objectUrl ? (
-                            <Button asChild variant="outline" size="sm">
-                                <a
-                                    href={flow.objectUrl}
-                                    target="_blank"
-                                    rel="noreferrer"
+                        <div className="flex flex-wrap gap-2">
+                            {flow.file && flow.objectUrl ? (
+                                <Button asChild variant="outline" size="sm">
+                                    <a
+                                        href={flow.objectUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                    >
+                                        <Eye /> Ver PDF original
+                                    </a>
+                                </Button>
+                            ) : null}
+                            {flow.file ? (
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => flow.selectFile(null)}
+                                    disabled={disabled}
                                 >
-                                    <Eye /> Ver PDF original
-                                </a>
-                            </Button>
-                        ) : null}
-                        {flow.file ? (
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => flow.selectFile(null)}
-                                disabled={disabled}
-                            >
-                                <Trash2 /> Quitar PDF
-                            </Button>
-                        ) : null}
-                        {flow.file && !flow.preparation && !analysisReady ? (
-                            <Button
-                                type="button"
-                                size="sm"
-                                onClick={() => void flow.prepare()}
-                                disabled={
-                                    disabled ||
-                                    flow.preparing ||
-                                    flow.analyzing ||
-                                    flow.fileInvalid
-                                }
-                            >
-                                {flow.preparing ? (
-                                    <>
-                                        <Spinner />{' '}
-                                        {flow.preparingMode === 'ocr'
-                                            ? 'Procesando OCR local…'
-                                            : 'Preparando texto…'}
-                                    </>
-                                ) : (
-                                    <>
-                                        <FileText /> Preparar texto
-                                    </>
-                                )}
-                            </Button>
-                        ) : null}
+                                    <Trash2 /> Quitar PDF
+                                </Button>
+                            ) : null}
+                            {flow.file &&
+                            !flow.preparation &&
+                            !analysisReady ? (
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    onClick={() => void flow.prepare()}
+                                    disabled={
+                                        disabled ||
+                                        flow.preparing ||
+                                        flow.analyzing ||
+                                        flow.fileInvalid
+                                    }
+                                >
+                                    {flow.preparing ? (
+                                        <>
+                                            <Spinner />{' '}
+                                            {flow.preparingMode === 'ocr'
+                                                ? 'Procesando OCR local…'
+                                                : 'Preparando texto…'}
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FileText /> Analizar PDF
+                                        </>
+                                    )}
+                                </Button>
+                            ) : null}
+                        </div>
                     </div>
+                    <p
+                        id="import-file-help"
+                        className="text-xs text-muted-foreground"
+                    >
+                        Un único PDF de hasta{' '}
+                        {Math.round(limits.max_kilobytes / 1024)} MB. Se
+                        conserva solo al confirmar; el PDF completo nunca se
+                        envía a la IA.
+                    </p>
                 </div>
 
                 {flow.file ? (

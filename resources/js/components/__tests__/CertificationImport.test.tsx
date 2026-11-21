@@ -192,7 +192,7 @@ describe('CertificationImportPanel', () => {
             },
         });
 
-        fireEvent.click(screen.getByRole('button', { name: /Preparar texto/ }));
+        fireEvent.click(screen.getByRole('button', { name: /Analizar PDF/ }));
 
         await waitFor(() => expect(postForm).toHaveBeenCalledTimes(1));
         await screen.findByText('Contenido exacto que se enviará');
@@ -250,7 +250,7 @@ describe('CertificationImportPanel', () => {
                 ],
             },
         });
-        fireEvent.click(screen.getByRole('button', { name: /Preparar texto/ }));
+        fireEvent.click(screen.getByRole('button', { name: /Analizar PDF/ }));
         await waitFor(() => expect(postForm).toHaveBeenCalledTimes(1));
         await screen.findByText('Contenido exacto que se enviará');
 

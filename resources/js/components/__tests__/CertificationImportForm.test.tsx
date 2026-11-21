@@ -193,7 +193,7 @@ describe('CertificationForm PDF import', () => {
                 ],
             },
         });
-        fireEvent.click(screen.getByRole('button', { name: /Preparar texto/ }));
+        fireEvent.click(screen.getByRole('button', { name: /Analizar PDF/ }));
         await screen.findByText('Contenido exacto que se enviará');
 
         fireEvent.click(
@@ -284,7 +284,7 @@ describe('CertificationForm PDF import', () => {
                 ],
             },
         });
-        fireEvent.click(screen.getByRole('button', { name: /Preparar texto/ }));
+        fireEvent.click(screen.getByRole('button', { name: /Analizar PDF/ }));
         await screen.findByText('Contenido exacto que se enviará');
 
         fireEvent.click(
