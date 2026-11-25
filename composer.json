@@ -51,7 +51,8 @@
             "@php artisan key:generate",
             "@php artisan migrate --force",
             "pnpm install --frozen-lockfile",
-            "pnpm run build:ssr"
+            "pnpm run build:ssr",
+            "@php artisan cv:pdf:chrome --warn-only"
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
@@ -62,6 +63,9 @@
         ],
         "lint:check": [
             "pint --parallel --test"
+        ],
+        "check:pdf": [
+            "@php artisan cv:pdf:chrome"
         ],
         "ci:check": [
             "Composer\\Config::disableProcessTimeout",

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Document;
+use App\Support\CvPdfChrome;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -33,29 +34,14 @@ function storedPdfContent(): string
  */
 function cvPdfChromePath(): string
 {
-    $configured = config('services.browsershot.chrome_path');
+    $resolution = app(CvPdfChrome::class)->resolve();
 
-    if (is_string($configured) && $configured !== '' && is_file($configured)) {
-        return $configured;
-    }
-
-    $home = getenv('HOME') ?: '';
-    $playwright = array_merge(
-        glob($home.'/Library/Caches/ms-playwright/chromium-*/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing') ?: [],
-        glob($home.'/Library/Caches/ms-playwright/chromium-*/chrome-mac/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing') ?: [],
-        glob($home.'/.cache/ms-playwright/chromium-*/chrome-linux64/chrome') ?: [],
-    );
-
-    rsort($playwright);
-
-    foreach (array_merge(['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'], $playwright) as $candidate) {
-        if (is_file($candidate)) {
-            return $candidate;
-        }
+    if ($resolution->isAvailable() && $resolution->path !== null) {
+        return $resolution->path;
     }
 
     throw new RuntimeException(
-        'Configurá BROWSERSHOT_CHROME_PATH con la ruta de Google Chrome/Chromium.',
+        $resolution->error ?? 'Configurá BROWSERSHOT_CHROME_PATH con la ruta de Google Chrome/Chromium.',
     );
 }
 

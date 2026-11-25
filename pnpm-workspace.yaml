@@ -6,6 +6,8 @@ publicHoistPattern:
 
 strictDepBuilds: true
 
+# Chrome no se descarga al instalar dependencias. La única instalación
+# admitida es explícita: pnpm exec puppeteer browsers install chrome.
 allowBuilds:
     fsevents: false
     puppeteer: false

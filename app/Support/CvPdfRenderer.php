@@ -12,6 +12,10 @@ use SplFileInfo;
 
 class CvPdfRenderer
 {
+    public function __construct(
+        private readonly ?CvPdfChrome $chrome = null,
+    ) {}
+
     /**
      * Render the self-contained print HTML for the preview payload.
      *
@@ -56,6 +60,14 @@ class CvPdfRenderer
         }
 
         try {
+            $chrome = ($this->chrome ?? app(CvPdfChrome::class))->resolve();
+
+            if (! $chrome->isAvailable() || $chrome->path === null) {
+                throw new RuntimeException(
+                    $chrome->error ?? 'No se encontró un Chrome completo para exportar el CV a PDF.',
+                );
+            }
+
             $browsershot = Browsershot::html($this->html($preview))
                 ->newHeadless()
                 ->format('A4')
@@ -74,11 +86,8 @@ class CvPdfRenderer
                 ->userDataDir($directory.'/chrome-profile')
                 ->timeout((int) config('services.browsershot.timeout', 30))
                 ->setNodeModulePath(base_path('node_modules'))
-                ->setCustomTempPath($directory);
-
-            if ($chromePath = $this->chromePath()) {
-                $browsershot->setChromePath($chromePath);
-            }
+                ->setCustomTempPath($directory)
+                ->setChromePath($chrome->path);
 
             return $browsershot->pdf();
         } finally {
@@ -112,41 +121,6 @@ CSS;
     </div>
 </div>
 HTML;
-    }
-
-    private function chromePath(): ?string
-    {
-        $configured = config('services.browsershot.chrome_path');
-
-        if (is_string($configured) && $configured !== '' && is_file($configured)) {
-            return $configured;
-        }
-
-        $home = getenv('HOME') ?: '';
-
-        $playwright = array_merge(
-            glob($home.'/Library/Caches/ms-playwright/chromium-*/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing') ?: [],
-            glob($home.'/Library/Caches/ms-playwright/chromium-*/chrome-mac/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing') ?: [],
-            glob($home.'/.cache/ms-playwright/chromium-*/chrome-linux64/chrome') ?: [],
-        );
-
-        rsort($playwright);
-
-        $candidates = array_merge([
-            '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-            '/Applications/Chromium.app/Contents/MacOS/Chromium',
-            '/usr/bin/google-chrome',
-            '/usr/bin/chromium',
-            '/usr/bin/chromium-browser',
-        ], $playwright);
-
-        foreach ($candidates as $candidate) {
-            if (is_file($candidate)) {
-                return $candidate;
-            }
-        }
-
-        return null;
     }
 
     /**

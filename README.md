@@ -16,6 +16,7 @@
 - PHP 8.3+ (recomendado 8.4) con extensión `pdo_sqlite`
 - Composer 2.x
 - Node.js 22+ y Corepack para activar pnpm **11.1.1** (versión fijada en `package.json`)
+- Chrome completo o Chromium en el equipo donde se ejecuta Laravel, solo para exportar el CV a PDF. No hace falta en los equipos que únicamente acceden a la aplicación desde su navegador.
 
 ## Puesta en marcha
 
@@ -44,6 +45,57 @@ pnpm run dev
 Abre `http://127.0.0.1:8000` (redirige a `/profile`). No configures `0.0.0.0`, un proxy público ni reenvío de puertos para esta aplicación monousuario.
 
 Comparte el proyecto mediante Git, publicando el código versionado. No distribuyas la carpeta de trabajo completa: la base SQLite, copias previas, documentos, fotografías, sesiones y credenciales locales no forman parte del proyecto compartible.
+
+## Chrome para exportar el CV a PDF
+
+Chrome/Chromium es una dependencia **del equipo que ejecuta Laravel**, sea la PC local o el servidor. Se usa únicamente para convertir a PDF la vista previa del CV normal. Las computadoras que solo abren la aplicación desde su navegador **no** necesitan instalar Chrome para descargar el PDF: la exportación ocurre en el equipo de Laravel.
+
+La aplicación no descarga navegadores durante el arranque, la validación ni la exportación. `pnpm install` tampoco ejecuta el instalador de Puppeteer: `pnpm-workspace.yaml` bloquea su build (`allowBuilds: puppeteer: false`) y `package.json` declara `puppeteer.skipDownload: true`. La única descarga admitida es el comando manual de la sección siguiente.
+
+### Verificar el navegador
+
+```bash
+php artisan cv:pdf:chrome
+# o
+composer check:pdf
+```
+
+El comando muestra la ruta y el origen del Chrome que Laravel usará, inicia el navegador y genera un PDF de prueba local sin datos del CV. Si no encuentra un navegador o no puede iniciarlo, termina con error y muestra las instrucciones para corregirlo. `composer setup` ejecuta la misma comprobación en modo de aviso, sin bloquear la instalación.
+
+La resolución reutiliza, en este orden:
+
+1. `BROWSERSHOT_CHROME_PATH`, si está definida y apunta a un ejecutable válido.
+2. El Chrome compatible que resuelve Puppeteer en su propia caché.
+3. Un Google Chrome o Chromium completo instalado en el sistema.
+4. Un Chrome for Testing que ya exista en la caché de Playwright.
+
+### Reutilizar un Chrome existente
+
+Si ya hay un Chrome completo instalado, apunta la aplicación a su ejecutable absoluto en `.env`:
+
+```dotenv
+BROWSERSHOT_CHROME_PATH="/ruta/absoluta/al/Chrome"
+```
+
+Después valida de nuevo con `php artisan cv:pdf:chrome`. No uses `chrome-headless-shell`: la exportación usa `newHeadless()` y necesita Chrome completo.
+
+### Instalar Chrome una sola vez
+
+Si no hay un navegador reutilizable, ejecuta explícitamente el instalador de Puppeteer desde la raíz del proyecto:
+
+```bash
+pnpm exec puppeteer browsers install chrome
+php artisan cv:pdf:chrome
+```
+
+Ese comando descarga el Chrome compatible con la versión de Puppeteer fijada por el proyecto. Es la única vía de descarga automatizada y requiere una decisión manual; no se ejecuta desde `composer setup`, la aplicación ni las pruebas. `puppeteer.skipDownload` solo bloquea las instalaciones implícitas: el comando explícito `install chrome` sigue disponible.
+
+### Cachés de Puppeteer y Playwright
+
+- **Puppeteer** guarda su navegador en `~/.cache/puppeteer` (macOS/Linux) o `%USERPROFILE%\.cache\puppeteer` (Windows). Es la caché que controla CV Automático: se consulta y, si hace falta, se instala solo con el comando manual anterior.
+- **Playwright** usa `~/Library/Caches/ms-playwright` en macOS y `~/.cache/ms-playwright` en Linux. Esa caché pertenece a Playwright: CV Automático solo reutiliza un Chrome completo que ya esté allí; no descarga, no actualiza y no borra sus navegadores.
+
+No borres ninguna de las dos cachés para “limpiar” la instalación. Si una ruta existente está rota, corrige `BROWSERSHOT_CHROME_PATH` o instala el Chrome de Puppeteer con el comando explícito.
 
 ## Pruebas
 
